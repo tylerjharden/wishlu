@@ -16,7 +16,8 @@
 @{
     Squid.Users.User promiser = Model.GetPromiser();
     Squid.Users.User to = Model.GetReceiver();
-    Squid.Wishes.Wish wish = Model.GetWish();         
+    Squid.Wishes.Wish wish = Model.GetWish();
+    Squid.Wishes.Wishlu wishlu = Squid.Wishes.Wishlu.GetWishLuById(wish.GetAssignmentId());     
 }
 <!DOCTYPE HTML>
 
@@ -29,7 +30,7 @@
 <br />
 
 <div class="col_12" style="border: 2px solid lightblue; background: white; border-radius: 15px; padding:10px;">
-   <span>@promiser.FullName has gifted an item from one of your wishlus. Once you have received this gift, please go to the item detail screen and confirm receipt, or click the button below.</span>
+   <span>@promiser.FullName has gifted an item from your @wishlu.Name wishlu. Once you have received this gift, please go to the item detail screen and confirm receipt, or click the button below.</span>
     <br />
     <br />
     <h5>@wish.Name</h5>

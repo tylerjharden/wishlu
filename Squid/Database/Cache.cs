@@ -1,6 +1,6 @@
 ﻿// NOTE: This code is outdated, was never working, and requires a new Memcached wrapper to function
 // NOTE: This code is being replaced with a Redis-based cache
-// TODO: Implement Redis cache
+// ENHANCEMENT: Implement Redis cache
 
 //using Enyim.Caching;
 //using Enyim.Caching.Memcached;

@@ -38,7 +38,7 @@ namespace Disco
             ValueProviderFactories.Factories.Remove(ValueProviderFactories.Factories.OfType<System.Web.Mvc.JsonValueProviderFactory>().FirstOrDefault());
             ValueProviderFactories.Factories.Add(new LargeJsonValueProviderFactory());
 
-            // TODO: This fixes an InvalidOperation exception everywhere that we use Html.AntiForgeryToken()
+            // BUG: This fixes an InvalidOperation exception everywhere that we use Html.AntiForgeryToken()
             // We need to integrate our login system with the default account/membership providers used by ASP.NET
             //AntiForgeryConfig.SuppressIdentityHeuristicChecks = true;         
             AntiForgeryConfig.SuppressXFrameOptionsHeader = true;
@@ -85,37 +85,7 @@ namespace Disco
             Context.User = principal;
 
             //Logger.Log("AuthenticateRequest - " + ticket.Name);            
-        }
-
-        // TODO: Cannot recreate session from auth ticket, remove wishlu's dependence on Session to validate authentication!
-         /*protected void Session_Start(object sender, EventArgs e)
-        {
-            try
-            {
-                if (Request.IsAuthenticated && Context.Session != null && Session["WUSID"] == null && Session["UID"] == null)
-                {
-                    Guid sessionId = Squid.Users.User.GetSessionId(((Squid.Users.UserPrincipal)Context.User).Identity.UserId);
-
-                    if (sessionId == Guid.Empty)
-                        return;
-
-                    Session["WUSID"] = sessionId;
-                    Session["UID"] = ((Squid.Users.UserPrincipal)Context.User).Identity.UserId;
-
-                    Session.Timeout = 1440;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log("Error occured while trying to rebuild session data for " + ((Squid.Users.UserPrincipal)Context.User).Identity.UserId + " Error: " + ex.ToString());
-            }
-        }*/
-
-        /*public void Application_BeginRequest()
-        {
-            if (Request.AppRelativeCurrentExecutionFilePath == "~/")
-                Context.RewritePath("/Home/Index");
-        }*/
+        }                
     }
 
     public class Startup

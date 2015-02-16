@@ -54,7 +54,5 @@ namespace Squid.Messages
 
             SendMessage(msg, scope);
         }
-
-        // TODO: Methods for sending other message types!
     }
 }

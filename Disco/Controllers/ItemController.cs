@@ -309,7 +309,7 @@ namespace Disco.Controllers
                 }
                 else if (model.ProductType == ProductType.etsy)
                 {
-                    // TODO: Implement Etsy product lookup and wish creation
+                    // ENHANCEMENT: Implement Etsy product lookup and wish creation
                     Squid.Wishes.Wish wish = new Squid.Wishes.Wish();
 
                     return Json(new { result = false, message = "Adding Etsy products has not yet been implemented, and will be enabled once finished." });
@@ -371,7 +371,7 @@ namespace Disco.Controllers
                         if (model.Wishlu != null && model.Wishlu != Guid.Empty)
                             wish.AssignToWishlu(model.Wishlu);
 
-                        // TODO: Post action to Facebook
+                        // ENHANCEMENT: Post action to Facebook
                         //Squid.Users.FacebookManager.Client.AccessToken = "296645670486904|KK_Jly0DUrHVxOXYaqOfQw_AT4A";
                         //Squid.Users.FacebookManager.Client.Post("/" + GetCurrentUser().FacebookPageId + "/wishlu:wish", new { wish = "http://www.wishlu.com/i/" + addWish.Id });
 
@@ -1332,7 +1332,7 @@ namespace Disco.Controllers
         public string SKU { get; set; }
 
         // Etsy Product
-        // TODO: Etsy API integration
+        // ENHANCEMENT: Etsy API integration
 
         // Custom Item
         public string Url { get; set; }                        

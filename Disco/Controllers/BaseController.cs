@@ -151,12 +151,7 @@ namespace Disco.Controllers
 					Logger.Log("Rebuilt empty session data for logged in user.");
 				}
 			}
-			else
-			{
-				// TODO: Proper redirect if un-authenticated
-				//Response.Redirect("/signin?returnurl=" + Url.Encode(Request.Url.ToString()));
-			}
-						
+			
 			base.OnActionExecuting(filterContext);
 		}
 

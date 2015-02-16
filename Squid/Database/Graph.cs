@@ -60,7 +60,7 @@ namespace Squid.Database
 
         static void client_OperationCompleted(object sender, OperationCompletedEventArgs e)
         {
-            Logger.Log("Graph Operation Completed\n" + e.QueryText + "\nResources Returned: " + e.ResourcesReturned + "\nTime: " + e.TimeTaken.Milliseconds + "ms");
+            //Logger.Log("Graph Operation Completed\n" + e.QueryText + "\nResources Returned: " + e.ResourcesReturned + "\nTime: " + e.TimeTaken.Milliseconds + "ms");
         }
     }
 }

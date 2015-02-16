@@ -133,7 +133,7 @@ namespace Squid.Wishes
         public string SKU { get; set; }
 
         // Etsy
-        // TODO: IsEtsy, Etsy Identifier
+        // ENHANCEMENT: IsEtsy, Etsy Identifier
 
         // =================== //
         // Internal Statistics //
@@ -629,7 +629,6 @@ namespace Squid.Wishes
         {
             try
             {
-                // TODO: Make this whole process multi-threaded!!!!
                 ImageUrl = Services.Imgur.Imgur.UploadImage(imageDataBytes);
                 this.Set("ImageUrl", ImageUrl);
 
@@ -759,11 +758,13 @@ namespace Squid.Wishes
 
             User promiser = promise.GetPromiser();
 
+            Wishlu wishlu = Wishlu.GetWishLuById(this.GetAssignmentId());
+
             Notification n = new Notification();
             n.UserId = this.UserId;
             n.SenderId = promiser.Id;
             n.NotificationType = NotificationType.Info;
-            n.Content = promiser.FullName + " has promised to give you " + this.Name + ". If you haven't received your gift yet, watch out for it!";
+            n.Content = promiser.FullName + " has gifted you " + this.Name + ". When you receive it, go to your " + wishlu.Name + " wishlu to confirm as received, or click this notification.";
             n.Url = "/i/" + this.Id;
             n.CreateNotification();
 

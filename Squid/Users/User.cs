@@ -1493,7 +1493,6 @@ namespace Squid.Users
         // Returns a list of the given user's inbox messages, sorted with newest first.
         public static List<Message> GetUsersMessages(Guid userId)
         {            
-            // TODO: Update to work with SignalR
             List<Message> messagesList = GetUsersInbox(userId).GetMessages();
             messagesList = messagesList.OrderBy(x => x.SendTime).Reverse().ToList();
 

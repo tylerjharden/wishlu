@@ -324,7 +324,7 @@
 					<fb:send href="http://www.wishlu.com/i/@(Model.Id)" colorscheme="light" style="vertical-align: top !important;"></fb:send>
 					<div class="g-plus" data-action="share" data-annotation="none" data-href="http://www.wishlu.com/i/@Model.Id"></div>
 					<a href="https://twitter.com/share" class="twitter-share-button" data-related="wishlu:The official Wishlu Twitter" data-via="wishlu" data-url="http://wishlu.com/i/@Model.Id" data-text="Check out my wish" data-lang="en" data-size="medium" data-count="none">Tweet</a>
-                    <a onclick="pinClicked(this.href); return false;" href="//www.pinterest.com/pin/create/button/?url=http://www.wishlu.com/i/@(Model.Id)&media=@Url.Encode(Model.ImageUrl)&description=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)" data-pin-do="buttonPin" data-pin-config="none" data-pin-color="red" style="vertical-align:top; background: url('http://assets.pinterest.com/images/pinit6.png');font: 11px Arial, sans-serif; text-indent: -9999em; font-size: .01em; color: #CD1F1F; height: 20px; width: 43px; background-position: 0 -7px;"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_20.png" style="vertical-align:top;" /></a>
+					<a onclick="pinClicked(this.href); return false;" href="//www.pinterest.com/pin/create/button/?url=http://www.wishlu.com/i/@(Model.Id)&media=@Url.Encode(Model.ImageUrl)&description=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)" data-pin-do="buttonPin" data-pin-config="none" data-pin-color="red" style="vertical-align:top; background: url('http://assets.pinterest.com/images/pinit6.png');font: 11px Arial, sans-serif; text-indent: -9999em; font-size: .01em; color: #CD1F1F; height: 20px; width: 43px; background-position: 0 -7px;"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_20.png" style="vertical-align:top;" /></a>
 					<a href="http://www.tumblr.com/share/photo?source=@Url.Encode(Model.ImageUrl)&caption=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)&clickthru=http://www.wishlu.com/i/@(Model.Id))" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url('http://platform.tumblr.com/v1/share_2.png') top left no-repeat transparent;">Share on Tumblr</a>
 				</div>
 			}
@@ -507,24 +507,23 @@
 												<span class="col_12 full center" style="font-size: 10pt;">Canceled</span>
 											</div>
 											<div class="col_3 center">
-												<i class="fa fa-3x fa-ban tooltip" data-delay="50" title="@promiser.FirstName promised this gift, but then canceled it." style="color: #b5919b;"></i>
+												<i class="fa fa-3x fa-ban tooltip" data-delay="50" title="@promiser.FirstName gifted this item, but then canceled it." style="color: #b5919b;"></i>
 											</div>
 											break;
 
 										case Squid.Wishes.PromiseStatus.Confirmed:
 										<div class="col_6 center">
-											<span class="col_12 full center nomargin"><b>@promiser.FullName</b></span>
+											<span class="col_12 full center nomargin"><b>Gifted by @promiser.FullName (confirmed)</b></span>
 											<span class="col_12 full center" style="font-size: 10pt;">Gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
 										</div>
 										<div class="col_3 center">
-											<i class="fa fa-3x fa-gift tooltip" data-delay="50" title="This gift has been confirmed as received." style="color: #79e0c3;"></i>
+											<i class="fa fa-3x fa-gift tooltip" data-delay="50" title="This item has been confirmed as received." style="color: #79e0c3;"></i>
 										</div>
 											break;
 
 										case Squid.Wishes.PromiseStatus.Promised:
 										<div class="col_6">
-											@p.GetPromiser().FullName
-											<span style="font-size: 10pt;">Promised</span>
+											<span class="col_12 full center nomargin"><b>Gifted by @promiser.FullName</b></span>
 										</div>
 										<div class="col_3">
 											<i class="fa fa-3x fa-refresh tooltip" data-delay="50" title="Promised" style="color: #79cae0;"></i>
@@ -534,7 +533,7 @@
 
 											case Squid.Wishes.PromiseStatus.Revealed:
 										<div class="col_6">
-												<span class="col_12 full center nomargin"><b>@promiser.FullName</b></span>
+												<span class="col_12 full center nomargin"><b>Gifted by @promiser.FullName</b></span>
 												<span class="col_12 full center">
 													Revealed: @p.RevealDate.ToString("M/dd/yy")
 												</span>

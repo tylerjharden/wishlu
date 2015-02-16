@@ -158,7 +158,6 @@ namespace Disco.Controllers
         [AllowAnonymous]
         public ActionResult PublicWishlus(Guid id)
         {
-            // TODO: Public wishlus for anonymous users viewing profile pages
             IEnumerable<Squid.Wishes.WishluWishes> model;
 
             model = Squid.Wishes.Wishlu.GetUsersPublicWishlusWishes(id);

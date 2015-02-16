@@ -60,7 +60,6 @@ namespace Squid.Messages
         public void PushMessage(Message msg)
         {
             Logger.Log("MessageScope:PushMessage() - Id: " + msg.Id);
-            // TODO: Notify receivers that the message has been sent
         }
 
         public Message GetMessage(Guid id)
