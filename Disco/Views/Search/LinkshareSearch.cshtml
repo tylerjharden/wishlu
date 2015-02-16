@@ -1,0 +1,31 @@
+﻿@model List<Disco.Controllers.LinkshareProduct>
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section title {
+    Rakuten Linkshare Search Test Page
+}
+
+<div>
+    <table>
+        <tr>
+            <th>Image</th>
+            <th>Price</th>
+            <th>Name</th>
+            <th>Merchant</th>
+            <th>Link</th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td><img src="@item.ImageUrl" /></td>
+                <td>@item.Price</td>
+                <td>@item.ProductName</td>
+                <td>@item.MerchantName</td>
+                <td><a href="@item.LinkUrl" target="_blank">Link</a></td>
+            </tr>
+        }
+    </table>
+
+</div>

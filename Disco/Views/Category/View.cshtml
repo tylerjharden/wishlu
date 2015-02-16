@@ -1,0 +1,182 @@
+﻿@using Disco.Common
+@model Milkshake.Category
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+    
+    Squid.Users.User currentUser = null;
+    if (UserId != null && UserId != Guid.Empty)
+    {
+        currentUser = Squid.Users.User.GetUserById(UserId);
+    }    
+}
+
+@section page {
+    @{this.Write("wishlu - " + Model.Name);}
+}
+
+@section title {
+    @if (Model.IsRootCategory)
+    {
+        <span id="headerlink"><a href="@Url.Action("index", "category")" style="color: #DED9D3; text-decoration: none;">categories</a></span>
+        <span class="fa fa-angle-right"></span>
+        <span>@Model.Name</span>
+    }
+    else
+    {
+        <span id="headerlink"><a href="@Url.Action("index", "category")" style="color: #DED9D3; text-decoration: none;">categories</a></span>
+        <span class="fa fa-angle-right"></span>
+        <span><a href="/c/@Model.ParentId" style="color: #DED9D3; text-decoration: none;">@Milkshake.Category.GetCategory(Model.ParentId).Name</a></span>
+        <span class="fa fa-angle-right"></span>
+        <span>@Model.Name</span>
+    }
+}
+
+@section actions {
+
+}
+
+@section meta
+{
+
+}
+
+@section styles {
+    <link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/jquery.rating.css" />
+}
+
+@section scripts {
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.unobtrusive-ajax.js"></script>
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.rating.js"></script>
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.autosize.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#products_container").on("click", ".product_save", function () {
+                var sel = $(this);
+                sel.addClass("disabled");
+                sel.text("saving...");
+
+                var product = {};
+
+                var product_type = sel.data("product-type");
+
+                if (product_type === "milkshake") {
+                    product.Id = sel.data("id");
+                    product.ProductType = "milkshake";
+                }
+                else if (product_type === "amazon") {
+                    product.ASIN = sel.data("asin");
+                    product.ProductType = "amazon";
+                }
+                else if (product_type === "bby") {
+                    product.SKU = sel.data("sku");
+                    product.ProductType = "bestbuy";
+                }
+                else {
+                    swal("Uh oh...", "The product you are attempting to save has invalid product data.");
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/item/add",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(product),
+                    success: function (data) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            sel.text("saved");
+                            //History.pushState(null, 'saved', '?state=saved');
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                            sel.removeClass("disabled");
+                            sel.text("save");
+                        }
+                    },
+                    error: function (data) {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                });
+            });
+
+            $.get("/get/subcategories/@Model.Id", null, function (result) {
+                $("#subcategories_container").html(result);
+
+                $(".category").bind("click", function () {
+                    var catid = $(this).data("id");
+
+                    window.location = "/c/" + catid;
+                });
+            });
+            $.get("/get/categoryproducts/@Model.Id", null, function (result) {
+                // Append Results
+                $("#products_container").html(result);
+                $("#products > .loading").hide();
+                //gettingProducts = false;
+
+                if ($(".product").length == 0) {
+                    $("#products").remove();
+                }
+                else {
+                    // Tooltips
+                    $('.tooltip, .tooltip-top, .tooltip-bottom, .tooltip-right, .tooltip-left', '#products_container').each(function () {
+                        // variables
+                        var tpos = 'top';
+                        var content = $(this).attr('title');
+                        var dataContent = $(this).attr('data-content');
+                        var keepAlive = false;
+                        var action = 'hover';
+                        var delay = $(this).attr('data-delay');
+                        if (delay === undefined) { delay = 1000; }
+
+                        // position
+                        if ($(this).hasClass('tooltip-top')) { tpos = 'top'; }
+                        if ($(this).hasClass('tooltip-right')) { tpos = 'right'; }
+                        if ($(this).hasClass('tooltip-bottom')) { tpos = 'bottom'; }
+                        if ($(this).hasClass('tooltip-left')) { tpos = 'left'; }
+
+                        // content
+                        $('.tooltip-content').removeClass('hide').wrap('<div class="hide"></div>');
+                        if (dataContent) { content = $(dataContent).html(); keepAlive = true; }
+
+                        // action (hover or click) defaults to hover
+                        if ($(this).attr('data-action') == 'click') { action = 'click'; }
+
+                        // tooltip
+                        $(this).attr('title', '')
+                        .tipTip({ defaultPosition: tpos, content: content, keepAlive: keepAlive, activation: action, delay: delay });
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+<div class="grid" style="position: relative; padding: 0;">
+    @if (Model.HasSubcategories())
+    {
+        <!-- Subcategories -->
+        <div class="col_12 nomargin full">
+            <div class="col_12 wishLuList pop" style="color: #a8a096; background-color: white; border-color: gray;">
+                <!-- Subcategories -->
+                <h5 style="margin-left: 10px; font-weight: 300;"><a href="/category/subcategories/@Model.Id">subcategories</a>:</h5>
+                <div id="subcategories_container" class="col_12 nomargin center">
+                    <i class="fa fa-spin fa-spinner fa-5x" style="margin-top: 20px; color:gray;"></i>
+                </div>
+            </div>
+        </div>
+    }
+    
+    <!-- Products -->
+    <div id="products" class="col_12 pop" style="border: 2px solid lightblue; border-radius: 15px; background:white;">
+        <h5 id="products_tab" style="margin-left: 10px; color: #a8a096;"><a href="/category/products/@Model.Id">products</a>:</h5>
+        <div class="col_12" id="products_container">
+
+        </div>
+        <div class="col_12 center loading" style="color: gray;">
+            <i class="fa fa-spinner fa-spin fa-5x"></i>
+        </div>
+    </div>    
+</div>

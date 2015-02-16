@@ -1,0 +1,146 @@
+﻿@model Squid.Users.User
+@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section page {
+    wishlu - blocking
+}
+
+@section title {
+    my account <i class="fa fa-angle-right" style="margin-left: 5px; margin-right: 5px;"></i> blocking
+}
+
+@section scripts {
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#block_do").click(function () {
+            var button = $(this);
+            button.html("<i class='fa fa-spinner fa-spin'></i>");
+            $.post("/user/block?email=" + encodeURIComponent($("#block_email").val()), null, function (data) {
+                button.html("block");
+                if (data.result === true) {
+                    $("#block_users").append('<div class="col_12 blocked_user"><div class="col_10">' + data.name + '</div><div class="col_2"><a class="button pop unblock_user" data-id="' + data.id + '">unblock</a></div></div>');
+                }
+                else {
+                    swal("Uh oh...", data.message, "error");
+                }
+            });
+        });
+
+        $(".unblock_user").on("click", function () {
+            var button = $(this);
+            button.html("<i class='fa fa-spinner fa-spin'></i>");
+            $.post("/user/unblock?id=" + encodeURIComponent(button.data("id")), null, function (data) {
+                if (data.result === true) {
+                    button.parents(".blocked_user").remove();
+                }
+                else {
+                    button.html("unblock");
+                    swal("Uh oh...", data.message, "error");
+                }
+            });
+        });
+    });
+</script>
+}
+
+<div class="col_2 nomargin">
+    <ul class="menu vertical" style="z-index: 100; font-size: 12pt;">
+        <li>
+            <a href="/user/index">
+                <i class="fa fa-fw fa-2x fa-cogs"></i>
+                general
+            </a>            
+        </li>
+        @*<li>
+            <a href="/user/security">
+                <i class="fa fa-fw fa-2x fa-shield" style="color: gold;"></i>
+                security
+            </a>
+        </li>*@        
+        <li>
+            <a href="/user/privacy">
+                <i class="fa fa-fw fa-2x fa-lock" style="color: gold;"></i>
+                privacy
+            </a>
+        </li>
+        <li class="current">
+            <a href="/user/blocking">
+                <i class="fa fa-fw fa-2x fa-minus-circle"></i>
+                blocking
+            </a>
+        </li>
+
+        <li>
+            <a href="/user/notifications">
+                <i class="fa fa-fw fa-2x fa-globe" style="color: deepskyblue;"></i>
+                notifications
+            </a>        
+        </li>
+        <li>
+            <a href="/user/mobile">
+                <i class="fa fa-fw fa-2x fa-mobile"></i>
+                mobile
+            </a>
+        </li>
+
+        <li>
+            <a href="/user/findfriends">
+                <i class="fa fa-fw fa-2x fa-users"></i>
+                find friends
+            </a>        
+        </li>
+        <li>
+            <a href="/user/social">
+                <i class="fa fa-fw fa-2x fa-cubes"></i>
+                social
+            </a>
+        </li>
+        @*<li>
+            <a href="/user/payments">
+                <i class="fa fa-fw fa-2x fa-credit-card"></i>
+                payments
+            </a>
+        </li>  *@      
+    </ul>
+</div>
+                
+<div class="col_10 pop" style="float: right; margin-top: 0; margin-right: 0; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
+    <div class="col_12">
+        <h5>manage blocking</h5>
+        <div class="col_6">
+            <h6>block a user</h6>
+            <div class="col_12">
+                <div class="col_10">
+                    <input type="text" class="input-like input-small full" id="block_email" placeholder="add email or username" />
+                </div>
+                <div class="col_2">
+                    <a class="button pop" style="padding: 6px;" id="block_do">
+                        block
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col_6">
+            <h6>who do i have blocked?</h6>
+            <div class="col_12" id="block_users" style="max-height: 320px;">
+                @foreach (Squid.Users.User user in Squid.Users.User.GetBlockedUsers(UserId))
+                {
+                    <div class="col_12 blocked_user full">
+                        <div class="col_10">
+                            @user.FullName
+                        </div>
+                        <div class="col_2">
+                            <a class="button pop unblock_user" data-id="@user.Id" style="padding: 5px;">
+                                unblock
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>

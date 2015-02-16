@@ -1,0 +1,67 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section page {
+    wishlu - send message
+}
+
+@section title {
+    send message
+}
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $("#send").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/inbox/sendmessage",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(getMessage()),
+                    success: function (result, status, request) {
+                        if (result == true) {
+                            swal("Success!", "Your message to " + $("#to > :selected").text() + " has been sent.", "success");
+                            $("#to").val("");
+                            $("#subject").val("");
+                            $("#body").val("");
+                        }
+                        else {
+                            swal("Uh oh...", "We were unable to send your message. Please try again later.", "error");
+                        }
+                    },
+                    error: function (error) { alert(error); }
+                });
+            });
+
+            function getMessage() {
+                var msg = {}
+                msg.To = $("#to").val();
+                msg.Subject = $("#subject").val();
+                msg.Body = $("#body").val();
+                return msg;
+            }
+        });        
+    </script>
+}
+
+@section actions {
+    <a class="button pop" href="#" id="send">send</a>
+}
+
+<p>To:</p>
+<select name="to" id="to" class="full small-input input-like">
+    @foreach (Squid.Users.User user in Squid.Users.User.GetUsersFriends(UserId).OrderBy(x => x.FullName))
+        {
+            <option value="@(user.Id)">@(user.FullName)&nbsp;</option>
+        }
+    <option value="@Guid.Empty" selected="selected">(None)</option>
+</select>
+            
+<p>Subject:</p><input class="full small-input" type="text" name="subject" id="subject" value="" />
+<br />
+<p>Body:</p>
+<textarea class="full" name="body" id="body"></textarea>

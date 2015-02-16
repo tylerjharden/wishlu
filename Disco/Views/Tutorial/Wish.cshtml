@@ -1,0 +1,297 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";    
+}
+
+@functions {
+    public class Styles
+    {
+        public static IHtmlString Render(string cssfile)
+        {
+            return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
+        }
+    }
+
+    public class Scripts
+    {
+        public static IHtmlString Render(string jsfile)
+        {
+            return new HtmlString("<script src=\"" + jsfile + "\"></script>");
+        }
+    }
+}
+
+@section styles {
+@Styles.Render("//assets.wishlu.com/css/themes/base/all.css")
+
+<style>
+#DoPopup
+{
+    position: relative;
+    z-index: 200;
+    line-height: normal;    
+    height: auto;
+    min-height: 320px;
+    width: 100%;
+    min-width: 320px;    
+    max-width: 1240px;
+    display: none;
+    margin: 100px auto;
+    padding: 10px;
+    color: #918b7d;
+    font-family: Lato, Helvetica, Arial, Sans-Serif;
+    background: white;    
+    border: 5px solid #D3EEF2;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    border-radius: 15px;    
+    overflow: visible;   
+}
+</style>
+}
+
+@section page {
+    tutorial (step 2) - wishlu
+}
+
+@section scripts {
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery-ui.min-1.11.1.js"></script>
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery.validate.js"></script>
+
+<script type="text/javascript">
+    var wish_count = 0;
+
+    $(document).ready(function () {        
+        $("#DoPopup").waitForImages(function () {                                    
+            $(this).fadeIn();
+        });
+
+        //$("#WishQuantity").spinner({
+        //    spin: function (event, ui) {
+        //        if (ui.value < 0) {
+        //            $(this).spinner("value", 0);
+        //            return false;
+        //        }
+        //    }
+        //});    
+                
+        $("#product_results").on("click", ".product_save", function () {
+            var sel = $(this);
+            sel.addClass("disabled");
+            sel.text("saving...");
+
+            var product = {};
+
+            var product_type = sel.data("product-type");
+
+            if (product_type === "milkshake") {
+                product.Id = sel.data("id");
+                product.ProductType = "milkshake";
+            }
+            else if (product_type === "amazon") {
+                product.ASIN = sel.data("asin");
+                product.ProductType = "amazon";
+            }
+            else if (product_type === "bby") {
+                product.SKU = sel.data("sku");
+                product.ProductType = "bestbuy";
+            }
+            else {
+                swal("Uh oh...", "The product you are attempting to save has invalid product data.");
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/item/add",
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                traditional: true,
+                data: JSON.stringify(product),
+                success: function (data) {
+                    if (data.result == true) {
+                        wish_count = wish_count + 1;
+                        if (wish_count == 1) {
+                            swal({
+                                title: "Success!", 
+                                text: "You've added your first item to wishlu. You can now continue with the tutorial, or continue to add more items.",
+                                type: "success",
+                                showCancelButton: true,
+                                confirmButtonText: "Continue the tutorial.",
+                                cancelButtonText: "Not yet, let's add more items."
+                            },
+                            function (isConfirm) {
+                                if (isConfirm) {
+                                    location.href = "/tutorial/invite";
+                                }
+                                else {
+                                    $("#tutorial_continue_container").fadeIn();
+                                }
+                            });
+                            sel.text("saved");                            
+                        }
+                        else {
+                            swal({
+                                title: "Success!",
+                                text: "You've added an additional item to wishlu. You may add more items, or continue with the tutorial when you're ready.",
+                                type: "success",
+                                showCancelButton: true,
+                                confirmButtonText: "Continue the tutorial.",
+                                cancelButtonText: "Not yet, let's add more items."
+                            },
+                            function (isConfirm) {
+                                if (isConfirm) {
+                                    location.href = "/tutorial/invite";
+                                }
+                                else {
+                                    $("#tutorial_continue_container").fadeIn();
+                                }
+                            });
+                            sel.text("saved");
+                        }                        
+                    }
+                    else {
+                        swal("Uh oh...", data.message, "error");
+                        sel.removeClass("disabled");
+                        sel.text("save");
+                    }
+                },
+                error: function (data) {
+                    swal("Uh oh...", data.message, "error");
+                }
+            });
+        });
+    });        
+</script>
+
+<script type="text/javascript">    
+    var searchRequest;
+        
+    function doSearch() {
+        query = $('#tokens').val()
+        if (query != "") {
+            $(".findonline").show();
+            $("#loadingProducts").show();
+            
+            searchRequest = $.get("/get/products?query=" + query, null, function (result) {
+                // Append Results
+                $("#product_results").html(result);
+                $(".product_view").hide();
+                $("#loadingProducts").hide();
+            });
+        }
+    }
+
+    function cancelSearch() {
+        if (searchRequest != null) {
+            searchRequest.abort();
+            $("#product_results").html("");
+            $("#loadingProducts").hide();
+            $(".findonline").hide();            
+        }
+    }
+</script>
+
+<script>
+    var page = 1;
+    var searchquery = "";
+
+    $(document).ready(function () {
+        var SCROLL_BUFFER = 800;
+
+        var lastScroll = $(window).scrollTop();
+
+        var gettingProducts = false;
+
+        $(window).scroll(function (data) {
+            var newScroll = $(window).scrollTop();
+            var delta = newScroll - lastScroll;
+            lastScroll = newScroll;
+            var scrollHeight = $(document).height();
+            var maxScroll = scrollHeight - $(window).height();
+
+            if (delta > 0 && maxScroll - newScroll < SCROLL_BUFFER && !gettingProducts) {                
+                gettingProducts = true;
+                $("#loadingProducts").show();
+
+                searchRequest = $.get("/get/products?query=" + encodeURIComponent($('#tokens').val()) + "&page=" + page, null, function (result) {
+                    $("#product_results").append(result);
+                    $(".product_view").hide();
+                    $("#loadingProducts").hide();
+                    
+                    page = page + 1;
+
+                    gettingProducts = false;
+                });
+            }
+        });
+    });
+</script>
+
+<script>
+    // Keys "enum"
+    var KEY = {
+        BACKSPACE: 8,
+        TAB: 9,
+        ENTER: 13,
+        ESCAPE: 27,
+        SPACE: 32,
+        PAGE_UP: 33,
+        PAGE_DOWN: 34,
+        END: 35,
+        HOME: 36,
+        LEFT: 37,
+        UP: 38,
+        RIGHT: 39,
+        DOWN: 40,
+        NUMPAD_ENTER: 108,
+        COMMA: 188
+    };
+
+    $(document).ready(function () {
+        $("#tokens").keydown(function (event) {
+            switch (event.keyCode) {
+                case KEY.TAB:
+                case KEY.ENTER:                
+                case KEY.NUMPAD_ENTER:                    
+                    cancelSearch();
+                    doSearch();
+                    break;
+
+                case KEY.BACKSPACE:
+                    cancelSearch();
+                    break;
+            }
+        });
+        $("#tokens").bind("paste", function () {           
+            cancelSearch();
+            doSearch();
+        });
+        $("#item_search").click(function () {            
+            cancelSearch();
+            doSearch();
+        })
+    });
+</script>
+}
+
+<div id="DoPopup" class="pop inset">
+    <h5 id="titleHeader">step 2: find &amp; add an item to your new wishlu</h5>
+    <a class="right" style="position: absolute; top: 10px; right: 15px;" href="@Url.Action("skip","tutorial")">
+        skip
+    </a>
+    <div class="col_12 full center" id="hunt">
+        <input id="tokens" name="tokens" class="large-input" style="width: 80%; border-top-right-radius: 0; border-bottom-right-radius: 0;" placeholder="search for something you want" />
+        <a class="button" id="item_search" style="border-top-left-radius: 0; border-bottom-left-radius: 0; height: 55px;" onclick="$('.findonline').show(); doSearch();"><i class="fa fa-2x fa-search"></i></a>
+    </div>
+    
+    <div class="findonline full center clearfix" style="display: none; color: Gray" id="findonline">
+        <div id="tutorial_continue_container" class="col_12 full center" style="display: none;">
+            <a class="button pop" id="tutorial_continue" href="/tutorial/invite">continue</a>
+        </div>
+        <div id="product_results" style="padding: 20px; overflow: visible;">
+
+        </div>
+        <div id="loadingProducts" class="col_12 center" style="display: none; margin-top: 10px; margin-bottom: 10px;">
+            <i class="fa fa-spin fa-spinner fa-5x"></i>
+        </div>
+    </div>
+</div>

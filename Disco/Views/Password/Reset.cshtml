@@ -1,0 +1,85 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";
+    
+    if (ViewBag.UserID == null || ViewBag.Token == null)
+    {
+        this.Response.Redirect("/signin");        
+    }    
+}
+
+@section styles {
+<style>
+    #PasswordPopup {
+        position: relative;
+        z-index: 200;
+        line-height: normal;
+        height: auto;
+        min-height: 320px;
+        width: 100%;
+        min-width: 320px;
+        max-width: 1240px;
+        display: none;
+        margin: 100px auto;
+        padding: 10px;
+        color: #918b7d;
+        font-family: Lato, Helvetica, Arial, Sans-Serif;
+        background: white;
+        border: 5px solid #D3EEF2;        
+        border-radius: 15px;
+        overflow: visible;
+    }
+</style>
+}
+
+@section scripts {
+
+    <script type="text/javascript">        
+        $(document).ready(function () {            
+            $("#PasswordPopup").waitForImages(function () {                
+                $(this).fadeIn();
+            });
+        });
+                                
+        $(document).ready(function () {
+            $("#password_reset").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/password/reset",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ UserId: $("#userid").val(), Token: $("#token").val(), Password: $("#password").val(), PasswordRepeat: $("#password_repeat").val() }),
+                    success: function (data) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            setTimeout(function () { location.href = "/signin"; }, 4000);                            
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data) {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                });
+            });
+        });    
+        </script>    
+}
+
+<div id="PasswordPopup" class="pop inset center">
+    <h1>change password</h1>    
+    <div class="grid" style="color: Gray">        
+        <input type="hidden" id="userid" value="@ViewBag.UserID"/>
+        <input type="hidden" id="token" value="@ViewBag.Token" />                                
+        
+        <div class="col_12">
+            @Html.Password("newpassword", "", new { @id = "password", @class = "large-input", placeholder = "create a password" })<br />
+            <span style="font-size: 0.7em;">Your password is case sensitive and must be a minimum of 6 characters.</span>
+        </div>
+        <div class="col_12">@Html.Password("newpasswordrepeat", "", new { @id = "password_repeat", @class = "large-input", placeholder = "enter password again" })<br /></div>
+        <div class="center">
+            <a class="button large pop" id="password_reset">reset</a>            
+        </div>            
+    </div>    
+</div>

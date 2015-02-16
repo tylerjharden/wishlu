@@ -1,0 +1,39 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+}
+
+@section page {
+    stores sitemap - wishlu
+}
+
+@section title {
+    sitemap - stores
+}
+
+<div class="col_12">
+    <div id="shopslist" class="center clearfix full" style="color: gray;">
+        @foreach (Milkshake.Store store in Store.GetStores().Where(x => Milkshake.Search.StoreIdCount(x.Id) > 0))
+        {
+            <a href="/s/@store.Id">
+                <div id="tile_@store.Id" data-id="@store.Id" data-fbid="@store.FacebookId" class="col_2 wishLuList center shoptile shop" style="display: inline-block; float: none; padding-top: 5px; width: 200px; height: 200px; background: white; cursor: pointer;">
+                    <h6 style="margin: 0;">
+                        <span class="tileheader lowercase" style="font-size: 10pt;">@store.Name</span>
+                        @if (store.IsVerified)
+                        {
+                            <span class="fa-stack" style="display: inline-block; font-size: 8pt;">
+                                <i class="fa fa-circle fa-stack-2x" style="color: #95D5E1;"></i>
+                                <i class="fa fa-check fa-stack-1x" style="color: white;"></i>
+                            </span>
+                        }
+                        @if (store.IsFeatured)
+                        {
+                            <span class="fa fa-star" style="position: absolute; top: 5px; right: 5px; font-size: 10pt; color: gold;"></span>
+                        }
+                    </h6>
+                    <hr style="margin-top: 10px; margin-bottom: 10px;" />
+                    <div style="display: inline-block; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/stores/@store.Logo'); width: 100px; height: 100px;">&nbsp;</div>
+                </div>
+            </a>            
+        }
+    </div>
+</div>

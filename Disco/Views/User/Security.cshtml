@@ -1,0 +1,120 @@
+﻿@model Squid.Users.User
+@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section page {
+    wishlu - security
+}
+
+@section title {
+    my account <i class="fa fa-angle-right" style="margin-left: 5px; margin-right: 5px;"></i> security
+}
+
+@section scripts {
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        $('form.validate').each(function () {
+            $(this).validate();
+            $(this).on("submit", function () {
+                if ($(this).valid()) {
+                    form.submit();
+                }
+                return false;
+            });
+        });                
+    });
+</script>
+}
+
+<div class="col_2 nomargin">
+    <ul class="menu vertical" style="z-index: 100; font-size: 12pt;">
+        <li>
+            <a href="/user/index">
+                <i class="fa fa-fw fa-2x fa-cogs"></i>
+                general
+            </a>            
+        </li>
+        <li class="current">
+            <a href="/user/security">
+                <i class="fa fa-fw fa-2x fa-shield"></i>
+                security
+            </a>
+        </li>
+        
+        <li>
+            <a href="/user/privacy">
+                <i class="fa fa-fw fa-2x fa-lock" style="color: gold;"></i>
+                privacy
+            </a>        
+        </li>
+        <li>
+            <a href="/user/blocking">
+                <i class="fa fa-fw fa-2x fa-minus-circle" style="color: indianred;"></i>
+                blocking
+            </a>        
+        </li>
+
+        <li>
+            <a href="/user/notifications">
+                <i class="fa fa-fw fa-2x fa-globe" style="color: deepskyblue;"></i>
+                notifications
+            </a>        
+        </li>
+        <li>
+            <a href="/user/mobile">
+                <i class="fa fa-fw fa-2x fa-mobile"></i>
+                mobile
+            </a>
+        </li>
+
+        <li>
+            <a href="/user/findfriends">
+                <i class="fa fa-fw fa-2x fa-users"></i>
+                find friends
+            </a>        
+        </li>
+        <li>
+            <a href="/user/social">
+                <i class="fa fa-fw fa-2x fa-cubes"></i>
+                social
+            </a>
+        </li>
+        <li>
+            <a href="/user/payments">
+                <i class="fa fa-fw fa-2x fa-credit-card"></i>
+                payments
+            </a>
+        </li>        
+    </ul>
+</div>
+                
+<div class="col_10">
+    @using (Html.BeginForm("UpdateSettings", "User", new { @id = "joinForm" }, FormMethod.Post, new { @class = "joinForm required-form" }))
+    {
+        <div class="grid" style="color: Gray">
+            <div class="col_12">
+                <span class="col_4">name</span>
+                <span class="col_4" style="padding: 0;">@Html.TextBox("joinFirstName", Session["FirstName"], new { @id = "joinFirstName", @class = "full small-input", placeholder = "first name" })</span>
+                <span class="col_4" style="padding: 0;">@Html.TextBox("joinLastName", Session["LastName"], new { @id = "joinLastName", @class = "full small-input", placeholder = "last name" })</span>
+                <span class="col_4">email</span>
+                <div class="col_8">
+                    @Html.TextBox("joinEMail", Session["Email"], new { @id = "joinEmail", @class = "full small-input", placeholder = "enter email address" })<br />
+                    <span style="float: left; padding: 0px; font-size: 0.7em;"></span>
+                </div>
+                <span class="col_4">password</span>
+                <div class="col_8">
+                    <a class="button pop full" href="#">change password</a>
+                    <div style="display: none;">                        
+                        @Html.Password("joinPassword", "", new { @id = "joinPassword", @class = "full small-input", placeholder = "enter new password" })<br />
+                        <div class="col_12">@Html.Password("joinPasswordrepeat", "", new { @id = "joinPasswordrepeat", @class = "full small-input", placeholder = "confirm new password" })<br /></div>
+                        <span class="instructions">Your password is case sensitive and must be a minimum of 6 characters.</span>
+                    </div>                    
+                </div>                                
+                <div class="col_12" style="text-align: center;"><input class="button pop" type="submit" value="save" /></div>
+                <div class="col_12"><div id="formError" style="font-size: 0.7em;"></div></div>
+            </div>
+        </div>
+    }
+</div>

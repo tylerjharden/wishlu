@@ -1,0 +1,385 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section title {
+    scroll
+}
+
+@section styles {
+<link rel="stylesheet" type="text/css" href="/Content/jqdialog.css" />
+}
+
+@section scripts {
+<script type="text/javascript" src="/Scripts/jqdialog.min.js"></script>
+<script type="text/javascript" src="/Scripts/jquery.autosize.min.js"></script>
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        $('form.validate').each(function () {
+            $(this).validate();
+            $(this).on("submit", function () {
+                if ($(this).valid()) {
+                    form.submit();
+                }
+                return false;
+            });
+        });        
+    });
+</script>
+
+<script type="text/javascript">
+    var sIndex = 11, offSet = 10, isPreviousEventComplete = true, isDataAvailable = true;
+
+    $(window).scroll(function () {
+        if ($(document).height() - 50 <= $(window).scrollTop() + $(window).height()) {
+            if (isPreviousEventComplete && isDataAvailable) {
+
+                isPreviousEventComplete = false;
+                $(".LoaderImage").css("display", "block");
+
+                $.ajax({
+                    type: "GET",
+                    url: '/Scroll?startIndex=' + sIndex + '&offset=' + offSet + '',
+                    success: function (result) {
+                        $(".divContent").append(result);
+
+                        sIndex = sIndex + offSet;
+                        isPreviousEventComplete = true;
+
+                        if (result == '') //When data is not available
+                            isDataAvailable = false;
+
+                        $(".LoaderImage").css("display", "none");
+                    },
+                    error: function (error) {
+                        alert(error);
+                    }
+                });
+
+            }
+        }
+    });
+</script>
+
+<script src="/Scripts/jquery.signalR-2.1.2.min.js"></script>
+<script src="~/signalr/hubs"></script>
+
+<script>
+    $(function () {
+        var scrollHub = $.connection.scrollHub;
+
+        scrollHub.client.addNewScrollEntry = function (post) {
+            $("#scrollEntries").prepend(
+                '<div id="scribe_' + post.ScribeId + '" class="col_12 visible column wishlulist tilelarge" style="border-style: solid; border-width: 2px; border-radius: 15px; border-color: darkslategray;">\
+                    <div class="col_1">\
+                        <img class="profilepic" src="' + post.ProfileUrl + '" width="40" height="40" style="display: inline-block;" />\
+                    </div>\
+                    <div class="col_3" >\
+                        <h6>' + post.UserName + '</h6>\
+                    </div>\
+                    <div class="col_8" style="float: right;">\
+                        <div style="float:right;">\
+                            <span class="icon-angle-down"><a href="#"></a></span>\
+                        </div>\
+                    </div>\
+                    <div class="col_12">\
+                        ' + post.Content + '\
+                    </div>\
+                    <div class="col_6"></div>\
+                    <div class="col_6" style="font-size: 10pt; text-align: right;">\
+                        Posted ' + post.Posted + '\
+                    </div>\
+                    <div class="col_12">\
+                        <a class="like_scribe" data-id="' + post.ScribeId + '" href="#">Like</a>\
+                        <span> - </span>\
+                        <a href="#">Comment</a>\
+                    </div>\
+                    <div class="col_12" style="background-color:lightgray;">\
+                        <div id="scribe_likes" class="col_12">\
+                            No one currently likes this post.\
+                        </div>\
+                        <div class="col_12">\
+                            <div class="col_1">\
+                                <img src="/Images/GenericProfile.png" width="30" height="30" style="display: inline-block;" />\
+                            </div>\
+                            <div class="col_11">\
+                                <input type="text" value="Write a comment..." style="width:80%;" />\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>'
+                );
+
+            var scribe = $("#scribe_" + post.ScribeId);
+            var link = scribe.find(".like_scribe");
+            link.click(function (e) {
+                scrollHub.server.likeScribe($(this).data("id"));
+                e.preventDefault();
+            });
+        };
+
+        scrollHub.client.onScribeLiked = function (li) {
+            // Update the like string
+            var scribe = $("#scribe_" + li.ScribeId)
+            scribe.find("#scribe_likes").html(li.LikeString);
+
+            // Update toooltips
+            scribe.find('.tooltip').each(function () {
+                // variables
+                var content = $(this).attr('title');
+
+                // tooltip
+                $(this).attr('title', '')
+                .tipTip({ defaultPosition: 'top', content: content, keepAlive: false, activation: 'hover', delay: 1000 });
+            });
+
+            // Change unlike to like link
+            if (li.Like == "t") {
+                var link = scribe.find(".like_scribe");
+                link.addClass("unlike_scribe");
+                link.removeClass("like_scribe");
+                link.html("Unlike");
+                link.unbind("click");
+                link.click(function (e) {
+                    scrollHub.server.unlikeScribe($(this).data("id"));
+                    e.preventDefault();
+                });
+                return;
+            }
+
+            // If we are only receiving a like/unlike, do not change the link
+            if (li.Like == "o") {
+                return;
+            }
+                // otherwise...change like to unlike link
+            else {
+                var link = scribe.find(".unlike_scribe");
+                link.addClass("like_scribe");
+                link.removeClass("unlike_scribe");
+                link.html("Like");
+                link.unbind("click");
+                link.click(function (e) {
+                    scrollHub.server.likeScribe($(this).data("id"));
+                    e.preventDefault();
+                });
+                return;
+            }
+        };
+
+        scrollHub.client.userConnected = function (name) {
+            $.sticky(name + " has just signed on!");
+        };
+
+        scrollHub.client.userDisconnected = function (name) {
+            $.sticky(name + " has just disconnected :(");
+        };
+
+        $.connection.hub.start().done(function () {
+            // Wire up Send button to call newScrollEntry on the server.
+            $('#addPost').click(function (e) {
+                scrollHub.server.newScrollEntry($('#postContent').val());
+                $('#postContent').val('').focus();
+                e.preventDefault();
+            });
+
+            $(".newcomment_body").each(
+                function () {
+                    $(this).keypress(function (event) {
+                        var keycode = (event.keyCode ? event.keyCode : event.which);
+                        if (keycode == '13') {
+                            scrollHub.server.newComment($(this).data("id"), $(this).val());
+                            $(this).val('');
+                        }
+                        event.stopPropagation();
+                    });
+                });
+
+            $('.like_scribe').click(function (e) {
+                scrollHub.server.likeScribe($(this).data("id"));
+                e.preventDefault();
+            });
+
+            $('.unlike_scribe').click(function (e) {
+                scrollHub.server.unlikeScribe($(this).data("id"));
+                e.preventDefault();
+            });
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('textarea').autosize();
+    });
+</script>
+}
+
+@functions 
+{
+    public string getStatusPlaceholder()
+    {
+        Random rand = new Random((int)DateTime.Now.Ticks);
+        
+        switch (rand.Next(0,6))
+        {
+            case 0:
+                return "Share your thoughts";
+                
+            case 1:
+                return "ASL?";
+                
+            case 2:
+                return "Nothing you say here will be used against you in a court of law...until the NSA subpoena us o_O";
+                
+            case 3:
+                return "Wishing for anything lately?";
+                
+            case 4:
+                return "hello.";
+                
+            default:
+                return "We couldn't think of anything better to use as placeholder text, so, umm, here...";
+        }
+    }
+}
+
+    <div class="col_3" style="border: 1px solid green; height: 300px;">
+        <div>
+            <div style="font-weight: bold; padding: 5px;">
+                @ViewBag.RssItem.Title.Text
+            </div>
+            <div style="clear:both; padding: 5px;">
+                @Html.Raw(ViewBag.RssItem.Summary.Text)
+            </div>
+            <div style="clear:both; padding: 5px;">
+                <a href="@ViewBag.RssItem.Links[0].Uri" target="_blank">Show Full Post</a>
+            </div>
+        </div>
+    </div>
+    <div class="linkStyle col_6" style="border: 1px solid red; display: block;">
+        <!-- Post "Status" -->
+        <div class="col_9" id="scrollPost" style="margin: 0 auto; float: none; text-align:center;">
+            
+            <input type="hidden" id="postName" value="@(Squid.Users.User.GetUserById(UserId).FullName)" />
+            <textarea class="animated" id="postContent" autofocus="autofocus" style="width: 100%; height: 40px; resize: vertical;"placeholder="@(getStatusPlaceholder())"></textarea>
+            <br />
+            <input type="button" class="button large pop" style="font-size: 14pt; width: 110px; height: 30px; margin-top: 5px;" id="addPost" value="scribe" />
+        </div>
+
+        <!-- Scroll Entries -->
+        <div class="col_9" id="scrollEntries" style="margin: 0 auto; float: none;">
+            @foreach(Squid.Scroll.Scribe scribe in Model)
+            {
+                Squid.Users.User poster = Squid.Users.User.GetUserById(scribe.UserId);
+                List<Squid.Users.User> likes = scribe.GetLikes();
+                
+                <div id="scribe_@(scribe.Id)"class="col_12 visible column wishlulist tilelarge" style="border-style: solid; border-width: 2px; border-radius: 15px; border-color: darkslategray;">            
+                    <div id="author_profilepic" class="col_2">
+                        <img class="profilepic" src="@(poster.ImageUrl == "" ? "/Images/GenericProfile.png" : poster.ImageUrl)" width="40" height="40" style="display: inline-block;" />
+                    </div>
+                    <div id="author_name" class="col_9">
+                        <h6>@(poster.FullName)</h6>
+                    </div>
+                    <div class="col_1" style="float: right;">
+                        <div style="float:right;">
+                            <span class="fa fa-angle-down"><a href="#"></a></span>
+                        </div>                    
+                    </div>
+                    <div id="scribe_content" class="col_12">
+                        @(scribe.Content)
+                    </div>
+                    <div class="col_6"></div>
+                    <div id="scribe_postedon" class="col_6" style="font-size: 10pt; text-align: right;">
+                        Posted @(scribe.CreatedOn)
+                    </div>
+                    <div class="col_12">
+                        @if (scribe.UserLikesScribe(UserId)
+                        {
+                            <a class="unlike_scribe" data-id="@(scribe.Id)" href="#">Unlike</a>
+                        }
+                        else
+                        {
+                            <a class="like_scribe" data-id="@(scribe.Id)" href="#">Like</a>
+                        }
+                        
+                        <span> - </span>
+                        <a href="#">Comment</a>
+                    </div>
+                    <div class="col_12" style="background-color:lightgray;">
+                        <div id="scribe_likes" class="col_12">
+                            @if (likes.Count == 1)
+                            {
+                                if (likes.First().Id == UserId)
+                                {
+                                    @("You like this post")
+                                }
+                                else
+                                {
+                                    @(likes.First().FullName + " likes this post.")
+                                }
+
+                            }
+                            else if (likes.Count == 2)
+                            {
+                                @(likes.First().FullName + " and " + likes.ElementAt(1).FullName + " like this post.")
+                            }
+                            else if (likes.Count == 3)
+                            {
+                                @(likes.First().FullName + ", " + likes.ElementAt(1).FullName + ", and " + likes.ElementAt(2).FullName + " like this post.")
+                            }
+                            else if (likes.Count > 3)
+                            {
+                                string list = "";
+                                int likescount = likes.Count - 2;                                
+                                string firstname = likes.First().FullName;
+                                string secondname = likes.ElementAt(1).FullName;
+
+                                likes.RemoveRange(0, 2);
+                                foreach (Squid.Users.User u in likes)
+                                {
+                                    list = list + u.FullName + "<br />";
+                                }
+
+                                @(Html.Raw(firstname + ", " + secondname + ", and " + "<span class=\"tooltip\" title=\"" + list + "\">" + likescount + " other people like this post.</span>"))
+                            }
+                            else
+                            {
+                                @("No one currently likes this post.")
+                            }
+                        </div>
+
+                        <div id="scribe_comments" class="col_12">
+                            @foreach (Squid.Messages.Comment comment in scribe.GetComments())
+                            {
+                                Squid.Users.User author = Squid.Users.User.GetUserById(comment.AuthorId);
+                                
+                                <div class="col_12" id="scribe_comment">
+                                    <div class="col_2">
+                                        <img src="@(author.ImageUrl == "" ? "/Images/GenericProfile.png" : author.ImageUrl)" width="30" height="30" style="display: inline-block;" />
+                                    </div>
+                                    <div class="col_10">
+                                        <span>
+                                            @(comment.Body)
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                            
+                            <div id="scribe_newcomment" class="col_12">
+                                <div class="col_2">
+                                    <img src="@(Session["ImageURL"] == "" ? "/Images/GenericProfile.png" : Session["ImageURL"])" width="30" height="30" style="display: inline-block;" />
+                                </div>
+                                <div class="col_10">
+                                    <input class="newcomment_body" data-id="@(scribe.Id)" type="text" placeholder="Write a comment..." style="width:80%;" />                                    
+                                </div>
+                            </div>                            
+                        </div>                    
+                    </div>            
+                </div>                
+            }            
+        </div>
+    </div>
+    <div class="col_3" style="border: 1px solid green; height: 300px;">
+        Suggested WishLu's
+    </div>

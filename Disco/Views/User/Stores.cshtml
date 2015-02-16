@@ -1,0 +1,173 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+
+    var user = Squid.Users.User.GetUserById(UserId);
+}
+
+@functions {
+    public class Styles
+    {
+        public static IHtmlString Render(string cssfile)
+        {
+            return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
+        }
+    }
+
+    public class Scripts
+    {
+        public static IHtmlString Render(string jsfile)
+        {
+            return new HtmlString("<script src=\"" + jsfile + "\"></script>");
+        }
+    }
+}
+
+@section styles {
+    @Styles.Render("//assets.wishlu.com/css/themes/base/all.css")
+
+    <style type="text/css">
+        /*.shoptile {
+            opacity: 0.6;
+            border-color: lightgray;
+        }
+
+            .shoptile:hover:not(.shopselected) {
+                opacity: 0.8;
+            }
+
+        .shopselected {
+            opacity: 1.0;
+            border-color: #D5E14D !important;
+            border-width: 4px !important;
+        }*/
+    </style>
+}
+
+@section page {
+    favorite stores - wishlu
+}
+
+@section title {
+    <a id="headerlink" href="/u/@UserId" style="color: #DED9D3;">my profile</a>
+    <span class="fa fa-angle-right"></span>&nbsp;
+    <span>my favorite stores</span>
+}
+
+@section scripts {
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery-ui.min-1.11.1.js"></script>
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.validate.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#favorite_stores").on("click", ".unfollow", function () {
+                var button = $(this);
+                var shop = button.parents(".shop");
+
+                $.get("/store/unfollow/" + button.data("id"), null, function (result) {
+                    if (result == true) {
+                        button.html("follow");
+                        button.toggleClass("unfollow");
+                        button.toggleClass("follow");
+                        //shop.remove();
+                        shop.appendTo("#stores");
+
+                       // $("#stores").append($("#stores > .shop").sort(function (a, b) {
+                         //   return $(a).data("name") > $(b).data("name");
+                        //}));
+                    }
+                });
+            });
+
+            $("#stores").on("click", ".follow", function () {
+                var button = $(this);
+                var shop = button.parents(".shop");
+
+                $.get("/store/follow/" + button.data("id"), null, function (result) {
+                    if (result == true) {
+                        button.html("unfollow");
+                        button.toggleClass("unfollow");
+                        button.toggleClass("follow");
+                        //shop.remove();
+                        shop.appendTo("#favorite_stores");
+
+                        //$("#favorite_stores").append($("#favorite_stores > .shop").sort(function (a, b) {
+                        //    return $(a).data("name") > $(b).data("name");
+                        //}));
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<div class="col_12 pop" style="float:none; border: 2px solid lightblue; border-radius: 15px; background:white;">
+    <h5 style="margin-left: 10px; color: #a8a096;">my favorite stores</h5>
+    <div id="favorite_stores" class="center full" style="color: gray;">
+        @foreach (Milkshake.Store shop in Model.Favorites)
+        {
+            <div id="tile_@shop.Id" data-id="@shop.Id" data-fbid="@shop.FacebookId" data-name="@shop.Name" class="col_2 wishLuList center shoptile shop" style="display: inline-block; float: none; padding-top: 5px; width: 200px; height: 200px; background: white; cursor: pointer;">
+                <a href="/s/@shop.Id">
+                    <h6 style="margin: 0;">
+                        <span class="tileheader lowercase" style="font-size: 10pt;">@shop.Name</span>
+                        @if (shop.IsVerified)
+                        {
+                            <span class="fa-stack" style="display: inline-block; font-size: 8pt;">
+                                <i class="fa fa-circle fa-stack-2x" style="color: #95D5E1;"></i>
+                                <i class="fa fa-check fa-stack-1x" style="color: white;"></i>
+                            </span>
+                        }
+                        @if (shop.IsFeatured)
+                        {
+                            <span class="fa fa-star" style="position: absolute; top: 5px; right: 5px; font-size: 10pt; color: gold;"></span>
+                        }
+                    </h6>
+                    <hr style="margin-top: 10px; margin-bottom: 10px;" />
+                    <div class="col_12 nomargin nopadding">
+                        <div style="display: inline-block; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/stores/@shop.Logo'); width: 100px; height: 100px;">&nbsp;</div>
+                    </div>
+                </a>                
+                <div class="col_12 center">
+                    <a class="button pop unfollow" style="padding: 5px;" data-id="@shop.Id">
+                        unfollow
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="col_12 pop" style="float:none; border: 2px solid lightblue; border-radius: 15px; background: white;">
+    <h5 style="margin-left: 10px; color: #a8a096;">stores</h5>
+    <div id="stores" class="center full" style="color: gray;">
+        @foreach (Milkshake.Store shop in Model.Other)
+        {
+            <div id="tile_@shop.Id" data-id="@shop.Id" data-fbid="@shop.FacebookId" data-name="@shop.Name" class="col_2 wishLuList center shoptile shop" style="display: inline-block; float: none; padding-top: 5px; width: 200px; height: 200px; background: white; cursor: pointer;">
+                <a href="/s/@shop.Id">
+                    <h6 style="margin: 0;">
+                        <span class="tileheader lowercase" style="font-size: 10pt;">@shop.Name</span>
+                        @if (shop.IsVerified)
+                        {
+                            <span class="fa-stack" style="display: inline-block; font-size: 8pt;">
+                                <i class="fa fa-circle fa-stack-2x" style="color: #95D5E1;"></i>
+                                <i class="fa fa-check fa-stack-1x" style="color: white;"></i>
+                            </span>
+                        }
+                        @if (shop.IsFeatured)
+                        {
+                            <span class="fa fa-star" style="position: absolute; top: 5px; right: 5px; font-size: 10pt; color: gold;"></span>
+                        }
+                    </h6>
+                    <hr style="margin-top: 10px; margin-bottom: 10px;" />
+                    <div class="col_12 nomargin nopadding">
+                        <div style="display: inline-block; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/stores/@shop.Logo'); width: 100px; height: 100px;">&nbsp;</div>
+                    </div>
+                </a>
+                <div class="col_12 center">
+                    <a class="button pop follow" style="padding: 5px;" data-id="@shop.Id">
+                        follow
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

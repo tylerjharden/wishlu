@@ -1,0 +1,33 @@
+﻿@model List<Squid.Users.User>
+@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section page {
+    wishlu - find friends results
+}
+
+@section title {
+    @Html.ActionLink("friend search results", "index", "friends", new { @style = "text-decoration: none;" }) &nbsp;
+}
+
+@section scripts {
+
+}
+
+@foreach (Squid.Users.User user in Model.OrderBy(x => x.LastName))
+{
+    <div class="col_2 center pop nomargin" style="margin-right:5px !important; margin-bottom:5px !important; width: 150px; height: 150px; background: white; -moz-border-radius: 15px; -webkit-border-radius: 15px; border-radius: 15px; border: 2px solid gray;">
+        <a href="@Url.Action("view", "user", routeValues: new { @id = user.Id })">
+            <div class="col_12 circle pop" style="margin-bottom: 0;float:none;display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(user.ImageUrl)'); background-color: white; width: 75px; height: 75px;">
+            </div>
+        </a>
+        <h6 class="lowercase nomargin" style="font-size:10pt;">
+            @(user.FullName)
+        </h6>
+        <a class="col_12 button pop nopadding" style="float:none; height:25px; width:100px;" href="/friends/add/@user.Id">
+            add friend
+        </a>            
+    </div>        
+}

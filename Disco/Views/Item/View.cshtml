@@ -1,0 +1,939 @@
+﻿@using Disco.Common
+@model Squid.Wishes.Wish
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+
+    string wishName = WebUtility.HtmlDecode(Model.Name);
+    string wishNotes = Model.Notes;
+    string wishModified = Model.LastModifiedOn.ToString("M.d.yy");
+    string wishCreated = Model.CreatedOn.ToString("M.d.yy");
+    string wishUrl = Model.WishUrl;
+    int wishRating = Model.Rating;
+
+    Squid.Wishes.Wishlu wishlu = Squid.Wishes.Wishlu.GetWishLuById(Model.GetAssignmentId());
+    Guid wishlu_id = wishlu.Id;
+}
+
+@section title {
+    <span id="headerlink"><a href="/wishlu" style="color: #DED9D3;">my wishlus</a></span>
+    <span class="fa fa-angle-right"></span>
+    <span id="headerlink"><a href="/l/@wishlu_id" style="color: #DED9D3;">@wishlu.Name</a></span>
+    <span class="fa fa-angle-right"></span>
+    <span style="padding-left: 5px;">
+        view/edit item
+    </span>
+}
+
+@section page {
+    view/edit item - wishlu
+}
+
+@section actions {
+    @*<a class="button pop center" id="wish_move"><i class="fa fa-external-link" style="margin-right: 10px;"></i> move</a>*@
+    @*<a class="button pop center" id="wish_copy"><i class="fa fa-files-o" style="margin-right: 10px;"></i> copy</a>*@
+    @*<a class="button pop center" href="/item/edit/@Model.Id"><i class="fa fa-pencil" style="margin-right: 10px;"></i> edit</a>*@
+    <a class="button pop center" id="wish_delete"><i class="fa fa-times" style="margin-right: 10px;"></i> delete</a>
+}
+
+@section styles {
+    <link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/rateit.css" />
+
+    <style>
+        .twitter-share-button {
+            vertical-align: top;
+        }
+    </style>
+}
+
+@section scripts {
+    <script type="text/javascript" src="//assets.wishlu.com/js/autoNumeric.js"></script>
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.autosize.min.js"></script>
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.rateit.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#wish_quantity").spinner({
+                spin: function (event, ui) {
+                    if (ui.value < 0) {
+                        $(this).spinner("value", 0);
+                        return false;
+                    }
+                }
+            });
+
+            $("#wish_purchased").spinner({
+                spin: function (event, ui) {
+                    if (ui.value < 0) {
+                        $(this).spinner("value", 0);
+                        return false;
+                    }
+                }
+            });
+
+            $("#wish_price").autoNumeric('init');
+
+            $("#wish_rating").rateit('value', @Model.Rating);
+
+            $("#wish_rating").bind("rated reset", function (e) {
+                var ri = $(this);
+
+                var value = ri.rateit("value");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/item/rate",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: $("#wish_id").val(), Rating: value }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            ri.rateit("value", data.rating);
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            // we're dealing with a new item
+            if ($("#wish_name").val() == "new item") {
+                $("#wish_name").focus();
+                $("#wish_name").val("");
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var handleFileSelect = function (evt) {
+                var files = evt.target.files;
+                var file = files[0];
+                if (files && file) {
+                    var reader = new FileReader();
+                    reader.onload = function (readerEvt) {
+                        var binaryString = readerEvt.target.result;
+                        $('#base64image').val(btoa(binaryString));
+                        $('#wish_image').css('background-image', 'none');
+                        $("#wish_image").html("<div style='margin-top: 50px; text-align: center;'><i class='fa fa-5x fa-spin fa-spinner'></i><br /><span id='profile_progress'></span></div>");
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/item/image",
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            traditional: true,
+                            data: JSON.stringify({ Id: $("#wish_id").val(), Image: $('#base64image').val() }),
+                            success: function (data, status, request) {
+                                if (data.result == true) {
+                                    swal("Success!", data.message, "success");
+                                    $("#wish_image").html("");
+                                    $('#wish_image').css('background-image', 'url(data:image/jpg;base64,' + $('#base64image').val() + ")");
+                                }
+                                else {
+                                    swal("Uh oh...", data.message, "error");
+                                }
+                            },
+                            error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                        });
+                    };
+                    reader.readAsBinaryString(file);
+                }
+            };
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+                $('#filePicker').change(handleFileSelect);
+            } else {
+                alert('The File APIs are not fully supported in this browser.');
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+        window.wishlu_dirty = false;
+
+        window.onbeforeunload = function () {
+            return wishlu_dirty ? "You have made changes to your item that have not been saved. If you leave now, they will not be kept." : null;
+        }
+
+        $(document).ready(function () {
+            $("#wish_delete").click(function () {
+                swal({
+                    title: "Are you sure?",
+                    text: "This wish will be permanently deleted!",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No, keep my wish.",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/item/delete",
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            traditional: true,
+                            data: JSON.stringify(getDeleteWish()),
+                            success: function (data, status, request) {
+                                if (data.result == true) {
+                                    swal("Success!", data.message, "success");
+                                    window.location.href = "/l/" + $("#wishlu_id").val();
+                                }
+                                else {
+                                    swal("Uh oh...", data.message, "error");
+                                }
+                            },
+                            error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                        });
+                    }
+                    else {
+                        swal("Canceled", "Your wish is safe and sound.");
+                    }
+                });
+            });
+
+            function getDeleteWish() {
+                var data = {}
+                data.Wishes = "@Model.Id";
+                return data;
+            }
+
+            $("#wish_name").on("blur", function() {
+                $.ajax({
+                    type: "POST",
+                    url: "/item/name",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: $("#wish_id").val(), Name: $(this).val() }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+            $("#wish_name").on("keyup", function(e) {
+                if(e.keyCode == 13) {
+                    $(this).trigger("blur");
+                }
+            });
+
+            $("#wish_url").on("blur", function() {
+                $.ajax({
+                    type: "POST",
+                    url: "/item/wishurl",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: $("#wish_id").val(), Url: $(this).val() }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+            $("#wish_url").on("keyup", function(e) {
+                if(e.keyCode == 13) {
+                    $(this).trigger("blur");
+                }
+            });
+
+            $("#wish_price").on("blur", function() {
+                var p = $(this).val();
+
+                p = p.replace("$","").replace(",","");
+
+                if (isNaN(p)) {
+                    p = 0;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/item/price",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: $("#wish_id").val(), Price: p }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+            $("#wish_price").on("keyup", function(e) {
+                if(e.keyCode == 13) {
+                    $(this).trigger("blur");
+                }
+            });
+
+            $("#wish_description").on("blur", function() {
+                $.ajax({
+                    type: "POST",
+                    url: "/item/description",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: $("#wish_id").val(), Description: $(this).val() }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+            $("#wish_description").on("keyup", function(e) {
+                if(e.keyCode == 13) {
+                    $(this).trigger("blur");
+                }
+            });
+
+            $("#wish_notes").on("blur", function() {
+                $.ajax({
+                    type: "POST",
+                    url: "/item/notes",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: $("#wish_id").val(), Notes: $(this).val() }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+            $("#wish_notes").on("keyup", function(e) {
+                if(e.keyCode == 13) {
+                    $(this).trigger("blur");
+                }
+            });
+
+            function updateQuantity() {
+                var q = $("#wish_quantity").val();
+
+                if (q == null || q == "" || isNaN(q)) {
+                    q = 1;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/item/quantity",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: $("#wish_id").val(), Quantity: q }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            $("#wish_quantity").val(q);
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            }
+            $("#wish_quantity").on("spinstop", updateQuantity);
+            $("#wish_quantity").on("spinchange", updateQuantity);
+            $("#wish_quantity").on("keyup", function(e) {
+                if(e.keyCode == 13) {
+                    $(this).trigger("blur");
+                }
+            });
+
+            function updatePurchased() {
+                var q = $("#wish_purchased").val();
+
+                if (q == null || q == "" || isNaN(q)) {
+                    q = 0;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/item/purchased",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: $("#wish_id").val(), Purchased: q }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            $("#wish_purchased").val(q);
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            }
+            $("#wish_purchased").on("spinstop", updatePurchased);
+            $("#wish_purchased").on("spinchange", updatePurchased);
+            $("#wish_purchased").on("keyup", function(e) {
+                if(e.keyCode == 13) {
+                    $(this).trigger("blur");
+                }
+            });
+
+            $("#wishlu_select").val($("#wishlu_id").val());
+            $("#wishlu_select").on("change", function () {
+                var lu = $("#wishlu_select").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/item/wishlu",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Wish: $("#wish_id").val(), Wishlu: lu }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            $("#wishlu_create").click(function () {
+                $("#wishlu_create_panel").slideToggle();
+            });
+
+            $("#wishlu_add").on("click", function() {
+                var lu = $("#wishlu_input").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/item/wishlu",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Wish: $("#wish_id").val(), WishluName: lu }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            $("#wishlu_input").val("");
+                            swal("Success!", data.message, "success");
+                            location.reload();
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            $("#wish_suggest").click(function () {
+                $("#wish_suggest_panel").slideToggle();
+            });
+
+            $("#wish_suggest_do").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/item/suggest",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(getSuggestFriends()),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            $(".user:checked").prop("checked", false);
+                            $("#wish_suggest_panel").slideUp();
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            function getSuggestFriends() {
+                var data = {}
+                data.Friends = $.map($(".user:checked"), function (element) { return $(element).val(); });
+                data.Id = "@Model.Id";
+                return data;
+            }
+
+            $("#wish_phone").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/item/phone/" + $("#wish_id").val(),
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: null,
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            if (data.redirect) {
+                                swal("Uh oh...", data.message, "error");
+                                location.href = "/user/mobile";
+                            }
+                            else {
+                                swal("Uh oh...", data.message, "error");
+                            }
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            $("#wish_mark_granted").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/item/mark/" + $("#wish_id").val(),
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: null,
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            location.reload();
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            $("#wish_price").autoNumeric("init");
+        });
+    </script>
+}
+
+@section info {
+    <div class="col_12" style="text-align: left; height: 400px; overflow: auto;">
+        <span>When someone decides to give you one of the items in your wishlu, he or she will choose a date to notify you. In the meantime, others will see the item marked as <i>gifted</i>, so that others know someone has bought, or plans on buying, this item for you. Once your friend notifies you that he or she has bought you the item, you can officially confirm it via a link sent to you in a notification or manually here via the <b>confirm as received</b> button. Check the status of an item via the <b>gift status</b> tab.</span>
+        <br />
+        <br />
+        <span>You can also view and edit important item information here:</span>
+        <ul>
+            <li>View and edit the website link to your item.</li>
+            <li>Manage the quantity of the item you would like, just like a traditional gift registry.</li>
+            <li>Edit the wishlu to which the item belongs.</li>
+            <li>Suggest the item to a friend or send it to your phone so that you can text it to a friend.</li>
+            <li>Edit the photo of the item if you added the item manually.</li>
+            <li>Add your own notes about an item, such as colors and sizes.</li>
+            <li>Share your item: post it, tweet it, or pin it.</li>
+            <li>Rank your item or delete it.</li>
+        </ul>
+    </div>
+}
+
+<input type="hidden" id="wishlu_id" value="@(Model.GetAssignmentId())" />
+<input type="hidden" id="wish_id" value="@(Model.Id)" />
+
+<div class="col_12 pop nomargin center full" style="margin-bottom: 10px !important; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white; padding:5px;">
+    <b>Updates to your item's information are saved in real-time.</b>
+</div>
+
+<!-- Item Container -->
+<div class="col_12 nomargin nopadding full">
+    <!-- Left Container-->
+    <div class="col_6 left alpha">
+        <!-- Item Image / Status Banner -->
+        @if (Model.IsCustom)
+        {
+            <input type="file" id="filePicker" style="display: none;" />
+            <input type="hidden" id="base64image" name="base64image" />
+        }
+        <div class="col_12 pop wishimg wishLuList tilelarge" style="position: relative; padding: 5px; margin-top: 0;" onclick="$('#filePicker').trigger('click');">
+            <div class="col_12 center tooltip-top" title="If your item image appears rotated after uploading, it will correct itself after reloading the page." id="wish_image" style="float: none; margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@Model.ImageUrl'); width: 400px; height: 400px;">
+
+            </div>
+            @if (Model.IsCustom)
+            {
+                <div class="center" style="position:absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); padding-top: 10px; padding-bottom: 10px; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+                    <i class="fa fa-4x fa-camera"></i>
+                </div>
+            }
+            @if (Model.WishStatus == Squid.Wishes.WishStatus.Revealed && Model.GetRevealedPromises().Count == Model.Quantity)
+            {
+                <div class="rectangle" style="height: 50px;">
+                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted</span>
+                </div>
+            }
+            else if (Request.IsAuthenticated && Model.WishStatus == Squid.Wishes.WishStatus.Confirmed)
+            {
+                <div class="rectangle" style="height: 50px;">
+                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+                </div>
+            }
+            else if (Model.WishStatus == Squid.Wishes.WishStatus.Confirmed && (Model.GetConfirmedPromises().Count == Model.Quantity || Model.ManuallyConfirmed))
+            {
+                <div class="rectangle" style="height: 50px;">
+                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+                </div>
+            }
+            else if (Model.Purchased == Model.Quantity)
+            {
+                <div class="rectangle" style="height: 50px;">
+                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+                </div>
+            }
+            @*else if (Model.WishStatus.ToString() != "Requested" && Model.WishStatus.ToString() != "Promised")
+                {
+                    <div class="rectangle" style="height: 50px;">
+                        <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">@Model.WishStatus</span>
+                    </div>
+                }*@
+        </div>
+        <!-- Item Rating -->
+        <div class="col_12 center">
+            <div id="wish_rating" class="rateit">
+            </div>
+        </div>
+
+        <!-- Facebook, Twitter, Google+, Tumblr, Pinterest Share -->
+        <div class="col_12 pop center" style="display: inline !important; position: relative; zoom: 1; vertical-align: top !important; padding: 5px; background: white; border: 2px solid lightblue; border-radius: 15px;">
+            <fb:like href="http://www.wishlu.com/i/@(Model.Id)" layout="button" action="like" show_faces="true" share="true" style="vertical-align: top !important;"></fb:like>
+            <fb:send href="http://www.wishlu.com/i/@(Model.Id)" colorscheme="light" style="vertical-align: top !important;"></fb:send>
+            <div class="g-plus" data-action="share" data-annotation="none" data-href="http://www.wishlu.com/i/@Model.Id"></div>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-related="wishlu:The official Wishlu Twitter" data-via="wishlu" data-url="http://www.wishlu.com/i/@Model.Id" data-text="Check out my wish" data-lang="en" data-size="medium" data-count="none">Tweet</a>
+            <a onclick="pinClicked(this.href); return false;" href="//www.pinterest.com/pin/create/button/?url=http://www.wishlu.com/i/@(Model.Id)&media=@Url.Encode(Model.ImageUrl)&description=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)" data-pin-do="buttonPin" data-pin-config="none" data-pin-color="red" style="vertical-align:top; background: url('http://assets.pinterest.com/images/pinit6.png');font: 11px Arial, sans-serif; text-indent: -9999em; font-size: .01em; color: #CD1F1F; height: 20px; width: 43px; background-position: 0 -7px;"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_20.png" style="vertical-align:top;" /></a>
+            <a href="http://www.tumblr.com/share/photo?source=@Url.Encode(Model.ImageUrl)&caption=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)&clickthru=http://www.wishlu.com/i/@(Model.Id))" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url('http://platform.tumblr.com/v1/share_2.png') top left no-repeat transparent;">Share on Tumblr</a>
+        </div>
+
+        <!-- Facebook Comments -->
+        <div class="col_12">
+            <fb:comments href="http://www.wishlu.com/i/@Model.Id" numposts="10" colorscheme="light" order-by="reverse_time" width="100%"></fb:comments>
+        </div>
+    </div>
+    <!-- Right Container -->
+    <div class="col_6 pop omega" style="float:right; border: 2px solid #D3EEF2; border-radius: 15px; background-color: white;">
+        <!-- Item Details -->
+        <div class="col_12">
+            <!-- Item Name -->
+            <div class="col_12" style="margin-top: 0; margin-bottom: 1px; padding-bottom: 1px; font-size: 14pt; color: #9a8b7d;">
+                @if (Model.IsCustom)
+                {
+                    <input id="wish_name" class="required full lowercase large-input" value="@Model.Name" placeholder="new item name" />
+                }
+                else
+                {
+                    @Model.Name
+                }
+            </div>
+            <!-- Delete Button-->
+            @*<div class="col_3 right nomargin">
+                <a class="button pop" id="wish_delete" style="font-size: 8pt;">delete</a>
+                </div>*@
+            <!-- Item Source Link -->
+            <div class="col_12">
+                @if (Model.IsCustom)
+                {
+                    <input id="wish_url" class="full input-like" value="@Model.WishUrl" placeholder="http:// or www." />
+                }
+                else
+                {
+                    if (!String.IsNullOrEmpty(Model.WishUrl))
+                    {
+                        try
+                        {
+                            Uri url = new Uri(wishUrl);
+
+                            <a target="_blank" href="@wishUrl"><span style="color: #9a8b7d; font-weight: bold;">View on @(url.Host)</span></a>
+                        }
+                        catch
+                        { }                        
+                    }
+                }
+            </div>
+            <!-- Item Price -->
+            <div class="col_12">
+                <!-- Wish Price Textbox -->
+                <span class="col_4" style="margin: 0; font-weight: 300;">price:</span>
+                <span class="col_8" style="margin: 0;">
+                    @if (Model.IsCustom)
+                    {
+                        <input type="text" id="wish_price" class="input-like" data-a-sign="$" data-a-dec="." data-a-sep="," value="@Model.Price" />
+                    }
+                    else
+                    {
+                        <span>@Model.Price.ToString("C")</span>
+                        <a id="wish_buy" class="button pop center" target="_blank" style="margin-left: 10px; padding: 5px;" href="@Model.WishUrl">
+                            buy now
+                        </a>
+                    }
+                </span>
+            </div>
+            <!-- Item Quantity Requested -->
+            <div class="col_12">
+                <span class="col_4" style="margin: 0; font-weight: 300;">would like:</span>
+                <span class="col_8" style="margin: 0;">
+                    <input class="input-like" id="wish_quantity" size="5" value="@Model.Quantity" />
+                </span>
+            </div>
+            <!-- Item Quantity Promised/Revealed/Received -->
+            <div class="col_12">
+                <span class="col_4" style="margin: 0; font-weight: 300;">purchased:</span>
+                <span class="col_8" style="margin: 0;">
+                    <input class="input-like" id="wish_purchased" size="5" value="@Model.Purchased" />
+                </span>
+            </div>
+            <hr style="margin:10px 0;" />
+            <!-- Wishlu Selection -->
+            <div class="col_12">
+                <span class="col_4" style="margin: 0; font-weight: 300; padding-top: 5px;"> wishlu:</span>
+                <div class="col_8" style="margin: 0;">
+                    <select id="wishlu_select" class="input-like full tooltip-top" data-delay="0" title="Add this item to an existing wishlu or create a new one." value="@wishlu_id">
+                        @{
+                            Guid floatingId = Squid.Wishes.Wishlu.GetUsersJustMeWishLu(UserId).Id;
+                        }
+                        <option value="@floatingId">just me</option>
+                        @foreach (Squid.Wishes.Wishlu wishLu in Squid.Wishes.Wishlu.GetUsersWishLus(UserId))
+                        {
+                            if (wishLu.WishLuType == Squid.Wishes.WishluType.JustMe)
+                            {
+                                continue;
+                            }
+
+                            <option value="@wishLu.Id">
+                                @wishLu.Name
+                            </option>
+                        }
+                    </select>
+                    <hr class="or" />
+                    <a class="button pop full center tooltip-top" data-delay="0" title="" id="wishlu_create" style="padding:5px; margin-top: 5px;">
+                        create a new wishlu
+                    </a>
+                    <div class="col_12 center" id="wishlu_create_panel" style="display:none;">
+                        <input type="text" class="input-like small-input full" id="wishlu_input" placeholder="enter name here" />
+                        <a class="button pop center" id="wishlu_add" style="padding:5px;">
+                            add
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr style="margin:10px 0;" />
+            <!-- Edit -->
+            @*<div class="col_12">
+                <a class="button pop center full" id="wish_edit" href="/item/edit/@Model.Id">
+                edit
+                </a>
+                </div>*@
+            <!-- Move -->
+            @*<div class="col_6">
+                <a class="button pop center tooltip" id="wish_move" title="Move this item to another wishlu." data-delay="0">
+                move
+                </a>
+                </div>*@
+            <!-- Copy -->
+            @*<div class="col_6">
+                <a class="button pop center tooltip" id="wish_copy" title="Copy this item to another wishlu." data-delay="0">
+                copy
+                </a>
+                </div>*@
+            <!-- Buy Now -->
+            @*<div class="col_4 left">
+                    <a class="button pop center" id="wish_buy" href="@wishUrl">
+                        buy now
+                    </a>
+                </div>*@
+            <!-- Suggest To Friend -->
+            <div class="col_4 left">
+                <a class="button pop center" id="wish_suggest">
+                    suggest to friend
+                </a>
+                <div id="wish_suggest_panel" class="col_12 center" style="display:none;">
+                    <div class="col_12 nomargin nopadding" style="overflow-y:scroll; height: 150px;">
+                        @foreach (Squid.Users.User user in Squid.Users.User.GetUsersFriends(UserId).OrderBy(x => x.FullName))
+                        {
+                            <div class="user_container col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
+                                <span style="float: left; font-size: 8pt;">
+                                    @user.FullName
+                                </span>
+                                <span style="float: right; padding-right: 10px; ">
+                                    <input class="user" type="checkbox" value="@user.Id" />
+                                </span>
+                            </div>
+                        }
+                    </div>
+                    <a class="button pop center" id="wish_suggest_do" style="padding: 5px;">ok</a>
+                </div>
+            </div>
+            <!-- Send To Phone -->
+            <div class="col_4 center">
+                <a class="button pop center tooltip" data-delay="0" title="Text a link to this item to your phone." id="wish_phone">
+                    send to my phone
+                </a>
+            </div>
+            <!-- Mark As Gifted -->
+            @if (Model.GetConfirmedPromises().Count < Model.Quantity)
+            {
+                <div class="col_4 right">
+                    <a class="button pop center tooltip" id="wish_mark_granted">
+                        confirm as received
+                    </a>
+                </div>
+            }
+        </div>
+        <hr style="margin:10px 0;" />
+        <!-- Tabber -->
+        <div class="col_12">
+            <!-- Item Bottom Tabs -->
+            <ul class="tabs left">
+                @if (Model.IsCustom)
+                {
+                    <li class="tooltip-top" data-delay="0" title="Describe your item here."><a href="#description"><i class="fa fa-list" style="margin-right: 10px;"></i>description</a></li>
+                }
+                else
+                {
+                    <li><a href="#description"><i class="fa fa-list" style="margin-right: 10px;"></i>description</a></li>
+                }
+                <li class="tooltip-top" data-delay="0" title="Add helpful information about buying this item for you here."><a href="#notes"><i class="fa fa-pencil" style="margin-right: 10px;"></i>notes</a></li>
+                @* <li><a href="#location"><i class="fa fa-compass" style="margin-right: 10px;"></i>location</a></li>*@
+                <li class="tooltip-top" data-delay="0" title="When someone gifts you this item, you can to confirm receiving it here."><a href="#promises"><i class="fa fa-gift" style="margin-right: 10px;"></i>gift status</a></li>
+            </ul>
+
+            <!-- Description Tab -->
+            <div id="description" class="tab-content">
+                @if (Model.IsCustom)
+                {
+                    <textarea class="full" id="wish_description" rows="2">@Model.Description</textarea>
+                }
+                else
+                {
+                    @Html.Raw(Model.Description)
+                }
+            </div>
+
+            <!-- Notes Tab -->
+            <div id="notes" class="tab-content">
+                <textarea class="full" id="wish_notes" rows="2">@Model.Notes</textarea>
+            </div>
+
+            @*<!-- Location Tab -->
+                <div id="location" class="tab-content">
+
+                </div>*@
+
+            <!-- Promises Tab -->
+            <div id="promises" class="tab-content">
+                <!-- Promises -->
+                <div class="col_12 center" style="margin: 0; padding: 0;">
+                    @{var promises = Model.GetAllPromises();}
+                    @if (promises.Count == 0)
+                    {
+                        if (Model.WishStatus == Squid.Wishes.WishStatus.Confirmed)
+                        {
+                            <span><b>You manually confirmed receiving this item.</b></span>
+                        }
+                        else
+                        {
+                            <span><b>No one has notified you of gifting you this item.</b></span>
+                        }
+                    }
+                    @foreach (Squid.Wishes.Promise p in promises)
+                    {
+                        if (p.PromiseStatus == Squid.Wishes.PromiseStatus.Promised)
+                        {
+                            continue;
+                        }
+
+                        <div class="col_12" style="border: 2px solid gray; background: white; border-radius: 15px;">
+                            @{var promiser = p.GetPromiser();}
+                            <div class="col_3">
+                                <a href="/u/@promiser.Id">
+                                    <div class="circlefriend pop" style="background-image: url('@(promiser.ImageUrl)'); border: 1px solid gray; width: 50px; height: 50px"></div>
+                                </a>
+                            </div>
+                            @switch (p.PromiseStatus)
+                            {
+                                case Squid.Wishes.PromiseStatus.Canceled:
+                                    <div class="col_6 center">
+                                        <span class="col_12 full center nomargin"><b>@promiser.FullName</b></span>
+                                        <span class="col_12 full center" style="font-size: 10pt;">Canceled</span>
+                                    </div>
+                                    <div class="col_3 center">
+                                        <i class="fa fa-3x fa-ban tooltip" data-delay="50" title="@promiser.FirstName gifted this item, but then canceled it." style="color: #b5919b;"></i>
+                                    </div>
+                                    break;
+
+                                case Squid.Wishes.PromiseStatus.Confirmed:
+                                <div class="col_6 center">
+                                    <span class="col_12 full center nomargin"><b>@promiser.FullName</b></span>
+                                    <span class="col_12 full center" style="font-size: 10pt;">Gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+                                </div>
+                                <div class="col_3 center">
+                                    <i class="fa fa-3x fa-gift tooltip" data-delay="50" title="You have confirmed receiving this gift." style="color: #79e0c3;"></i>
+                                </div>
+                                    break;
+
+                                    @*case Squid.Wishes.PromiseStatus.Promised:
+                                        <div class="col_6">
+                                            @p.GetPromiser().FullName
+                                            <span style="font-size: 10pt;">Promised</span>
+                                        </div>
+                                        <div class="col_3">
+                                            <i class="fa fa-3x fa-refresh tooltip" data-delay="50" title="Promised" style="color: #79cae0;"></i>
+                                        </div>
+                                        break;*@
+
+                                case Squid.Wishes.PromiseStatus.Revealed:
+                                <div class="col_6">
+                                    <span class="col_12 full center nomargin"><b>@promiser.FullName</b></span>
+                                    <span class="col_12 full center">
+                                        <a class="button pop" href="/item/confirm/@p.Id" style="padding:5px;">confirm</a>
+                                    </span>
+                                </div>
+                                <div class="col_3 center">
+                                    <i class="fa fa-3x fa-certificate tooltip" data-delay="50" title="@promiser.FirstName has revealed this gift to you. If you have not yet received it, you should be shortly." style="color: palegoldenrod;"></i>
+                                </div>
+                                    break;
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <!-- Added / Modified -->
+        <div class="col_12 right">
+            <div class="col_12 nomargin nopadding">
+                added: @(wishCreated)
+            </div>
+            <div class="col_12 nomargin nopadding" style="font-size: 10pt;">
+                (updated: @(wishModified))
+            </div>
+        </div>
+    </div>
+</div>

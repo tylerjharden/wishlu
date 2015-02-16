@@ -1,0 +1,262 @@
+﻿@using Disco.Common
+@{
+	Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+}
+
+@section page {
+	inbox - wishlu
+}
+
+@section title {
+	my inbox
+}
+
+@section styles {
+	<style>
+		.conversation {
+			background: white;
+			border-bottom: 1px solid gray;
+		}
+
+			.conversation:hover {
+				background: cornflowerblue;
+			}
+
+			.conversation.unread {
+				font-weight: bold;
+				background: lightblue;
+			}
+
+			.conversation.selected {
+				background: #2c77ba;
+				color: white;
+			}
+	</style>
+}
+
+@section scripts {	
+	<script>
+		$(document).ready(function () {
+			$("#info_popup").hide();
+
+			// when the user selects a conversation from the list...
+			$(".conversation").click(function () {
+				$("#new_to").hide();
+				$("#to").val("");
+				$(".conversation").removeClass("selected");
+				$(this).removeClass("unread");
+				$(this).addClass("selected");
+				$("#current_conversation").val($(this).data("id"));
+
+				$("#message_thread").html("<div class='center' style='color: gray;'><i class='fa fa-spin fa-spinner fa-5x'></i></div>");
+
+				$.get("/inbox/conversation/" + $(this).data("id"), null, function (result) {
+					$("#message_thread").html(result);
+				});
+				// TODO: Load conversation thread from database, populate using AJAX. This is a controller call that returns a partial view.
+			})
+
+			// Starts a new conversation
+			$("#new_conversation").click(function () {
+				$("#current_conversation").val("");
+				$("#message_thread").html("");
+				$("#new_message").val("");
+				$("#new_to").fadeIn();
+				$("#to").val("");
+			});
+
+			// Sends new message to IM thread, if this is the first message of a new conversation, it also adds the necessary UI to the conversation list
+			function sendMessage() {
+				if ($("#current_conversation").val() != "") {
+					$.ajax({
+						type: "POST",
+						url: "/inbox/reply",
+						dataType: 'json',
+						contentType: 'application/json; charset=utf-8',
+						traditional: true,
+						data: JSON.stringify({ Id: $("#current_conversation").val(), Message: $("#new_message").val() }),
+						success: function (data) {
+							if (data.result == true) {
+								$("#new_message").val("");
+								$("#message_thread").html("<div class='center' style='color: gray;'><i class='fa fa-spin fa-spinner fa-5x'></i></div>");
+
+								$.get("/inbox/conversation/" + $("#current_conversation").val(), null, function (result) {
+									$("#message_thread").html(result);
+								});
+							}
+							else {
+								swal("Uh oh...", data.message, "error");
+							}
+						},
+						error: function (data) {
+							swal("Uh oh...", data.message, "error");
+						}
+					});
+				}
+					// new conversation
+				else {
+					$.ajax({
+						type: "POST",
+						url: "/inbox/create",
+						dataType: 'json',
+						contentType: 'application/json; charset=utf-8',
+						traditional: true,
+						data: JSON.stringify({ UserId: $("#to").val(), Message: $("#new_message").val() }),
+						success: function (data) {
+							if (data.result == true) {
+								$("#new_message").val("");
+								$("#message_thread").html("<div class='center' style='color: gray;'><i class='fa fa-spin fa-spinner fa-5x'></i></div>");
+
+								$.get("/inbox/conversation/" + data.id, null, function (result) {
+									$("#message_thread").html(result);
+									$(".conversation_log").scrollTop($(".conversation_log")[0].scrollHeight);
+								});
+							}
+							else {
+								swal("Uh oh...", data.message, "error");
+							}
+						},
+						error: function (data) {
+							swal("Uh oh...", data.message, "error");
+						}
+					});
+				}
+			}
+
+			$("#message_send").on("click", function () {
+				sendMessage();
+			});
+
+			$(document).keyup(function (e) {
+				if (e.keyCode == 13) {
+					$("#message_send").click();
+				}
+			});
+		});
+	</script>
+}
+
+@section actions {
+	<a class="button pop center" id="new_conversation"><i class="fa fa-plus" style="margin-right: 10px;"></i> new conversation</a>
+}
+
+<input type="hidden" id="current_conversation" />
+
+<div class="col_3 pop" id="conversations_panel" style="border: 1px solid gray; min-height: 420px; border-radius: 15px; overflow:hidden; background: white;">
+	@foreach (Squid.Messages.IM convo in Model)
+	{
+		Guid user = convo.User1 == UserId ? convo.User2 : convo.User1;
+		Squid.Messages.Message last = convo.GetLastMessage();
+
+		<!-- Conversation Block-->
+		<div class="col_12 conversation sitelink nomargin full @(last.SenderId == UserId || last.Read ? "read" : "unread")" data-id="@convo.Id">
+			<!-- User Profile Image -->
+			<div class="col_4">
+				<div class="circlefriend pop sitelink" style="background-image: url('@Squid.Users.User.GetUserProfileImage(user)');">
+				</div>
+			</div>
+			<!-- User's Name / Latest Message + Message Read Status-->
+			<div class="col_8" style="font-size: 10pt;">
+				<span class="col_12"><b>@Squid.Users.User.GetUserFullName(user)</b></span>
+				<span class="col_12 nomargin">
+					@if (last.SenderId == UserId)
+					{
+						if (last.Read)
+						{
+							<i class="fa fa-check"></i>
+						}
+						else
+						{
+							<i class="fa fa-reply"></i>
+						}
+					}
+					@last.BodyText
+				</span>
+			</div>
+		</div>
+	}
+</div>
+
+<!-- This panel is defaulted to empty with the UI/UX necessary to seamlessly begin a new conversation -->
+<!-- This panel will be populated using AJAX when the user selects a conversation from the left list panel, or if a new conversation is started -->
+<div class="col_9" style="border: 1px solid gray; min-height: 420px; border-radius: 15px; background: white;">
+	<div class="col_12" id="new_to">
+		<select id="to" class="full input-like">
+			@foreach (Squid.Users.User user in Squid.Users.User.GetUsersFriends(UserId).OrderBy(x => x.FullName))
+			{
+				<option value="@user.Id">@user.FullName</option>
+			}			
+		</select>
+	</div>
+	<!-- List of past messages, the actual IM "thread" -->
+	<div class="col_12" id="message_thread" style="min-height: 320px; background: #ddd;">
+	</div>
+	<!-- Entry point for user to send a new message -->
+	<div class="col_12" id="message_block">
+		<textarea class="full input-like" id="new_message" placeholder="Write a message..." style="padding: 5px;"></textarea>
+		<div class="col_12 right">
+			<a class="button pop" id="message_send">
+				send
+			</a>
+		</div>
+	</div>
+</div>
+
+@*
+	@if (Model.messages != null)
+	{
+		foreach (Squid.Messages.Message message in Model.messages)
+		{
+			Squid.Users.User sender;
+
+			if (message.MessageType == Squid.Messages.MessageType.UserToUser)
+			{
+				try
+				{
+					sender = Squid.Users.User.GetUserById(message.SenderId ?? Guid.Empty);
+				}
+				catch
+				{
+					sender = new Squid.Users.User();
+					sender.FirstName = "Unknown";
+					sender.LastName = "User";
+				}
+			}
+			else
+			{
+				sender = new Squid.Users.User();
+				sender.FirstName = "wishlu";
+				sender.LastName = "";
+			}
+
+			<div class="col_12 pop" style="background: @(message.Read ? "lightgray" : "white"); border: 2px solid lightblue; border-radius: 15px;">
+				<div class="col_2 center" style="border-right: 1px solid gray;">
+					@if (message.MessageType == Squid.Messages.MessageType.UserToUser)
+					{
+						<div class="col_12 circle pop" style="float: none; display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(sender.ImageUrl)'); background-color: white; width: 75px; height: 75px;">
+						</div>
+					}
+					else
+					{
+						<div class="col_12 circle pop" style="float: none; display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('/Images/headerLogo.png'); background-color: white; width: 75px; height: 75px;">
+						</div>
+					}
+					<span class="col_12 bold" style="font-weight: bold;">@sender.FullName</span>
+				</div>
+				<div class="col_8">
+					<span class="col_6 bold"><a href="/inbox/read/@message.Id">@message.SubjectText</a></span>
+					<span class="col_6 right">Sent: @message.SendTime.Value.ToString("MM/dd/yy")</span>
+					<span class="col_12">@message.BodyText</span>
+				</div>
+				<div class="col_2">
+					<div class="col_12">
+						<a class="button pop" href=""><i class="fa fa-fw fa-reply"></i></a>
+						<a class="button pop tooltip" title="archive" href="/inbox/archive/@(message.Id)"><i class="fa fa-fw fa-folder-o"></i></a>
+						<a class="button pop tooltip" title="mark as unread" href="/inbox/unread/@(message.Id)"><i class="fa fa-fw fa-asterisk"></i></a>
+						<a class="button pop del tooltip" title="delete" href="/inbox/delete/@(message.Id)"><i class="fa fa-fw fa-trash-o"></i></a>
+					</div>
+				</div>
+			</div>
+		}
+	}
+*@

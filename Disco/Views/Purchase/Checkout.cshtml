@@ -1,0 +1,147 @@
+﻿@using Disco.Common
+@model dynamic
+@{
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";
+
+    var currentUser = Squid.Users.User.GetUserById(UserId);
+
+    var response = Model.Estimates as TwoTap.API.Models.PurchaseEstimatesResponse;
+    var checkout = Model.Model as Disco.Controllers.CheckoutModel;
+}
+
+@section page {
+    wishlu - checkout
+}
+
+@section styles {
+    <link rel="stylesheet" href="http://assets.wishlu.com/css/twotap/animate.css" />
+    <link rel="stylesheet" href="http://assets.wishlu.com/css/twotap/twotap.css" />        
+}
+
+@section scripts {
+    <script src="//assets.wishlu.com/js/jquery.payment.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // process the checkout with sms confirmation
+            $("#cart_checkout_sms").click(function () {
+                var fields_input = {
+                    "@checkout.SiteId": {
+                        "addToCart": {
+                            "@checkout.ProductId": {
+                                "quantity": @checkout.Quantity,
+                                "size": "@checkout.Size",
+                                "color": "@checkout.Color"
+                            }
+                        },
+                        "noauthCheckout": {
+                            "billing_country": "United States of America",
+                            "billing_address": "@checkout.BillingAddress",
+                            "billing_city": "@checkout.BillingCity",
+                            "billing_first_name": "@checkout.BillingFirstName",
+                            "billing_last_name": "@checkout.BillingLastName",
+                            "billing_state": "@checkout.BillingState",
+                            "billing_telephone": "@checkout.BillingTelephone",
+                            "billing_zip": "@checkout.BillingZIP",
+                            "card_name": "@checkout.CardName",
+                            "card_type": "@checkout.CardType",
+                            "card_number": "@checkout.CardNumber.Replace(" ","").Trim()",
+                            "cvv": "@checkout.CVV",
+                            "email": "@checkout.Email",
+                            "expiry_date_month": "@checkout.ExpiryMonth",
+                            "expiry_date_year": "@checkout.ExpiryYear",
+                            "shipping_first_name": "@checkout.ShippingFirstName",
+                            "shipping_last_name": "@checkout.ShippingLastName",
+                            "shipping_zip": "@checkout.ShippingZIP",
+                            "shipping_city": "@checkout.ShippingCity",
+                            "shipping_state": "@checkout.ShippingState",
+                            "shipping_address": "@checkout.ShippingAddress",
+                            "shipping_telephone": "@checkout.ShippingTelephone",
+                            "shipping_country": "United States of America"
+                        }
+                    }
+                };
+
+                var confirm = {
+                    "method": "sms",
+                    "phone": "@checkout.BillingTelephone",
+                    "retry_url": "http://www.wishlu.com/purchase/retry",
+                    "sms_confirm_url": "http://www.wishlu.com/purchase/confirm",
+                    "sms_finished_url": "http://www.wishlu.com/purchase/finished"
+                }
+
+                // initiate a purchase
+                $.post("https://api.twotap.com/v1.0/purchase_info?public_token=147b1eed7550448a6d435c98975322", { "cart_id": "@checkout.CartId", "fields_input": fields_input, "confirm": confirm, "callback_url":"http://www.wishlu.com/purchase/confirm", "sms_confirm_url": "http://www.wishlu.com/purchase/confirm", "sms_finished_url":"http://www.wishlu.com/purchase/finished" }, function (data, status, xhr) {
+                    if (data.message == "still_processing" || data.message == "done") {
+                        swal("Success!", "Your order has been placed successfully. Please allow several minutes for our system to finalize your order with the retailer. You should receive several text messages to your billing telephone number, and can now view the status of this order on your orders page.");
+                        setTimeout(function() {window.close();}, 5000);
+                    }
+                    else {
+                        swal("Uh oh...", "There was an error placing your order. Please try again later.", "error");
+                    }
+                    //swal("info", JSON.stringify(data));
+                }, "json");
+            });
+
+            // process the checkout
+            $("#cart_checkout").click(function () {
+
+            });
+        });
+    </script>
+}
+
+<div>
+    <div class="site_line col_12 center" style="border: 2px solid lightblue; border-radius: 15px; background:white; padding: 10px;">        
+        <fieldset class="col_12">
+            <legend>Items</legend>
+            <div class="product_line col_12" style="text-align: left;">
+                <div class="col_4">
+                    <img style="width: 100%;" src="@checkout.Image" />
+                </div>
+                <div class="col_8">
+                    <div class="col_12">
+                        <span style="font-size:10pt;">@checkout.Title</span>
+                    </div>                    
+                    <div class="col_5">
+                        <span style="font-size:10pt;">Quantity:</span>
+                    </div>
+                    <div class="col_2">
+                        1
+                    </div>
+                    <div class="col_5" style="text-align: right;">
+                        <span><b>@checkout.Price</b></span>
+                    </div>                    
+                </div>
+            </div>
+        </fieldset>
+        <fieldset class="col_12" style="text-align: right;">
+            <legend>Price</legend>
+            <div class="col_6">
+                Sales Tax:
+            </div>
+            <div class="col_6">
+                @response.Data.Estimates.Values.First().Prices.SalesTax
+            </div>
+            <div class="col_6">
+                Shipping:
+            </div>
+            <div class="col_6">
+                @response.Data.Estimates.Values.First().Prices.ShippingPrice
+            </div>
+            <div class="col_12">
+                <b>Grand Total: @response.Data.Estimates.Values.First().Prices.FinalPrice</b>
+            </div>
+        </fieldset>
+        <div class="col_12">
+            <a id="cart_checkout_sms" class="button pop full">Checkout with SMS Confirmation</a>
+        </div>
+        <div class="col_12">
+            <a id="cart_checkout" class="button pop full">Checkout</a>
+        </div>
+    </div>
+
+        @*@Newtonsoft.Json.JsonConvert.SerializeObject(Model)*@
+
+        
+    </div>

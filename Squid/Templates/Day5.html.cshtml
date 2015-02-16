@@ -1,0 +1,108 @@
+﻿@inherits RazorEngine.Templating.HtmlTemplateBase<Squid.Users.User>
+@helper Button(string link, string text)
+{
+    string background = @"background: rgb(252,252,252);
+        background: -moz-linear-gradient(top, rgba(252,252,252,1) 0, rgba(224,224,224,1) 100%);
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0,rgba(252,252,252,1)), color-stop(100%,rgba(224,224,224,1)));
+        background: -webkit-linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);
+        background: -o-linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#e0e0e0',GradientType=0 );
+        background: linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);";
+
+                                                                                        <div style="text-align:center;">
+                                                                                            <a class="button pop center" style="text-shadow:0 1px 0 #fff;font-size:14px;vertical-align: middle;color:#666;text-decoration:none;position:relative;top:0;left:0;box-sizing: border-box; display:inline-block; @background border:1px solid #ccc; border-radius: 5px; padding: 10px 15px;" href="@link">@text</a>
+                                                                                        </div>
+}
+<!DOCTYPE html>
+
+<div style="width:100%; background:#f3f3f3; padding: 10px;">
+    <div style="width:600px; border: 2px solid lightblue; border-radius: 15px; background:white; margin:25px auto; padding: 25px; text-align:left;">
+        <div style="text-align:center;">
+            <img src="http://assets.wishlu.com/images/email/logo.png" />
+        </div>
+
+        <span>Hi @Model.FirstName,</span>
+
+        <h1 style="text-align:center;">What is a wishloop?</h1>
+
+        <p>
+            wishloops are private circles of people with whom you share one, some, or all of your wishlus.
+            When you invite people to join you on wishlu, they automatically belong to your friends wishloop;
+            however, you can create as many wishloops as you want, move people around, and organize your wishloops
+            any way you want.
+        </p>
+        <br />
+
+        <!-- Wishloop examples illustration -->
+
+        @Button("http://www.wishlu.com/wishloop", "create a wishloop now")        
+        <br />
+
+        <p>
+            People in your wishloops can see the items you would like to receive as gifts from any wishlu you
+            give them permission to view. They can purchase an item by clicking on the item's link, which will
+            take them to the site where you found the item.
+        </p>
+        <br />
+        
+        <!-- Wish detail screen -->
+
+        @Button("http://www.wishlu.com/wishloop", "create a wishloop now")
+        <br />
+
+        <h1 style="text-align:center;">How does gifting work on wishlu?</h1>
+
+        <p>
+            People in a wishloop can see which items in your wishlu others have already gifted you, even though you can't.
+        </p>
+
+        <div style="text-align:center;">
+            <img style="width:100%;" src="http://assets.wishlu.com/images/email/giftpromises.png" />
+        </div>
+        <br />
+        <br />
+
+        <p>
+            When people gift you a particular item, they choose a date to notify you.
+        </p>
+
+        <div style="text-align:center;">
+            <img style="width:100%;" src="http://assets.wishlu.com/images/email/giftdate.png" />
+        </div>        
+        <br />
+        <br />
+
+        @Button("http://www.wishlu.com/invite", "invite people to join one of your wishloops")        
+        <br />
+
+        <h5>Have a question? <a style="color: #aec03b;" href="mailto:help@wishlu.com">Please ask here</a>.</h5>
+    </div>
+
+    <div class="footer" style="width:600px; margin:25px auto; padding: 25px; text-align: center;">
+        <span>go to <a style="color: #aec03b" href="http://www.wishlu.com">wishlu.com</a></span>
+        <br />
+        <br />
+        <span>This email was sent to <i>@Model.LoginId</i> | Don't want activity notifications? <a style="color: #aec03b" href="http://www.wishlu.com/user/notifications">Change your email preferences.</a></span>
+        <br />
+        <span>&copy; 2014 wishlu. All Rights Reserved | <a style="color: #aec03b;" href="http://www.wishlu.com/privacy">Privacy Policy</a> | <a style="color: #aec03b;" href="http://www.wishlu.com/tos">Terms and Conditions</a></span>
+        <br />
+        <br />
+        <div class="social">
+            <a href="http://www.facebook.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/facebook.png" />
+            </a>
+            <a href="http://www.twitter.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/twitter.png" />
+            </a>
+            <a href="http://plus.google.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/google-plus.png" />
+            </a>
+            <a href="http://www.pinterest.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/pinterest.png" />
+            </a>
+            <a href="http://wishlu.tumblr.com" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/tumblr.png" />
+            </a>
+        </div>
+    </div>
+</div>

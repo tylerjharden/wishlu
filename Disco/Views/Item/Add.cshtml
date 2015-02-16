@@ -1,0 +1,428 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+}
+
+@section page {
+    add item - wishlu
+}
+
+@section title {
+    add item
+}
+
+@section styles {
+
+}
+
+@section scripts {
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.history.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#product_results").on("click", ".product_save", function () {
+                var sel = $(this);
+                sel.addClass("disabled");
+                sel.text("saving...");
+
+                var product = {};
+
+                var product_type = sel.data("product-type");
+
+                if (product_type === "milkshake") {
+                    product.Id = sel.data("id");
+                    product.ProductType = "milkshake";
+                }
+                else if (product_type === "amazon") {
+                    product.ASIN = sel.data("asin");
+                    product.ProductType = "amazon";
+                }
+                else if (product_type === "bby") {
+                    product.SKU = sel.data("sku");
+                    product.ProductType = "bestbuy";
+                }
+                else {
+                    swal("Uh oh...", "The product you are attempting to save has invalid product data.");
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/item/add",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(product),
+                    success: function (data) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            sel.text("saved");
+                            //History.pushState(null, 'saved', '?state=saved');
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                            sel.removeClass("disabled");
+                            sel.text("save");
+                        }
+                    },
+                    error: function (data) {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        var searchRequest;
+
+        function doSearch() {
+            query = $('#tokens').val();
+            if (query != "") {
+                $(".findonline").show();
+                $("#products_loading").show();
+                searchRequest = $.get("/get/products?query=" + encodeURIComponent(query), null, function (result) {
+                    // Append Results
+                    $("#product_results").html(result);
+                    $("#products_loading").hide();
+                    gettingProducts = false;
+
+                    // Tooltips
+                    $('.tooltip, .tooltip-top, .tooltip-bottom, .tooltip-right, .tooltip-left', '#product_results').each(function () {
+                        // variables
+                        var tpos = 'top';
+                        var content = $(this).attr('title');
+                        var dataContent = $(this).attr('data-content');
+                        var keepAlive = false;
+                        var action = 'hover';
+                        var delay = $(this).attr('data-delay');
+                        if (delay === undefined) { delay = 1000; }
+
+                        // position
+                        if ($(this).hasClass('tooltip-top')) { tpos = 'top'; }
+                        if ($(this).hasClass('tooltip-right')) { tpos = 'right'; }
+                        if ($(this).hasClass('tooltip-bottom')) { tpos = 'bottom'; }
+                        if ($(this).hasClass('tooltip-left')) { tpos = 'left'; }
+
+                        // content
+                        $('.tooltip-content').removeClass('hide').wrap('<div class="hide"></div>');
+                        if (dataContent) { content = $(dataContent).html(); keepAlive = true; }
+
+                        // action (hover or click) defaults to hover
+                        if ($(this).attr('data-action') == 'click') { action = 'click'; }
+
+                        // tooltip
+                        $(this).attr('title', '')
+                        .tipTip({ defaultPosition: tpos, content: content, keepAlive: keepAlive, activation: action, delay: delay });
+                    });
+                });
+            }
+        }
+
+        function cancelSearch() {
+            if (searchRequest != null) {
+                searchRequest.abort();
+            }
+            $("#product_results").html("");
+            $(".findonline").hide();
+            page = 1;
+            getting = false;
+        }
+    </script>
+
+    <script>
+        var page = 1;
+        var searchquery = "";
+        var gettingProducts = false;
+
+        $(document).ready(function () {
+            var SCROLL_BUFFER = 200;
+
+            //var scrollingDiv = $(window); //$(".WishLuMainSection");
+            //var niceScroll = scrollingDiv.getNiceScroll();
+
+            var lastScroll = $(window).scrollTop(); //scrollingDiv.scrollTop();
+
+            //scrollingDiv.scroll(function (data) {
+            $(window).scroll(function (data) {
+                var newScroll = $(window).scrollTop(); //scrollingDiv.scrollTop();
+                var delta = newScroll - lastScroll;
+                lastScroll = newScroll;
+                var scrollHeight = $(document).height(); //scrollingDiv[0].scrollHeight;
+                var maxScroll = scrollHeight - $(window).height(); //scrollingDiv[0].clientHeight;
+
+                if (delta > 0 && maxScroll - newScroll < SCROLL_BUFFER && !gettingProducts) {
+                    gettingProducts = true;
+                    $("#products_loading").show();
+
+                    searchRequest = $.get("/get/products?query=" + encodeURIComponent($('#tokens').val()) + "&page=" + page, null, function (result) {
+                        $("#product_results").append(result);
+                        $("#products_loading").hide();
+
+                        page = page + 1;
+
+                        //niceScroll[0].rail.drag = false;
+                        //niceScroll.resize();
+
+                        gettingProducts = false;
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script>
+        // Keys "enum"
+        var KEY = {
+            BACKSPACE: 8,
+            TAB: 9,
+            ENTER: 13,
+            ESCAPE: 27,
+            SPACE: 32,
+            PAGE_UP: 33,
+            PAGE_DOWN: 34,
+            END: 35,
+            HOME: 36,
+            LEFT: 37,
+            UP: 38,
+            RIGHT: 39,
+            DOWN: 40,
+            NUMPAD_ENTER: 108,
+            COMMA: 188
+        };
+
+        $(document).ready(function () {
+            $("#tokens").keydown(function (event) {
+                switch (event.keyCode) {
+                    case KEY.TAB:
+                    case KEY.ENTER:
+                    case KEY.NUMPAD_ENTER:
+                        $(".findonline").show();
+                        cancelSearch();
+                        doSearch();
+                        break;
+
+                    case KEY.BACKSPACE:
+                        cancelSearch();
+                        break;
+                }
+            });
+            $("#tokens").bind("paste", function () {
+                $(".findonline").show();
+                cancelSearch();
+                doSearch();
+            });
+
+            // Manual
+            $("#manual").on("click", function () {
+                var product = {};
+
+                product.Name = "new item";
+                product.ProductType = "custom";
+
+                $.ajax({
+                    type: "POST",
+                    url: "/item/add",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(product),
+                    success: function (data) {
+                        if (data.result == true) {
+                            //swal("Success!", data.message, "success");
+                            var wid = data.id;
+                            location.href = "/i/" + wid;
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data) {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                });
+            });
+
+            // Just Jot
+            /*$("#justjotname").keydown(function (event) {
+                switch (event.keyCode) {
+                    case KEY.TAB:
+                    case KEY.ENTER:
+                    case KEY.NUMPAD_ENTER:
+                        var product = {};
+                        
+                        product.Name = $(this).val();
+                        product.ProductType = "custom";
+                        
+                        $.ajax({
+                            type: "POST",
+                            url: "/item/add",
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            traditional: true,
+                            data: JSON.stringify(product),
+                            success: function (data) {
+                                if (data.result == true) {
+                                    swal("Success!", data.message, "success");
+                                    var wid = data.id;
+                                    setTimeout(function () { location.href = "/i/" + wid; }, 2000)
+                                }
+                                else {
+                                    swal("Uh oh...", data.message, "error");                                    
+                                }
+                            },
+                            error: function (data) {
+                                swal("Uh oh...", data.message, "error");
+                            }
+                        });
+                        //location.href = "/item/justjot?name=" + encodeURIComponent($(this).val());
+                        break;
+
+                    case KEY.BACKSPACE:
+                        cancelSearch();
+                        break;
+                }
+            });*/
+
+            // Website URL
+            /*$("#fromwebsiteurl").keydown(function (event) {
+                switch (event.keyCode) {
+                    case KEY.TAB:
+                    case KEY.ENTER:
+                    case KEY.NUMPAD_ENTER:
+                        var product = {};
+
+                        product.Name = "new item";
+                        product.Url = $(this).val();
+                        product.ProductType = "custom";
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/item/add",
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            traditional: true,
+                            data: JSON.stringify(product),
+                            success: function (data) {
+                                if (data.result == true) {
+                                    swal("Success!", data.message, "success");
+                                    var wid = data.id;
+                                    setTimeout(function () { location.href = "/i/" + wid; }, 2000)
+                                }
+                                else {
+                                    swal("Uh oh...", data.message, "error");
+                                }
+                            },
+                            error: function (data) {
+                                swal("Uh oh...", data.message, "error");
+                            }
+                        });
+                        //location.href = "/item/button?url=" + encodeURIComponent($(this).val());
+                        break;
+
+                    case KEY.BACKSPACE:
+                        cancelSearch();
+                        break;
+                }
+            });*/
+        });
+    </script>
+
+    <script>
+        var urlParams;
+        (window.onpopstate = function () {
+            var match,
+                pl = /\+/g,  // Regex for replacing addition symbol with a space
+                search = /([^&=]+)=?([^&]*)/g,
+                decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+                query = window.location.search.substring(1);
+
+            urlParams = {};
+            while (match = search.exec(query))
+                urlParams[decode(match[1])] = decode(match[2]);
+        })();
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Check for a pre-defined Wishlu
+            //if (urlParams.wishlu != null) {
+            //    $('option:selected', '#product_wishlu').removeAttr('selected');
+            //    $('#product_wishlu').find('option[value="' + urlParams.wishlu + '"]').attr("selected", true);
+            //}
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#bookmarklet").click(function (e) {
+                e.preventDefault();
+                swal("No no no!", "Drag this to the bookmark bar in your browser, then click it when on other web pages of things you want to add them to wishlu.", "warning");
+                return false;
+            });
+        });
+    </script>
+}
+
+@section info {
+    <span>You can add an item to one of your existing wishlus or a new wishlu three ways:</span>
+    <ul style="text-align:left;">
+        <li>Drag and drop the wishlu bookmarklet tool to your browser to add items from any product page on the web.</li>
+        <li>Search our database of retail partners by store, website, brand,  or product.</li>
+        <li>Manually enter information, the URL, and a photo for any item you would like as a gift by selecting <b>add item manually</b>.</li>
+    </ul>
+}
+
+<div class="full">
+    <div id="BookmarkletNag" class="notice nag center" style="line-height: 20px;">
+        <img src="/Images/centerLogo.png" alt="wishlu" style="float: left; width: 20px; height: 20px;">
+        Drag the wishlu bookmarklet to your browser's bookmark bar to add products from any site.
+        <a class="pop" id="bookmarklet" style="margin-left: 10px; padding: 5px; width: 150px; height: 15px; font-size: 10pt; border: 2px solid lightblue; border-radius: 15px; background-color: white;" href="javascript:void((function(d){var e=d.createElement('script');e.setAttribute('type','text/javascript');e.setAttribute('charset','UTF-8');e.setAttribute('src','//assets.wishlu.com/ext/bookmarklet.js?r='+Math.random()*99999999);d.body.appendChild(e)})(document));">
+            add to wishlu
+        </a>
+        <a href="#close" class="fa fa-times right"></a>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#BookmarkletNag').slideDown();
+        });
+    </script>
+</div>
+
+<div class="CreateWish clearfix">
+    <!-- Add Wish -->
+    <div class="col_12" id="hunt" style="margin: 0;">
+        <div class="col_8 clearfix" style="margin-left: auto; margin-right: auto; float: none;">
+            <!-- find -->
+            <div class="col_12 tooltip" data-delay="0" title="Search for items from hundreds of our partner retailers." style="position: relative;">
+                <input type="text" id="tokens" placeholder="enter item to search for here" class="full large-input" />
+                <i class="fa fa-eye fa-3x" style="position: absolute; top: 5px; right: 15px; color: #ccc; opacity: 0.5;"></i>
+            </div>
+            <hr class="or" />
+            <!-- manually -->
+            <div class="col_12 tooltip" data-delay="0" title="Click here to be taken to an empty item detail screen and manually input your item details." style="position: relative;">
+                <a class="button pop full center" id="manual">add item manually</a>
+            </div>
+            @*
+            <!-- just jot -->
+            <div class="col_12 tooltip" data-delay="0" title="Enter the name of a new item you would like to add." style="position: relative;">
+                <input type="text" id="justjotname" placeholder="just jot." class="full large-input" />
+                <i class="fa fa-pencil fa-3x" style="position: absolute; top: 5px; right: 15px; color: #ccc; opacity: 0.5;"></i>
+            </div>
+            <hr class="or" />
+            <!-- from website -->
+            <div class="col_12 tooltip" data-delay="0" title="Type or paste a link to an item anywhere on the internet or an image of what you want." style="position: relative;">
+                <input type="text" id="fromwebsiteurl" placeholder="http://" class="full large-input" />
+                <i class="fa fa-globe fa-3x" style="position: absolute; top: 5px; right: 15px; color: #ccc; opacity: 0.5;"></i>
+            </div>
+                *@
+        </div>
+    </div>
+
+    <div class="findonline center clearfix" style="display: none; color: Gray" id="findonline">
+        <div class="col_12 center clearfix" id="product_results" style="padding: 20px; overflow: visible;">
+        </div>
+        <div id="products_loading" class="col_12 center" style="display: none; margin-bottom: 100px;">
+            <i class="fa fa-spin fa-spinner fa-5x"></i>
+        </div>
+    </div>
+</div>

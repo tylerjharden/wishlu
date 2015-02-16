@@ -1,0 +1,230 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";    
+}
+
+@functions {
+    public class Styles
+    {
+        public static IHtmlString Render(string cssfile)
+        {
+            return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
+        }
+    }
+
+    public class Scripts
+    {
+        public static IHtmlString Render(string jsfile)
+        {
+            return new HtmlString("<script src=\"" + jsfile + "\"></script>");
+        }
+    }
+}
+
+@section styles {
+@Styles.Render("//assets.wishlu.com/css/jquery.fancybox.css")
+
+<style>
+#SeePopup
+{   
+    position: fixed;
+    z-index: 200;
+    line-height: normal;
+    top: 0;
+    left: 0;
+    height: auto; /* 400px */
+    width: 1200px; /* 400px */
+    display: none;
+    margin: 0 auto;
+    padding: 25px;
+    color: #918b7d;
+    font-family: Lato, Helvetica, Arial, Sans-Serif;
+    background: #FFFFFF;    
+    font-size: 1.2em;
+    border: 5px solid #D3EEF2;
+    border-radius: 15px;    
+}
+
+#SeeMask
+{
+   display: none;
+   background: #000;
+   position: fixed; 
+   left: 0; 
+   top: 0;
+   width: 100%;
+   height: 100%;
+   opacity: 0.6;
+   z-index: 100;    
+}
+</style>
+}
+
+@section scripts {
+@Scripts.Render("//assets.wishlu.com/js/jquery.fancybox.js")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#SeeMask").fadeIn();
+
+        $("#SeePopup").waitForImages(function () {
+            var h = $(window).height();
+            var w = $(window).width();
+
+            var h2 = $(this).height() + 200;
+            var w2 = $(this).width();
+
+            var top = (h / 2) - (h2 / 2);
+            var left = (w / 2) - (w2 / 2);
+
+            if (top < 0)
+                top = 0;
+
+            if (left < 0)
+                left = 0;
+
+            $(this).css('left', left + 'px');
+            $(this).css('top', top + 'px');
+                        
+            $(this).fadeIn();                        
+        });
+                
+        $(".fancybox").fancybox({
+            openEffect: 'elastic',
+            closeEffect: 'elastic'
+        });
+
+        var count = $(".tutorial").length;
+        var polling = false;
+        $("#next").click(function () {
+            var curtut = $(".tutorial:visible");
+            var curnum = curtut.data("step");
+                                        
+            if (!polling && curnum <= count)
+            {
+                polling = true;
+
+                curtut.fadeOut(100, function () {
+                    $(".tutorial").each(function (i, el) {
+                        if ($(el).data("step") == (curnum + 1)) {
+                            $(el).fadeIn(500, function () {
+                                $(".prog").each(function (i, el) {
+                                    var prog = $(el);
+
+                                    if (prog.data("step") == (curnum + 1)) {
+                                        prog.removeClass("fa-circle-o");
+                                        prog.addClass("fa-circle");
+                                    }
+                                    polling = false;
+                                })
+                            });
+
+                            // last step, make a wish
+                            if ($(el).data("step") == count) {
+                                $("#next").fadeOut(500);
+                                $(".prog").fadeOut(500);
+                                //$("#sidebar").fadeOut(500, function () {
+                                //    $("#main").addClass("col_12", 1000)
+                                //});
+                            }
+                        }
+                    })
+                });
+            }                       
+        });
+    });
+        
+    $(window).resize(function () {
+        var element = $("#SeePopup");
+
+        var h = $(window).height();
+        var w = $(window).width();
+
+        var h2 = $(element).height() + 200;
+        var w2 = $(element).width();
+
+        var top = (h / 2) - (h2 / 2);
+        var left = (w / 2) - (w2 / 2);
+
+        if (top < 0)
+            top = 0;
+
+        if (left < 0)
+            left = 0;
+
+        $(element).css('left', left + 'px');
+        $(element).css('top', top + 'px');
+    });
+</script>
+}
+
+<div id="SeeMask"></div>
+
+<div id="SeePopup" class="pop inset center">
+    <div id="sidebar" class="col_2" style="padding: 5px; border-right: 1px dotted #ccc;">
+        <h6>Welcome to wishlu, @(System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase((string)Session["FirstName"])).</h6>
+        <p>See what you can do.</p>
+        <br />
+        <button id="next" class="button large pop" style="">
+            next
+        </button>
+        <br />
+        <div style="margin-top: 20px;">
+            <i class="prog fa fa-circle" data-step="1"></i>
+            <i class="prog fa fa-circle-o" data-step="2"></i>
+            <i class="prog fa fa-circle-o" data-step="3"></i>
+            <i class="prog fa fa-circle-o" data-step="4"></i>
+        </div>            
+    </div>
+    <div id="main" class="col_10">
+        <div class="tutorial" data-step="1">
+            <h3>A wishlu is a wishlist, but better.</h3>
+            <p><b>wish·lu</b> <i>noun</i> <b>:</b> a shoppable collection of gifts you want from anywhere, curated &amp; organized by you.</p>
+            <hr />
+            <div class="gallery">
+                <a class="fancybox" rel="gal1" href="//assets.wishlu.com/images/tutorial/wishlus/graduation.png">
+                    <div class="tooltip" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/wishlus/graduation.png'); width: 250px; height: 250px;"></div>                    
+                </a>
+                <a class="fancybox" rel="gal1" href="//assets.wishlu.com/images/tutorial/wishes/christmas.png">
+                    <div class="tooltip" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/wishes/christmas.png'); width: 250px; height: 250px;"></div>
+                </a>
+                <a class="fancybox" rel="gal1" href="//assets.wishlu.com/images/tutorial/wishlus/resolution.png">
+                    <div class="tooltip" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/wishlus/resolution.png'); width: 250px; height: 250px;"></div>
+                </a>      
+            </div>
+        </div>
+        <div class="tutorial" data-step="2" style="display: none;">
+            <h3>Personal gift registries for all:</h3>
+            <h3>the possibilities are infinite.</h3>
+            <p>Add things you want to your wishlus for any celebratory occasion, hobby, want, or need.</p>
+            <hr />
+            <div class="gallery">
+                <a class="fancybox" rel="gal2" href="//assets.wishlu.com/images/tutorial/my/wishlus.png" title="Whether it's your birthday, a holid, a life event, or just some things that don't anywhere else, you can build a wishlu for it.">
+                    <div class="tooltip" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/my/wishlus.png'); width: 250px; height: 250px;"></div>
+                </a>
+            </div>
+        </div>
+        <div class="tutorial" data-step="3" style="display: none;">
+            <h3>The art of gifting gets smart.</h3>
+            <p>Share your wishlus with another person or your wishloops &mdash; private circles of family and friends &mdash; so they can buy you exactly what you want.</p>
+            <hr />
+            <div class="gallery">
+                <a class="fancybox" rel="gal1" href="//assets.wishlu.com/images/tutorial/my/wishloops.png" title="Whether you like to share with all your friends, or the guys in *cough* poker club, or your co-workers, wishloops organize it all.">
+                    <div class="tooltip" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/my/wishloops.png.png'); width: 250px; height: 250px;"></div>
+                </a>  
+            </div>
+        </div>
+        <div class="tutorial" data-step="4" style="display: none;">
+            <h3>Ready?</h3>
+            <br />
+            <h4>Make a wish.</h4>
+            <h6>Add an item to a wishlu now.</h6>
+            <br />
+            <a class="button large pop" href="/tutorial/wishlu">
+                <i class="fa fa-2x fa-plus-circle" style="text-shadow: none; color: #CFDF51;"></i>
+            </a>            
+        </div>
+    </div>    
+    <a class="right" style="position: absolute; bottom: 10px; right: 15px;" href="/tutorial/skip">
+        skip
+    </a>
+</div>

@@ -1,0 +1,156 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section title {
+    just jot.
+}
+
+@section page {
+    just jot - wishlu
+}
+
+@section actions {    
+    <a class="button pop center" id="wish_save"><i class="fa fa-save" style="margin-right: 10px;"></i> save</a>
+}
+
+@section styles {    
+    
+}
+
+@section scripts {
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery.maskedinput.js"></script>
+<script type="text/javascript" src="//assets.wishlu.com/js/autoNumeric.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#wish_quantity").spinner({
+                spin: function (event, ui) {
+                    if (ui.value < 0) {
+                        $(this).spinner("value", 0);
+                        return false;
+                    }
+                }
+            });
+
+            $("#wish_price").autoNumeric('init');                        
+        });
+    </script>
+        
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var handleFileSelect = function (evt) {
+                var files = evt.target.files;
+                var file = files[0];
+                if (files && file) {
+                    var reader = new FileReader();
+                    reader.onload = function (readerEvt) {
+                        var binaryString = readerEvt.target.result;
+                        $('#base64image').val(btoa(binaryString));
+                        $('#wish_image').css('background-image', 'url(data:image/jpg;base64,' + $('#base64image').val() + ")");
+                    };
+                    reader.readAsBinaryString(file);
+                }
+            };
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+                $('#filePicker').change(handleFileSelect);
+            } else {
+                alert('The File APIs are not fully supported in this browser.');
+            }
+        });
+</script>
+}
+
+@section info {
+    <div class="col_12" style="height:400px;">
+        <span class="col_12"><b>Link your wish to a website either by searching online or adding a URL by hand.</b></span>
+        
+        <span class="col_12"><b>Click +</b> to attach an online image of your item, or to add a photo using your phone or from your library.</span>
+        
+        @*Select put in wishwell so that family & friends can pool funds toward the purchase of your wish via PayPal. Click the “I” button on the wishwell screen for more details, or see help under settings.
+            *@
+
+        <span class="col_12">Click the <b>notes:</b> field to edit or add important details about your wish (color, size, karats, horsepower).</span>
+        
+        <span class="col_12">Select <b>Add location.</b> to let family & friends know where to find your wish.</span>
+        
+        <span class="col_12">Choose <b>assign & save</b> to assign your wish to one or more wishlus or choose save & next! to quickly save your wish to your just me wishlu and to move on to capturing your next wish (helpful during a spree down aisle 9). You can assign floating wishes to a wishlu later.</span>
+    </div>
+}
+
+<!-- Item Container -->
+<div class="col_12 nomargin nopadding full">
+    <!-- Left Container-->
+    <div class="col_6 left alpha">
+        <!-- Item Image / Status Banner -->
+        <input type="file" id="filePicker" style="display: none;" />
+        <div class="col_12 pop wishimg wishLuList tilelarge" style="position: relative; padding: 5px; margin-top: 0;" onclick="$('#filePicker').trigger('click');">
+            <div class="col_12 center" id="wish_image" style="float: none; margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/defaultWish.jpg'); width: 400px; height: 400px;">
+            </div>    
+        </div>        
+        <input type="hidden" id="base64image" name="base64image" />       
+    </div>
+    <!-- Right Container -->
+    <div class="col_6 omega" style="float:right; border: 4px solid #D3EEF2; border-radius: 15px; background-color: white;">
+        <!-- Item Details -->
+        <div class="col_12">
+            <!-- Item Name -->
+            <div class="col_12">
+                <input id="wish_name" class="required full lowercase large-input" value="@ViewBag.ItemName" placeholder="item name" />                
+            </div>
+            
+            <!-- Item Source Link -->
+            <div class="col_12">                
+                <input id="wish_url" class="full input-like" placeholder="http:// or www." />                
+            </div>
+            <!-- Item Price -->
+            <div class="col_12">
+                <!-- Wish Price Textbox -->
+                <span class="col_4" style="margin: 0; font-weight: 300;">price:</span>
+                <span class="col_8" style="margin: 0;">
+                    <input type="text" id="wish_price" class="input-like" data-a-sign="$" data-a-dec="." data-a-sep="," />                    
+                </span>
+            </div>
+            <!-- Item Quantity Requested -->
+            <div class="col_12">
+                <span class="col_4" style="margin: 0; font-weight: 300;">requested:</span>
+                <span class="col_8" style="margin: 0;">
+                    <input class="input-like" id="wish_quantity" size="5" value="1" />
+                </span>
+            </div>            
+            <!-- Wishlu Selection -->
+            <div class="col_12">
+                <span class="col_4" style="margin: 0; font-weight: 300; padding-top: 5px;">wishlu:</span>
+                <div class="col_8" style="margin: 0;">
+                    <select id="wishlu_select" class="input-like full" style="width: 100%; color: #cbc3bb;">
+                        @foreach (Squid.Wishes.Wishlu lu in Squid.Wishes.Wishlu.GetUsersWishLus(UserId))
+                        {                            
+                            <option value="@lu.Id">
+                                @lu.Name
+                            </option>                            
+                        }
+                    </select>
+                </div>
+            </div>                        
+        </div>                
+        <!-- Tabber -->
+        <div class="col_12">
+            <!-- Item Bottom Tabs -->
+            <ul class="tabs left">
+                <li><a href="#description"><i class="fa fa-list" style="margin-right: 10px;"></i>description</a></li>
+                <li><a href="#notes"><i class="fa fa-pencil" style="margin-right: 10px;"></i>notes</a></li>
+            </ul>
+
+            <!-- Description Tab -->
+            <div id="description" class="tab-content" style="overflow: hidden;">                
+                <textarea id="wish_description" style="width: 100%; height: 150px;"></textarea>                
+            </div>
+
+            <!-- Notes Tab -->
+            <div id="notes" class="tab-content">
+                <textarea id="wish_notes" style="width: 100%; height: 150px;"></textarea>
+            </div>
+        </div>
+    </div>
+</div>

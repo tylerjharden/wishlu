@@ -1,0 +1,326 @@
+﻿@using Disco.Common
+@model Squid.Products.BestBuy.BestBuyProduct
+@{
+	Layout = "~/Views/Shared/Templates/MainLayout.cshtml";	
+}
+
+@section page {
+	@Model.Name
+}
+
+@section title {	
+	<span id="headerlink">stores</span>
+	<span class="fa fa-angle-right"></span>
+	<span>best buy</span>
+	<span class="fa fa-angle-right"></span>
+	<span>view product</span>	
+}
+
+@section meta
+{
+	<!-- Google -->
+	<meta name="description" content="@Model.LongDescription" />
+	<meta name="keywords" content="wishlu wish @Model.Name @Model.Manufacturer @Model.Color" />
+
+	<meta name="author" content="" />
+	<meta name="copyright" content="" />
+	<meta name="application-name" content="" />
+
+	<!-- Facebook / Pinterest (Rich Pin - Product) -->
+	<meta property="og:type" content="og:product" />
+	<meta property="og:site_name" content="wishlu" />
+	<meta property="og:title" content="@Model.Name" />
+	<meta property="og:image" content="@Model.Image" />
+	<meta property="og:url" content="http://www.wishlu.com/product/bby/@Model.SKU" />
+	@if (String.IsNullOrEmpty(Model.Description))
+	{
+		<meta property="og:description" content="@Model.Name" />
+	}
+	else
+	{
+		<meta property="og:description" content="@Model.LongDescription" />
+	}
+
+	<meta property="product:price:amount" content="@Model.SalePrice" />
+	<meta property="product:price:currency" content="USD" />
+	
+	<meta property="og:brand" content="@Model.Manufacturer" />
+
+	@if (String.IsNullOrEmpty(Model.UPC))
+	{
+		<meta property="og:upc" content="000000000000" />
+		<meta property="product:upc" content="000000000000" />
+	}
+	else
+	{
+		<meta property="og:upc" content="@Model.UPC" />
+		<meta property="product:upc" content="@Model.UPC" />
+	}
+	<meta property="og:availability" content="" />
+	<meta property="product:gender" content="" />
+	<meta property="product:color" content="@Model.Color" />
+	<meta property="product:color:map" content="@Model.Color" />
+
+	<!-- Ratings (Pinterest) -->
+	<meta property="og:rating" content="@Model.CustomerReviewAverage" />
+	<meta property="og:rating_scale" content="5" />
+	<meta property="og:rating_count" content="@Model.CustomerReviewCount" />
+
+	<!-- Twitter -->
+	<meta name="twitter:card" content="product" />
+	<meta name="twitter:site" content="@("@wishlu1")">
+	<meta name="twitter:creator" content="@("@wishlu1")">
+	<meta name="twitter:title" content="@Model.Name" />
+	<meta name="twitter:description" content="@Model.LongDescription" />
+	<meta name="twitter:image:src" content="@Model.Image" />
+	<meta name="twitter:data1" content="@Model.SalePrice USD" />
+	<meta name="twitter:label1" content="PRICE" />
+	<meta name="twitter:data2" content="Available at BestBuy.com" />
+	<meta name="twitter:label2" content="SHOP" />
+	<meta name="twitter:domain" content="wishlu.com" />
+
+	<!-- Pinterest -->
+}
+
+@section styles {
+	<link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/jquery.rating.css" />
+
+}
+
+@section scripts {
+	<script type="text/javascript" src="//assets.wishlu.com/js/jquery.unobtrusive-ajax.js"></script>
+	<script type="text/javascript" src="//assets.wishlu.com/js/jquery.rating.js"></script>
+
+	<script type="text/javascript" src="//assets.wishlu.com/js/jquery.autosize.min.js"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$("#product_quantity").spinner({
+				min: 1
+			});
+
+			$("#product_add").click(function () {
+				$("#product_add_panel").slideToggle();
+			});
+
+			$("#product_wishlu_select").change(function () {
+				$("#product_wishlu_input").val("");
+			});
+
+			$("#product_wishlu_input").change(function () {
+				if ($(this).val() !== "") {
+					$('option:selected', '#product_wishlu_select').removeAttr('selected');
+				}
+			});
+
+			$("#product_add_do").click(function () {
+				var sel = $(this);
+				sel.addClass("disabled");
+				sel.html("<i class='fa fa-spinner fa-spin'></i>");
+
+				var product = {};
+				product.ProductType = "bestbuy";
+				product.SKU = $("#product_sku").val();
+				product.Quantity = $("#product_quantity").val();
+
+				if ($("#product_wishlu_input").val() !== "") {
+					product.WishluName = $("#product_wishlu_input").val();
+				}
+				else {
+					product.Wishlu = $("#product_wishlu_select").val();
+				}
+
+				$.ajax({
+					type: "POST",
+					url: "/item/add",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify(product),
+					success: function (data) {
+						if (data.result == true) {
+							swal("Success!", data.message, "success");
+							sel.html("<i class='fa fa-check'></i>");
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+							sel.removeClass("disabled");
+							sel.text("save");
+						}
+					},
+					error: function (data) {
+						swal("Uh oh...", data.message, "error");
+					}
+				});
+			});
+		});
+	</script>
+
+	<!-- Social Scripts -->
+	<!-- Twitter -->
+	<script>!function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (!d.getElementById(id)) { js = d.createElement(s); js.id = id; js.src = "https://platform.twitter.com/widgets.js"; fjs.parentNode.insertBefore(js, fjs); } }(document, "script", "twitter-wjs");</script>
+	<!-- Asynchronous Pinterest -->
+	<script type="text/javascript">
+		(function (d) {
+			var f = d.getElementsByTagName('SCRIPT')[0], p = d.createElement('SCRIPT');
+			p.type = 'text/javascript';
+			p.async = true;
+			p.src = '//assets.pinterest.com/js/pinit.js';
+			f.parentNode.insertBefore(p, f);
+		}(document));
+	</script>
+	<!-- Tumblr -->
+	<script src="http://platform.tumblr.com/v1/share.js"></script>
+}
+
+<input type="hidden" id="product_sku" value="@(Model.SKU)" />
+
+<div class="grid" style="color: Gray">
+	<!-- Item Container -->
+	<div class="col_12">
+		<!-- Left Container-->
+		<div class="col_6">
+			<!-- Item Image / Status Banner -->
+			<div class="col_12 pop wishimg wishLuList tilelarge" style="position: relative; padding: 5px; margin-top: 0;">
+				<div id="image" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@Model.LargeImage'); width: 400px; height: 400px;">
+				</div>
+			</div>
+			<!-- Item Rating -->			
+			@*<div class="col_12 center">
+					<span>
+						<i class="fa fa-star"></i>
+						<i class="fa fa-star"></i>
+						<i class="fa fa-star"></i>
+						<i class="fa fa-star-o"></i>
+						<i class="fa fa-star-o"></i>
+					</span>
+				</div>*@
+			<!-- Facebook / Twitter Share -->
+			<div class="col_12 center" style="display: inline !important; position: relative; zoom: 1; vertical-align: top !important;">
+				<div class="fb-share-button" data-href="http://www.wishlu.com/product/bby/@(Model.SKU)" data-type="button" style="vertical-align: top !important;"></div>
+				<a href="https://twitter.com/share" class="twitter-share-button" data-related="wishlu:The official Wishlu Twitter" data-via="wishlu" data-url="http://www.wishlu.com/product/bby/@Model.SKU" data-text="Check out my wish" data-lang="en" data-size="medium" data-count="none">Tweet</a>
+				<a href="//www.pinterest.com/pin/create/button/?url=@Url.Encode(Request.Url.ToString())&media=@Url.Encode(Model.Image)&description=@Html.Encode(Model.LongDescription != null ? Model.LongDescription : Model.Name)" data-pin-do="buttonPin" data-pin-color="red"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_20.png" /></a>
+				<a href="http://www.tumblr.com/share/photo?source=@Url.Encode(Model.Image)&caption=@Html.Encode(Model.Description != null ? Model.Description : Model.Name)&clickthru=@Url.Encode(Request.Url.ToString())" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url('http://platform.tumblr.com/v1/share_2.png') top left no-repeat transparent;">Share on Tumblr</a>
+			</div>
+		</div>
+		<!-- Right Container -->
+		<div class="col_6" style="border: 4px solid #D3EEF2; -moz-border-radius: 15px; -webkit-border-radius: 15px; border-radius: 15px; background-color: white;">
+			<!-- Item Details -->
+			<div class="col_12">
+				<!-- Item Name -->
+				<div class="col_12" style="margin-top: 0; margin-bottom: 1px; padding-bottom: 1px; font-size: 14pt; color: #9a8b7d;">
+					@Model.Name
+				</div>				
+				<!-- Item Price -->
+				<div class="col_12">
+					<!-- Wish Price Textbox -->
+					<span class="col_4" style="margin: 0; font-weight: 300;">regular price:</span>
+					<span class="col_8" style="margin: 0;">
+						<span style="text-decoration: line-through;">@Model.RegularPrice.ToString("C")</span>
+					</span>
+				</div>
+				<div class="col_12">
+					<!-- Wish Price Textbox -->
+					<span class="col_4" style="margin: 0; font-weight: 300;">sale price:</span>
+					<span class="col_8" style="margin: 0;">
+						<span>@Model.SalePrice.ToString("C")</span>
+						<a id="product_buy" class="button pop center" style="margin-left: 10px; padding: 5px;" href="@Model.LinkshareAffiliateAddToCartUrl">
+							buy now
+						</a>
+					</span>                    
+				</div>
+				<!-- Product Quantity Spinner -->
+				<div class="col_12">
+					<span class="col_4" style="margin: 0; font-weight: 300; padding-top: 5px;">quantity:</span>
+					<span class="col_8" style="margin: 0;">
+						<input class="input-like" id="product_quantity" size="5" value="1" />
+					</span>
+				</div>
+				<!-- User Action Buttons (Add, Buy, Share, etc.)-->
+				<div class="col_12">
+					@if (Request.IsAuthenticated)
+					{
+						<a class="button pop center full" id="product_add">
+							add to a wishlu
+						</a>
+						<div class="col_12" id="product_add_panel" style="display: none;">
+							<div class="col_12">
+								<span class="col_4" style="margin: 0; font-weight: 300; padding-top: 5px;">select a wishlu:</span>
+								<div class="col_8" style="margin: 0;">
+									<select id="product_wishlu_select" class="input-like full">
+										@{
+						                    Guid floatingId = Squid.Wishes.Wishlu.GetUsersJustMeWishLu(UserId).Id;
+										}
+										<option value=""></option>
+										<option selected value="@floatingId">just me</option>
+										@foreach (Squid.Wishes.Wishlu wishLu in Squid.Wishes.Wishlu.GetUsersWishLus(UserId))
+										{
+											if (wishLu.WishLuType == Squid.Wishes.WishluType.JustMe)
+											{
+												continue;
+											}
+
+											<option value="@wishLu.Id">
+												@wishLu.Name
+											</option>
+										}
+									</select>
+								</div>
+							</div>
+							<hr class="or" />
+							<div class="col_12">
+								<span class="col_4" style="margin: 0; font-weight: 300; padding-top: 5px;">add to a new wishlu:</span>
+								<div class="col_8" style="margin: 0;">
+									<input type="text" class="input-like small-input full" id="product_wishlu_input" placeholder="enter name here" />
+								</div>
+							</div>
+							<div class="col_12 center full">
+								<a class="button pop center" id="product_add_do">
+									add
+								</a>
+							</div>
+						</div>						
+					}
+				</div>				
+			</div>
+			<!-- Added / Modified -->
+			<div class="col_12 center">
+				@if (Model.ReleaseDate.HasValue)
+				{ 
+				<div class="col_12">
+					released: @Model.ReleaseDate.Value.ToString("MM/dd/yyyy")
+				</div>
+				}
+				<div class="col_12" style="font-size: 10pt;">
+					(updated: @Model.ItemUpdateDate.ToString("MM/dd/yyyy"))
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bottom Tabber -->
+	<div class="col_12">
+		<!-- Item Bottom Tabs -->
+		<ul class="tabs left">
+			<li><a href="#comments"><i class="fa fa-comments-o" style="margin-right: 10px;"></i>comments</a></li>
+			@if (!String.IsNullOrEmpty(Model.LongDescription))
+			{
+				<li><a href="#description"><i class="fa fa-list" style="margin-right: 10px;"></i>description</a></li>
+			}
+		</ul>
+
+		<!-- Facebook Comments -->
+		<div id="comments" class="tab-content">
+			<div class="fb-comments" data-href="http://www.wishlu.com/product/bby/@Model.SKU" data-numposts="10" data-colorscheme="light" data-order-by="reverse_time" data-width="100%"></div>
+		</div>
+
+		<!-- Item Description -->
+		@if (!String.IsNullOrEmpty(Model.LongDescription))
+		{
+				<!-- Description Tab -->
+			<div id="description" class="tab-content">
+				@Model.LongDescription
+			</div>
+		}
+	</div>
+</div>	 

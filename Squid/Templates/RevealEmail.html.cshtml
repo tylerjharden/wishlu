@@ -1,0 +1,42 @@
+﻿@inherits RazorEngine.Templating.HtmlTemplateBase<dynamic>
+@helper Button(string link, string text)
+{
+    string background = @"background: rgb(252,252,252);
+        background: -moz-linear-gradient(top, rgba(252,252,252,1) 0, rgba(224,224,224,1) 100%);
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0,rgba(252,252,252,1)), color-stop(100%,rgba(224,224,224,1)));
+        background: -webkit-linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);
+        background: -o-linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#e0e0e0',GradientType=0 );
+        background: linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);";
+
+                                                                                        <div style="text-align:center;">
+                                                                                            <a class="button pop center" style="text-shadow:0 1px 0 #fff;font-size:14px;vertical-align: middle;color:#666;text-decoration:none;position:relative;top:0;left:0;box-sizing: border-box; display:inline-block; @background border:1px solid #ccc; border-radius: 5px; padding: 10px 15px;" href="@link">@text</a>
+                                                                                        </div>
+}
+@{
+    Squid.Users.User promiser = Model.GetPromiser();
+    Squid.Users.User to = Model.GetReceiver();
+    Squid.Wishes.Wish wish = Model.GetWish();         
+}
+<!DOCTYPE HTML>
+
+<div style="text-align:center;">
+    <img src="http://assets.wishlu.com/images/email/logo.png" />
+</div>
+
+<h2>Hello @to.FirstName,</h2>
+
+<br />
+
+<div class="col_12" style="border: 2px solid lightblue; background: white; border-radius: 15px; padding:10px;">
+   <span>@promiser.FullName has gifted an item from one of your wishlus. Once you have received this gift, please go to the item detail screen and confirm receipt, or click the button below.</span>
+    <br />
+    <br />
+    <h5>@wish.Name</h5>
+    <div style="text-align:center;">
+        <img style="width:50%;" src="@wish.ImageUrl" />
+    </div>
+    <br />
+    @Button("http://www.wishlu.com/i/" + wish.Id, "view item & confirm")    
+</div>
+

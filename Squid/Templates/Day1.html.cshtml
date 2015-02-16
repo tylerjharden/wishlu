@@ -1,0 +1,121 @@
+﻿@inherits RazorEngine.Templating.HtmlTemplateBase<Squid.Users.User>
+@helper Button(string link, string text)
+{
+    string background = @"background: rgb(252,252,252);
+        background: -moz-linear-gradient(top, rgba(252,252,252,1) 0, rgba(224,224,224,1) 100%);
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0,rgba(252,252,252,1)), color-stop(100%,rgba(224,224,224,1)));
+        background: -webkit-linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);
+        background: -o-linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#e0e0e0',GradientType=0 );
+        background: linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);";
+
+                                                                                        <div style="text-align:center;">
+                                                                                            <a class="button pop center" style="text-shadow:0 1px 0 #fff;font-size:14px;vertical-align: middle;color:#666;text-decoration:none;position:relative;top:0;left:0;box-sizing: border-box; display:inline-block; @background border:1px solid #ccc; border-radius: 5px; padding: 10px 15px;" href="@link">@text</a>
+                                                                                        </div>
+}
+<!DOCTYPE html>
+
+<div style="width:100%; background:#f3f3f3; padding: 10px;">
+    <div style="width:600px; border: 2px solid lightblue; border-radius: 15px; background:white; margin:25px auto; padding: 25px; text-align:left;">
+        <div style="text-align:center;">
+            <img src="http://assets.wishlu.com/images/email/logo.png" />
+        </div>
+
+        <br />
+        <br />
+
+        <span>Hello @Model.FirstName,</span>
+
+        <h1 style="text-align: center;">Welcome to wishlu.</h1>
+        <h2 style="text-align: center;">The art of gifting gets smart.</h2>
+
+        <span>Here are a few tips to get you acquainted with what you can do with wishlu.</span>
+
+        <h3>Go wish.</h3>
+        <span>Add items from anywhere. Every item you add to wishlu includes all of the important details that make buying it for you easy.</span>
+        <br />
+        <br />
+        @Button("http://www.wishlu.com/item/hunt", "add an item now")
+        <br />
+        <div style="text-align:center;">
+            <img style="width:100%;" src="http://assets.wishlu.com/images/email/addanitem.png" />
+        </div>
+        <br />
+        <br />
+        <br />
+        <br />
+
+        <h3>Organize in a snap.</h3>
+        <span>Assign items to wishlus&mdash;shareable, shoppable collections of the things you want or need from any store or website for any occasion.</span>
+        <br />
+        <br />
+        @Button("http://www.wishlu.com/wishlu", "create a wishlu now")
+        <br />
+        <div style="text-align:center;">
+            <img style="width:100%;" src="http://assets.wishlu.com/images/email/createwishlu.png" />
+        </div>
+        <br />
+        <br />
+        <br />
+        <br />
+
+        <h3>Give people a (very good) clue.</h3>
+        <span>Share an item you want with another person or assign an entire wishlu to one, some, or all of your wishloops&mdash;private circles of family and friends created by you.</span>
+        <br />
+        <br />
+        @Button("http://www.wishlu.com/wishloop", "create a wishloop now")
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+
+        <h3>Help your friends and family cheat (just a little).</h3>
+        <span>Fill out your wishlu profile to make buying the perfect gift for you easy every time. List your favorite things, sizes, stores and brands you like, and your shipping address.</span>
+        <br />
+        <br />
+        @Button("http://www.wishlu.com/user/edit", "edit profile now")
+        <br />
+        <div style="text-align:center;">
+            <img style="width:100%;" src="http://assets.wishlu.com/images/email/editprofile.png" />
+        </div>
+        <br />
+        <br />
+        <br />
+        <br />
+
+        <h3>Invite your friends and family to join one of your wishloops.</h3>
+        <span>People who belong to your wishloops can see and shop your wishlus, and share with you their own.</span>
+        <br />
+        <br />
+        @Button("http://www.wishlu.com/invite", "invite people now")
+    </div>
+
+    <div class="footer" style="width:600px; margin:25px auto; padding: 25px; text-align: center;">
+        <span>go to <a style="color: #aec03b" href="http://www.wishlu.com">wishlu.com</a></span>
+        <br />
+        <br />
+        <span>This email was sent to <i>@Model.LoginId</i> | Don't want activity notifications? <a style="color: #aec03b" href="http://www.wishlu.com/user/notifications">Change your email preferences.</a></span>
+        <br />
+        <span>&copy; 2014 wishlu. All Rights Reserved | <a style="color: #aec03b;" href="http://www.wishlu.com/privacy">Privacy Policy</a> | <a style="color: #aec03b;" href="http://www.wishlu.com/tos">Terms and Conditions</a></span>
+        <br />
+        <br />
+        <div class="social">
+            <a href="http://www.facebook.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/facebook.png" />
+            </a>
+            <a href="http://www.twitter.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/twitter.png" />
+            </a>
+            <a href="http://plus.google.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/google-plus.png" />
+            </a>
+            <a href="http://www.pinterest.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/pinterest.png" />
+            </a>
+            <a href="http://wishlu.tumblr.com" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/tumblr.png" />
+            </a>
+        </div>
+    </div>
+</div>

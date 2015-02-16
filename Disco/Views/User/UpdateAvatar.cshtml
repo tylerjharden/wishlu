@@ -1,0 +1,284 @@
+﻿@using Disco.Common
+
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        $('form.validate').each(function () {
+            $(this).validate();
+            $(this).on("submit", function () {
+                if ($(this).valid()) {
+                    form.submit();
+                }
+                return false;
+            });
+        });
+        $(".del").click(function () {
+            if (!confirm("Do you want to delete")) {
+                return false;
+            }
+        });
+    });
+</script>
+
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+    
+    string base64String = "";
+
+    try
+    {
+        // Open a connection
+        HttpWebRequest _HttpWebRequest = (HttpWebRequest)HttpWebRequest.Create(Session["ImageURL"].ToString());
+        _HttpWebRequest.AllowWriteStreamBuffering = true;
+
+        // You can also specify additional header values like the user agent or the referer: (Optional)
+        _HttpWebRequest.UserAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)";
+        // _HttpWebRequest.Referer = "http://www.google.com/";
+
+        // set timeout for 20 seconds (Optional)
+        _HttpWebRequest.Timeout = 20000;
+
+        // Request response:
+        System.Net.WebResponse _WebResponse = _HttpWebRequest.GetResponse();
+
+        // Open data stream:
+        System.IO.Stream _WebStream = _WebResponse.GetResponseStream();
+
+        // convert webstream to image
+        System.Drawing.Image img = System.Drawing.Image.FromStream(_WebStream);
+        using (MemoryStream ms = new MemoryStream())
+        {
+            img.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+            base64String = Convert.ToBase64String(ms.ToArray());
+        }
+
+        // Cleanup
+        _WebResponse.Close();
+        _WebResponse.Close();
+    }
+    catch
+    {
+
+    }
+}
+
+@section header{
+    @Styles.Render("~/Content/jquery.Jcrop.css")
+    @Scripts.Render("~/Scripts/jquery.Jcrop.js")
+}
+
+@section title {
+    my Account > Settings
+}
+<div class="linkStyle" style="padding-left: 0; padding-right: 0; position: relative; overflow: auto; height: 100%;">
+    <div class="col_12" style="position: relative; overflow: auto; height: 630px; padding: 0;">
+        <div class="col_2">
+            <ul class="menu vertical">
+                <li>@Html.ActionLink("Profile", "Index", "User")</li>
+                <li>@Html.ActionLink("Find Friends", "FindFriends", "User")</li>
+                <li>@Html.ActionLink("Social", "Social", "User")</li>
+                <li style="display: none;">
+                    <a href="">Item 3</a>
+                    <ul>
+                        <li><a href="">Sub Item that is super long and we don't want it to break the menu</a></li>
+                        <li>
+                            <a href="">Sub Item</a>
+                            <ul>
+                                <li><a href="">Sub Item</a></li>
+                                <li><a href="">Sub Item</a></li>
+                                <li><a href="">Sub Item</a></li>
+                                <li><a href="">Sub Item</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="">Sub Item</a></li>
+                    </ul>
+                </li>
+                <li class="current">@Html.ActionLink("Settings", "Settings", "User")</li>
+                <li>@Html.ActionLink("Sign Out", "SignOut", "Home")</li>
+            </ul>
+        </div>
+
+        <script>
+            // variables
+            var canvas, ctx;
+            var image;
+            var iMouseX, iMouseY = 1;
+            var theSelection;
+
+            // define Selection constructor
+            function Selection(x, y, w, h) {
+                this.x = x; // initial positions
+                this.y = y;
+                this.w = w; // and size
+                this.h = h;
+
+                this.px = x; // extra variables to dragging calculations
+                this.py = y;
+
+                this.csize = 5; // resize cubes size
+
+                this.bHow = false; // hover statuses
+                this.bDrag = false; // drag statuses
+                this.bDragAll = false; // drag whole selection
+            }
+
+            // define Selection draw method
+            Selection.prototype.draw = function () {
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(this.x, this.y, this.w, this.h);
+
+                // draw part of original image
+                if (this.w > 0 && this.h > 0) {
+                    ctx.drawImage(image, this.x, this.y, this.w, this.h, this.x, this.y, this.w, this.h);
+                }
+
+                // draw resize cubes
+                ctx.fillStyle = '#fff';
+
+                ctx.fillRect(this.x + this.w - 5, this.y + this.h - 5, 10, 10);
+            };
+
+            function drawScene() { // main drawScene function
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clear canvas
+
+                // draw source image
+                ctx.drawImage(image, 0, 0, ctx.canvas.width, ctx.canvas.height);
+
+                // and make it darker
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+                // draw selection
+                theSelection.draw();
+            }
+
+            function getResults() {
+                var temp_ctx, temp_canvas;
+                temp_canvas = document.createElement('canvas');
+                temp_ctx = temp_canvas.getContext('2d');
+                temp_canvas.width = theSelection.w;
+                temp_canvas.height = theSelection.h;
+                temp_ctx.drawImage(image, theSelection.x, theSelection.y, theSelection.w, theSelection.h, 0, 0, theSelection.w, theSelection.h);
+                var vData = temp_canvas.toDataURL();
+                $('#crop_result').attr('src', vData);
+                $('#imgbase64').val(vData);
+            }
+
+            $(function () {
+                // loading source image
+                image = new Image();
+                image.onload = function () {
+                };
+                image.src = 'data:image/png;base64,' + '@(base64String)';
+                
+                // creating canvas and context objects
+                canvas = document.getElementById('panel');
+
+                canvas.width = image.width;
+                canvas.height = image.height;
+
+                ctx = canvas.getContext('2d');
+                                
+                // create initial selection
+                theSelection = new Selection(150, 150, 150, 150);
+
+                $('#panel').mousemove(function (e) { // binding mouse move event
+                    var canvasOffset = $(canvas).offset();
+                    iMouseX = Math.floor(e.pageX - canvasOffset.left);
+                    iMouseY = Math.floor(e.pageY - canvasOffset.top);
+                                        
+                    // in case of drag of whole selector
+                    if (theSelection.bDragAll) {
+                        theSelection.x = iMouseX - theSelection.px;
+                        theSelection.y = iMouseY - theSelection.py;
+
+                        // TODO: Limit dragging selection area to the inside of the canvas
+                    }
+
+                    theSelection.bHow = false;
+                    theSelection.iCSize = theSelection.csize;
+
+                    // hovering over resize cubes
+                    if (iMouseX > theSelection.x + theSelection.w - 5 && iMouseX < theSelection.x + theSelection.w + 5 &&
+                        iMouseY > theSelection.y + theSelection.h - 5 && iMouseY < theSelection.y + theSelection.h + 5) {
+                        theSelection.bHow = true;
+                    }
+
+                    // in case of dragging of resize cubes
+                    var iFW, iFH, iFX, iFY;
+                    if (theSelection.bDrag) {
+                        iFX = theSelection.x;
+                        iFY = theSelection.y;
+                        iFW = iMouseX - theSelection.px - iFX;
+                        iFH = iMouseY - theSelection.py - iFY;
+                    }
+
+                    if (iFW > iFH) {
+                        iFH = iFW;
+                    }
+                    else {
+                        iFW = iFH;
+                    }
+
+                    if (iFW > 10 && iFH > 10) {
+                        theSelection.w = iFW;
+                        theSelection.h = iFH;
+
+                        theSelection.x = iFX;
+                        theSelection.y = iFY;
+                    }
+
+                    drawScene();
+                });
+
+                $('#panel').mousedown(function (e) { // binding mousedown event
+                    var canvasOffset = $(canvas).offset();
+                    iMouseX = Math.floor(e.pageX - canvasOffset.left);
+                    iMouseY = Math.floor(e.pageY - canvasOffset.top);
+
+                    theSelection.px = iMouseX - theSelection.x;
+                    theSelection.py = iMouseY - theSelection.y;
+
+                    if (theSelection.bHow) {
+                        theSelection.px = iMouseX - theSelection.x - theSelection.w;
+                        theSelection.py = iMouseY - theSelection.y - theSelection.h;
+                    }
+
+                    if (iMouseX > theSelection.x + 5 && iMouseX < theSelection.x + theSelection.w - 5 &&
+                        iMouseY > theSelection.y + 5 && iMouseY < theSelection.y + theSelection.h - 5) {
+                        theSelection.bDragAll = true;
+                    }
+
+                    if (theSelection.bHow) {
+                        theSelection.bDrag = true;
+                    }
+                });
+
+                $('#panel').mouseup(function (e) { // binding mouseup event
+                    theSelection.bDragAll = false;
+
+                    theSelection.bDrag = false;
+
+                    theSelection.px = 0;
+                    theSelection.py = 0;
+                });
+
+                drawScene();
+            });
+        </script>
+                
+        <div class="col_10 clearfix" style="border: 1px solid red">
+            <div class="container clearfix">
+                <canvas id="panel" width="500" height="500"></canvas>
+                <a onclick="getResults();">Crop</a>
+                <div id="results">
+                    <img id="crop_result" />
+                </div>
+                <form action="/User/UpdateProfileImage" method="post">
+                    <input type="hidden" id="imgbase64" name="imgbase64" value="" />
+                    <input type="submit" value="update image" />
+                </form>
+            </div>
+        </div>
+</div>
+</div>

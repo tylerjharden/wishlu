@@ -1,0 +1,44 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section page {
+    stores - wishlu
+}
+
+@section title {
+    stores
+}
+
+@section styles {
+<style type="text/css">
+    .shoptile {
+        opacity: 1.0;
+        border-color: lightgray;
+    }        
+</style>
+}
+
+@section scripts {
+
+<script type="text/javascript">    
+    $(document).ready(function () {
+        $.get("/get/shops", null, function (result) {
+            $("#shopslist").html(result);
+                        
+            $(".shoptile").bind("click", function () {
+                var shopid = $(this).data("id");
+                                
+                window.location = "/s/" + shopid;
+            });
+        });
+    });
+</script>
+}
+
+<div class="col_12">
+    <div id="shopslist" class="center clearfix full" style="color: gray;">
+        <i class="fa fa-spin fa-spinner fa-5x"></i>
+    </div>
+</div>

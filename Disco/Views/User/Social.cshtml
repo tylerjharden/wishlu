@@ -1,0 +1,204 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+    
+    // Facebook
+    string clientId = "296645670486904";
+    string redirectUrl = "http://www.wishlu.com/facebook/connect";
+    string scope = "read_friendlists,user_status,email,offline_access";
+}
+
+@section page {
+    wishlu - social
+}
+
+@section title {
+    my account <i class="fa fa-angle-right" style="margin-left: 5px; margin-right: 5px;"></i> social
+}
+
+@section styles {
+
+}
+
+@section scripts {
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#google_connect').click(function () {
+            $(this).attr('href', 'https://accounts.google.com/o/oauth2/auth?scope=' +
+              'https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login&' +
+              'state=@ViewData["googleplus_state"]&' +
+              'redirect_uri=http://wishlu.com/google/connect&' +
+              'response_type=code&' +
+              'client_id=432351898016-1g1q8vbuqhp5nui1fmeu2iuitruumd7n.apps.googleusercontent.com&' +
+              'access_type=offline');
+            return true; // Continue with the new href.
+        });
+    });
+</script>
+}
+
+<div class="col_2 nomargin">
+    <ul class="menu vertical" style="z-index: 100; font-size: 12pt;">
+        <li>
+            <a href="/user/index">
+                <i class="fa fa-fw fa-2x fa-cogs"></i>
+                general
+            </a>
+        </li>
+        @*<li>
+            <a href="/user/security">
+                <i class="fa fa-fw fa-2x fa-shield" style="color: gold;"></i>
+                security
+            </a>
+        </li>*@
+        <li>
+            <a href="/user/privacy">
+                <i class="fa fa-fw fa-2x fa-lock" style="color: gold;"></i>
+                privacy
+            </a>
+        </li>
+        <li>
+            <a href="/user/blocking">
+                <i class="fa fa-fw fa-2x fa-minus-circle" style="color: indianred;"></i>
+                blocking
+            </a>
+        </li>
+
+        <li>
+            <a href="/user/notifications">
+                <i class="fa fa-fw fa-2x fa-globe" style="color: deepskyblue;"></i>
+                notifications
+            </a>
+        </li>
+        <li>
+            <a href="/user/mobile">
+                <i class="fa fa-fw fa-2x fa-mobile"></i>
+                mobile
+            </a>
+        </li>
+
+        <li>
+            <a href="/user/findfriends">
+                <i class="fa fa-fw fa-2x fa-users"></i>
+                find friends
+            </a>
+        </li>
+        <li class="current">
+            <a href="/user/social">
+                <i class="fa fa-fw fa-2x fa-cubes"></i>
+                social
+            </a>
+        </li>
+        @*<li>
+            <a href="/user/payments">
+                <i class="fa fa-fw fa-2x fa-credit-card"></i>
+                payments
+            </a>
+        </li>*@
+    </ul>
+</div>
+
+@{
+    Squid.Users.User user = Squid.Users.User.GetUserById(UserId);
+}
+        
+<div class="col_10 pop" style="float: right; margin-top: 0; margin-right: 0; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
+    <div class="col_12" style="padding: 5px; border: 2px solid #3B5998; border-radius: 10px; background-color: white; height: 80px;">
+        <i class="fa fa-facebook-square fa-4x" style="color:#3B5998;"></i>
+        <div style="font-size: 14pt; display: inline-block; position:relative; top: -10px; left: 10px;">
+            @if (user.IsFacebookSynced)
+            {
+                <text>
+                    You are currently connected with your Facebook account.
+                </text>
+            }
+            else
+            {
+                <text>
+                    Connect to Facebook to share wishes, connect with and invite friends, and login.
+                </text>
+            }
+        </div>
+        <div style="float:right; padding-top: 10px; padding-right: 10px;">
+            @if (user.IsFacebookSynced)
+            {
+                <form action="@Url.Action("disconnect", "facebook")">
+                    <span style="float:right; padding-top: 10px; padding-right: 10px;">
+                        <input type="submit" class="button large pop pill" value="Disconnect" />
+                    </span>
+                </form>
+            }
+            else
+            {
+                <a class="button large pop pill" href="@(string.Format("https://graph.facebook.com/oauth/authorize?client_id={0}&redirect_uri={1}&scope={2}", clientId, redirectUrl, scope))">
+                    Connect
+                </a>
+            }
+        </div>
+    </div>
+    <div class="col_12" style="padding: 5px; margin-top: 5px; border: 2px solid #00aced; border-radius: 10px; background-color: white; height: 80px;">
+        <i class="fa fa-twitter-square fa-4x" style="color:#00aced;"></i>
+        <div style="font-size: 14pt; display: inline-block; position:relative; top: -10px; left: 10px;">
+            @if (user.IsTwitterLinked)
+            {
+                <text>
+                    You are currently connected with your Twitter account.
+                </text>
+            }
+            else
+            {
+                <text>
+                    Connect to Twitter to share wishes, connect with and invite friends, and login.
+                </text>
+            }
+        </div>
+        <div style="float:right; padding-top: 10px; padding-right: 10px;">
+            @if (user.IsTwitterLinked)
+            {
+                <form action="@Url.Action("disconnect", "twitter")">
+                    <span style="float:right; padding-top: 10px; padding-right: 10px;">
+                        <input type="submit" class="button large pop pill" value="Disconnect" />
+                    </span>
+                </form>
+            }
+            else
+            {
+                <form action="@Url.Action("connect", "twitter")">
+                    <span style="float:right; padding-top: 10px; padding-right: 10px;">
+                        <input type="submit" class="button large pop pill" value="Connect" />
+                    </span>
+                </form>
+            }
+        </div>
+    </div>
+    <!-- Google+ -->
+    <div class="col_12" style="padding: 5px; margin-top: 5px; border: 2px solid #dd4b39; border-radius: 10px; background-color: white; height: 80px;">
+        <i class="fa fa-google-plus-square fa-4x" style="color:#dd4b39;"></i>
+        <div style="font-size: 14pt; display: inline-block; position:relative; top: -10px; left: 10px;">
+            @if (user.IsGoogleLinked)
+            {
+                <text>You are currently connected with your Google+ account.</text>
+            }
+            else
+            {
+                <text>Connect to Google+ to share wishes, connect with and invite friends, and login.</text>
+            }
+        </div>
+        <div style="float:right; padding-top: 10px; padding-right: 10px;">
+            @if (user.IsGoogleLinked)
+            {
+                <form action="@Url.Action("disconnect", "google")">
+                    <span style="float:right; padding-top: 10px; padding-right: 10px;">
+                        <input type="submit" class="button large pop pill" value="Disconnect" />
+                    </span>
+                </form>
+            }
+            else
+            {
+                <span style="float:right; padding-top: 10px; padding-right: 10px;">
+                    <a id="google_connect" class="button large pop pill" href="#">Connect</a>
+                </span>
+            }
+        </div>
+    </div>
+</div>

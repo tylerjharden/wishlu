@@ -1,0 +1,36 @@
+﻿@model Disco.ViewModels.TwoTapCheckout
+@{
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";    
+}
+
+@section page {
+    twotap
+}
+
+@section styles {
+<link rel="stylesheet" href="http://assets.wishlu.com/css/twotap/animate.css" />
+<link rel="stylesheet" href="http://assets.wishlu.com/css/twotap/twotap.css" />
+}
+
+@section scripts {
+<script type='text/javascript'>
+    $(document).ready(function () {        
+        document.getElementById('ttForm').submit();
+    });
+
+</script>
+}
+
+<form id='ttForm' method='post' action='https://checkout.twotap.com'>
+    <input type='hidden' id='public_token' name='public_token' value='147b1eed7550448a6d435c98975322' />
+    <input type='hidden' name='unique_token' value='@Model.UniqueId' />
+    <input type='hidden' name='callback_url' value='' />
+
+    <input type='hidden' name='custom_css_url' value='@WebUtility.UrlEncode("http://assets.wishlu.com/css/twotap/wishlu.css")' />
+
+    <input type='hidden' name='input_fields' value='' />
+
+    <input type='hidden' id="products" name='products' value='@Model' />
+
+    <input type='hidden' name="show_close_button" value='true' />
+</form>

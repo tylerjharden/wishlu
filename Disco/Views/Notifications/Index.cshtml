@@ -1,0 +1,136 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section page {
+    notifications - wishlu
+}
+
+@section title {
+    notifications
+}
+
+@section actions {
+    
+}
+
+@section styles {
+<style>
+    .notification {
+        border: 2px solid lightblue;
+        border-radius: 15px;
+    }
+
+        .notification.unread {
+            background: white;
+        }
+
+        .notification.read {
+            background: lightgray;
+        }
+</style>
+}
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $(".notification_delete").click(function () {
+                var note = $(this).parents(".notification");
+                var id = note.data("id");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/notifications/delete",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: id }),
+                    success: function (data, status, request) {
+                        if (data == true) {
+                            if (note.hasClass("unread")) {
+                                // update unread notification counter
+                                var count = $("#notifCount").text();
+                                count = count - 1;
+                                if (count == 0) {
+                                    $("#notifCount").hide();
+                                }
+                                else {
+                                    $("#notifCount").text(count);
+                                }
+                            }
+
+                            note.remove(); // delete notification from DOM
+                        }
+                    },
+                    error: function (data, status, request) { }
+                });
+            });
+        });        
+    </script>    
+}
+
+@foreach (Squid.Messages.Notification n in Model)
+{
+    try
+    {
+        <div class="col_12 nomargin full notification @(n.Read ? "read" : "unread")" data-id="@n.Id">
+            <div class="col_2">
+                @if (n.SenderId != Guid.Empty)
+                {
+                    <div class="circlefriend pop sitelink" style="background-image: url('@Squid.Users.User.GetUserProfileImage(n.SenderId)');">
+                    </div>
+                }
+                else
+                {
+                    <div class="circlefriend pop sitelink" style="background-image: url('//assets.wishlu.com/images/DefaultWish.jpg');">
+                    </div>
+                }
+            </div>
+            <div class="col_8 center">
+                <h6>@n.Content</h6>
+                @if (n.NotificationType == Squid.Messages.NotificationType.FriendRequest)
+                {
+                    <a class="button pop friend_accept" data-id="@n.SenderId" data-name="@Squid.Users.User.GetUserFullName(n.SenderId)" style="padding:5px;"><i class="fa fa-check fa-fw" style="color:#79e0c3;"></i></a>
+                    <a class="button pop friend_decline" data-id="@n.SenderId" data-name="@Squid.Users.User.GetUserFullName(n.SenderId)" style="padding:5px;"><i class="fa fa-times fa-fw" style="color:#b5919b;"></i></a>
+                }
+                else if (n.NotificationType == Squid.Messages.NotificationType.SuggestedFriend)
+                {
+                    <a class="button pop friend_request" data-id="@n.SenderId" data-url="@n.Url" style="padding:5px;">send friend request</a>
+                }
+            </div>
+            <div class="col_2 right">
+                <div class="col_12">
+                    <a class="button pop notification_markasread tooltip" title="Mark this notification as read" data-delay="0" style="padding:5px;"><i class="fa fa-archive fa-fw"></i></a>
+                    <a class="button pop notification_delete tooltip" title="Delete this notification permanently" data-delay="0" style="padding:5px;"><i class="fa fa-times fa-fw" style="color:#b5919b;"></i></a>
+                </div>
+                <div class="col_12">
+                    <i class="fa fa-clock-o"></i>
+                    @{
+                TimeSpan ts = DateTimeOffset.Now.Subtract(n.SendTime);
+
+                if (ts.Days == 0)
+                {
+                    if (ts.Hours == 0)
+                    {
+                        if (ts.Minutes == 0)
+                        { <span>@ts.Seconds seconds ago</span> }
+                        else
+                        { <span>@ts.Minutes minutes ago</span> }
+                    }
+                    else if (ts.Hours == 1)
+                    { <span>About an hour ago</span> }
+                    else
+                    { <span>About @ts.Hours hours ago</span> }
+                }
+                else if (ts.Days == 1)
+                { <span>Yesterday</span> }
+                else
+                { <span>@ts.Days days ago</span> }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    catch { }
+}    

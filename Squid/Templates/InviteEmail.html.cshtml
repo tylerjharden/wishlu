@@ -1,0 +1,56 @@
+﻿@inherits RazorEngine.Templating.HtmlTemplateBase<dynamic>
+@{
+    Squid.Users.User user = Model.User;
+    string code = Model.Code;
+}
+<!DOCTYPE HTML>
+
+<div style="text-align:center;">
+    <img src="http://assets.wishlu.com/images/email/logo.png" />
+</div>
+
+<h2>Hello,</h2>
+
+<span style="text-align:center;">@user.FullName would like you to join @(user.Gender == 'f' ? "her" : "him") on wishlu.</span>
+
+<br />
+
+<div class="col_4">
+    <h4>
+        <a href="#what_is_wishlu">what is wishlu?</a>
+    </h4>
+    <h4>
+        <a href="#how_do_i_get_started">how do I get started?</a>
+    </h4>
+</div>
+<div class="col_8">
+
+</div>
+<div class="col_12" style="border: 2px solid lightblue; background: white; border-radius: 15px; padding:10px;">
+    <h2 id="what_is_wishlu">
+        what is wishlu?
+    </h2>
+    <div class="col_12">
+        <h4>wishlu is the new way to give (and to get).</h4>
+        <span>
+            With wishlu the art of gifting gets smart. wishlu makes giving and receiving easier and more fun than ever. wishlu is an interactive website that offers the perfect way for people to create and curate shoppable, shareable collections of gifts they would like to receive from any store or website.
+        </span>
+    </div>
+    <div class="col_12">
+        <h4>A wishlu is a wish list, but better.</h4>
+        <span>
+            Think of wishlu as a personal collection of mixed & matched gift registries from any store or website. No longer are people limited to choosing only one or two places to register, and gift registries are no longer an option for only brides and mothers-to-be. With wishlu, anyone can create unique gift registries for any occasion, including baby showers, bridal showers, and beyond. Make wishlus for birthdays, Christmas, anniversaries, graduation or a housewarming party.  The possibilities are infinite.
+        </span>
+    </div>
+    <div class="col_12">
+        <h4>Gifting has (finally) evolved.</h4>
+        <span>
+            People like to give each other gifts for lots of different reasons. But we don’t like to stress, guess, re-gift, or give people we care about things they don’t want or need. We also like to receive the things we really want or need. wishlu makes giving and receiving the perfect present a snap. The tradition of giving has been around forever, and it’s true: it has worked OK. But now, with wishlu, it works better.
+        </span>
+    </div>
+</div>
+
+<a class="button pop center" href="http://www.wishlu.com/join/invite?code=@code">join wishlu now.</a>
+
+<p>If the button isn't working paste the link below in your browser</p>
+<p>http://www.wishlu.com/join/invite?code=@code</p>

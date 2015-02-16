@@ -1,0 +1,351 @@
+﻿@using Disco.Common
+@{
+	Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+	
+	// Facebook
+	string clientId = "296645670486904";
+	string redirectUrl = "http://www.wishlu.com/facebook/invite?key=" + Model.Code;
+	string scope = "email,public_profile,user_birthday,user_friends,user_likes";
+}
+
+@section title {
+	join <i class="fa fa-angle-right"></i> register
+}
+
+@section meta {
+	<link rel="canonical" href="//www.wishlu.com/join/invite" />
+
+	<!-- Google -->
+	<meta name="description" content="@Model.Inviter.FirstName would like you to join @(Model.Inviter.Gender == 'f' ? "her" : "him") on wishlu, the new way to give (and to get)." />
+	<meta name="keywords" content="wishlu wish gift registry join" />
+
+	<meta name="author" content="" />
+	<meta name="copyright" content="" />
+	<meta name="application-name" content="wishlu" />
+
+	<!-- Facebook -->
+	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content="wishlu" />
+	<meta property="og:title" content="Join @Model.Inviter.FullName on wishlu" />
+	<meta property="og:image" content="http://assets.wishlu.com/images/logobeta.jpg" />
+	<meta property="og:url" content="http://www.wishlu.com/join/invite?code=@Model.Code" />
+	<meta property="og:description" content="@Model.Inviter.FirstName would like you to join @(Model.Inviter.Gender == 'f' ? "her" : "him") on wishlu, the new way to give (and to get)." />
+}
+
+@section scripts {
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$("#joinForm").validate({
+				errorPlacement: function (error, element) {
+					error.appendTo($('#formError'));
+					$('#formError').append("<br />");
+				},
+				rules: {
+					joinFirstName: {
+						required: true,
+						minlength: 2,
+						maxlength: 100
+					},
+					joinLastName: {
+						required: true,
+						minlength: 2,
+						maxlength: 100
+					},
+					joinEmail: {
+						required: true,
+						email: true,
+						remote: "/validate/available"
+					},
+					joinPassword: {
+						required: true,
+						minlength: 6,
+						maxlength: 50
+					},
+					joinPasswordRepeat: {
+						required: true,
+						minlength: 6,
+						maxlength: 50,
+						equalTo: "#joinPassword"
+					},
+					joinGender: {
+						required: true
+					},
+					bdaymonth: {
+						required: true,
+						range: [1, 12]
+					},
+					bdayday: {
+						required: true,
+						range: [1, 31]
+					},
+					bdayyear: {
+						required: true,
+						range: [1910,@(DateTime.Now.Year - 12)]
+					}
+				},
+				messages: {
+					joinFirstName: "Please enter your first name.",
+					joinLastName: "Please enter your last name.",
+					joinEmail: {
+						required: "Please enter your e-mail address.",
+						remote: jQuery.validator.format("{0} is already in use.")
+					},
+					joinPassword: {
+						required: "Please enter your password.",
+						minlength: jQuery.validator.format("Your password must be at least {0} characters.")
+					},
+					joinPasswordRepeat: {
+						required: "Please confirm your password.",
+						minlength: jQuery.validator.format("Your confirmed password must be at least {0} characters."),
+						equalTo: "Passwords must match!"
+					},
+					joinGender: {
+						required: "Please select a gender."
+					},
+					bdaymonth: {
+						required: "Specify your birth month."
+					},
+					bdayday: {
+						required: "Specify your birth day."
+					},
+					bdayyear: {
+						required: "Specify your birth year."
+					}
+				},
+				submitHandler: function (form) {
+					$('#joinBirthday').val($('#bdayyear').val() + '-' + $('#bdaymonth').val() + '-' + $('#bdayday').val());
+					
+					$("#join_submit").disabled = true;
+					$("#join_submit").html("<i class='fa fa-spinner fa-spin'></i>");
+
+					$.ajax({
+						type: "POST",
+						url: "/join/create",
+						dataType: 'json',
+						contentType: 'application/json; charset=utf-8',
+						traditional: true,
+						data: JSON.stringify(getCreateUser()),
+						success: function (data, status, request) {
+							if (data.result == true) {
+								swal("Success!", data.message, "success");
+								location.href = "/tutorial/see";
+							}
+							else {
+								swal("Uh oh...", data.message, "error");
+							}
+						},
+						error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+					});
+
+					function getCreateUser() {
+						var data = {}
+
+						data.Email = $("#joinEmail").val();
+						data.FirstName = $("#joinFirstName").val();
+						data.LastName = $("#joinLastName").val();
+						data.Birthday = $("#joinBirthday").val();
+
+						if ($("#female").prop("checked"))
+							data.Gender = 'f';
+						else
+							data.Gender = 'm';
+
+						data.Password = $("#joinPassword").val();
+						data.ConfirmPassword = $("#joinPasswordRepeat").val();
+						data.Key = "@Model.Code";
+						data.HideAge = $("#hideage").prop("checked");
+
+						return data;
+					}
+				}
+			});
+		});
+	</script>
+
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$('#google_signin').click(function () {
+				$(this).attr('href', 'https://accounts.google.com/o/oauth2/auth?scope=' +
+				  'https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login&' +
+				  'state=@ViewData["googleplus_state"]&' +
+				  'redirect_uri=http://wishlu.com/google/invite?code=@Model.Code&' +
+				  'response_type=code&' +
+				  'client_id=432351898016-1g1q8vbuqhp5nui1fmeu2iuitruumd7n.apps.googleusercontent.com&' +
+				  'access_type=offline');
+				return true; // Continue with the new href.
+			});
+		});
+	</script>
+}
+
+@section styles {
+	<style>
+		input[type="radio"] {
+			visibility: hidden;
+		}
+
+			input[type="radio"] + label {
+				color: gray;
+				/*color: white;*/
+				/*background-color: #ccc;*/
+				border-radius: 8px;
+				padding: 0.5em;
+				cursor: pointer;
+			}
+
+				input[type="radio"] + label span.fa-circle {
+					display: none;
+				}
+
+				input[type="radio"] + label span.fa-circle-o {
+					display: inline;
+				}
+
+			input[type="radio"]:checked + label span.fa-circle {
+				display: inline;
+			}
+
+			input[type="radio"]:checked + label span.fa-circle-o {
+				display: none;
+			}
+	</style>
+}
+
+<div class="col_12 pop nomargin center full" style="margin-bottom: 10px !important; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white; padding:5px;">
+	<div class="circlefriend pop centerDiv" style="background-image: url('@Model.Inviter.ImageUrl'); width: 100px; height: 100px;">
+	</div>
+	@if (Model.Inviter.Gender == 'm')
+	{
+		<b>@Model.Inviter.FullName has invited you to join him on wishlu.</b>
+	}
+	 else
+	 {
+		<b>@Model.Inviter.FullName has invited you to join her on wishlu.</b>
+	 }	
+</div>
+
+<form id="joinForm" name="joinForm" method="post" action="/join/create">
+	<div class="grid" style="text-align:left; color: Gray">
+		<div class="col_4"></div>
+		<div class="col_4">
+			<div class="col_12 center">
+				<a class="button pop center full" href="@(string.Format("https://graph.facebook.com/oauth/authorize?client_id={0}&redirect_uri={1}&scope={2}", clientId, redirectUrl, scope))">
+					<span class="fa fa-facebook-square" style="color: #3B5998;"></span>
+					<span>facebook</span>
+				</a>
+				@*
+				<a class="button pop center" href="@Url.Action("authorize", "twitter")">
+					<span class="fa fa-twitter-square" style="color: #4099FF;"></span>
+					<span>twitter</span>
+				</a>
+				<a id="google_signin" class="button pop center" href="#">
+					<span class="fa fa-google-plus-square" style="color: #dd4b39;"></span>
+					<span>google+</span>
+				</a>
+					*@
+			</div>
+
+			<span class="col_6" style="padding: 0;">
+				<input class="full small-input" id="joinFirstName" name="joinFirstName" placeholder="first name" type="text" />
+			</span>
+			<span class="col_6" style="padding: 0;">
+				<input class="full small-input" id="joinLastName" name="joinLastName" placeholder="last name" type="text" title="Please enter your last name. " />
+			</span>
+			<div class="col_12">
+				<input class="full small-input" id="joinEmail" name="joinEmail" placeholder="email address" title="Please enter your e-mail address. " type="email" />
+				<span class="instructions">You will use this whenever you sign in.</span>
+			</div>
+			<div class="col_12">
+				<input class="full small-input" id="joinPassword" name="joinPassword" placeholder="password" type="password" title="Please enter your password. " minlength="6" maxlength="50" required />
+				<span class="instructions">Your password is case sensitive and must be a minimum of 6 characters.</span>
+			</div>
+			<div class="col_12">
+				<input class="full small-input" id="joinPasswordRepeat" name="joinPasswordRepeat" placeholder="confirm password" title="Please confirm your password. " type="password" required />
+				<br />
+			</div>			
+			<div class="col_12 nomargin center" style="font-size: 12pt;">
+				<input type="radio" name="joinGender" id="male" value="male" style="margin-right: 5px;" />
+				<label for="male">
+					<span class="fa fa-circle"></span>
+					<span class="fa fa-circle-o"></span>
+					Male
+				</label>
+				<input type="radio" name="joinGender" id="female" value="female" style="margin-right: 5px;" />
+				<label for="female">
+					<span class="fa fa-circle"></span>
+					<span class="fa fa-circle-o"></span>
+					Female
+				</label>
+			</div>
+			<div class="col_12 nomargin nocase center" style="font-size: 12pt;">
+				Share your birthday with your wishlu friends.
+				<input type="hidden" value="" id="joinBirthday" name="joinBirthday" />
+			</div>
+			<div class="col_12 nomargin center">
+				<div class="col_4">
+					<select name="bdaymonth" id="bdaymonth" class="full small-input input-like lowercase" style="width: 143px;" title="Please indicate your birth month" required>
+						<option value="">Month</option>
+						<option value="01">January</option>
+						<option value="02">February</option>
+						<option value="03">March</option>
+						<option value="04">April</option>
+						<option value="05">May</option>
+						<option value="06">June</option>
+						<option value="07">July</option>
+						<option value="08">August</option>
+						<option value="09">September</option>
+						<option value="10">October</option>
+						<option value="11">November</option>
+						<option value="12">December</option>
+					</select>
+				</div>
+				<div class="col_4">
+					<select name="bdayday" id="bdayday" class="full small-input input-like lowercase" style="width: 115px;" title="Please indicate your birth day" required>
+						<option value="">Day</option>
+						<option value="01">1</option>
+						<option value="02">2</option>
+						<option value="03">3</option>
+						<option value="04">4</option>
+						<option value="05">5</option>
+						<option value="06">6</option>
+						<option value="07">7</option>
+						<option value="08">8</option>
+						<option value="09">9</option>
+						@for (int i = 10; i <= 31; i++)
+						{
+							<option value="@(i)">@(i)</option>
+						}
+					</select>
+				</div>
+				<div class="col_4">
+					<select name="bdayyear" id="bdayyear" class="full small-input input-like lowercase selectwishloop" style="width: 130px;">
+						<option value="">Year</option>
+						@for (int i = (DateTime.Now.Year - 12); i >= 1910; i--)
+						{
+							<option value="@(i)">@(i)</option>
+						}
+					</select>
+				</div>
+			</div>
+			<div class="col_12 nomargin center">
+				<input type="checkbox" id="hideage" name="hideage" value="true" />
+				<label for="hideage">Please hide my age from others.</label>
+			</div>
+			<div class="col_12 nomargin center">				
+				<a href="/tos" target="_blank">
+					<span class="popupsmall" style="padding-left: 10px; text-decoration: underline; text-transform: none; font-size: 10pt;">By registering, you agree to the terms and conditions of use.</span>
+				</a>
+			</div>
+
+			<div class="col_12" style="text-align: center;">
+				<input id="join_submit" class="button pop" style="font-size: 1.2em;" type="submit" value="join." />
+			</div>
+		</div>
+		<div class="col_4">
+			<div class="col_12 center">
+				<div id="formError" style="font-size: 0.7em;">
+				</div>
+			</div>
+		</div>
+	</div>
+</form>

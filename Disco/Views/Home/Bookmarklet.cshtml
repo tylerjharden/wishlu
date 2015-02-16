@@ -1,0 +1,31 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+}
+
+@section title {
+    bookmarklet
+}
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $("#info_popup").hide();
+
+            $("#bookmarklet").click(function (e) {
+                e.preventDefault();
+                swal("Almost!", "Drag this into the bookmark bar in your browser, then click it when on other web pages of things you want to add them to wishlu.", "warning");
+                return false;
+            });
+        });
+    </script>
+}
+
+<div class="col_6 center pop inset" style="float: none; margin: 10px auto; position: relative; padding: 0; background-color: white; border: 4px solid lightblue; border-radius: 15px;">
+    <p>
+        The wishlu bookmarklet tool makes it easy for you to add items to one of your wishlus from any product page on the web. Drag and drop the bookmarklet to your browser's bookmark bar. Then, whenever you see an item online that you want to add to your wishlu, simply click on the wishlu bookmarklet and follow the prompts.
+    </p>
+    <a class="pop" id="bookmarklet" style="display: inline-block; margin: 10px; padding: 10px; width: 150px; height: 50px; border: 4px solid lightblue; border-radius: 15px; background-color: white;" href="javascript:void((function(d){var e=d.createElement('script');e.setAttribute('type','text/javascript');e.setAttribute('charset','UTF-8');e.setAttribute('src','//assets.wishlu.com/ext/bookmarklet.js?r='+Math.random()*99999999);d.body.appendChild(e)})(document));">
+        add to wishlu
+    </a>
+</div>

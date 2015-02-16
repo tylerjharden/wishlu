@@ -1,0 +1,51 @@
+﻿<!-- Error Message Bar -->
+@if (ViewBag.ErrorMessage != null)
+{
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () { swal("Uh oh...", "@ViewBag.ErrorMessage", "error") }, 50);
+        });
+    </script>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () { swal("Uh oh...", "@TempData["ErrorMessage"]", "error") }, 50);
+        });
+    </script>
+}
+<!-- Warning Message Bar -->
+@if (ViewBag.WarningMessage != null)
+{
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () { swal("Hmm...", "@ViewBag.WarningMessage", "warning") }, 50);
+        });
+    </script>
+}
+@if (TempData["WarningMessage"] != null)
+{
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () { swal("Hmm...", "@TempData["WarningMessage"]", "warning") }, 50);
+        });
+    </script>
+}
+<!-- Success Message Bar -->
+@if (ViewBag.SuccessMessage != null)
+{
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () { swal("Success!", "@ViewBag.SuccessMessage", "success") }, 50);
+        });
+    </script>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        $(document).ready(function() {
+            setTimeout(function () { swal("Success!", "@TempData["SuccessMessage"]", "success") }, 50);
+        });
+    </script>
+}

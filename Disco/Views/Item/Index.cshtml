@@ -1,0 +1,346 @@
+﻿@model List<Squid.Wishes.Wish>
+@using Disco.Common
+@using System.Text.RegularExpressions
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+   
+    List<Squid.Wishes.Wishlu> wishlus = Squid.Wishes.Wishlu.GetUsersWishLus(UserId);    
+}
+
+@section page {
+    my items - wishlu
+}
+
+@section title {    
+    <span>my items (@Model.Count)</span>    
+}
+
+@section styles {
+    <link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/rateit.css" />
+}
+
+@section scripts {
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery.rateit.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#wish_move").click(function () {
+            var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+            if (somethingChecked) {
+                $("#wish_move_container").slideToggle();
+                $("#wish_copy_container").slideUp();
+            }
+            else {
+                swal("Oops...", "Please select one or more items to move them to a wishlu.", "warning");
+            }
+        });
+
+        $("#wish_move_do").click(function () {
+            var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+            if (somethingChecked) {
+                $.ajax({
+                    type: "POST",
+                    url: "/item/assign",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(getMoveWishes()),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");                            
+                            $("#wish_move_container").slideUp();
+                            $("#wish_copy_container").slideUp();
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            }
+            else {
+                swal("Oops...", "Please select one or more items to move them to a wishlu.", "warning");
+            }
+        });
+
+
+        function getMoveWishes() {
+            var data = {}
+            data.Wishes = $.map($(".wish.selected"), function (element) { return $(element).data("id"); });
+            if ($("#move_wishlu_input").val() !== "") {
+                data.WishluName = $("#move_wishlu_input").val();
+            }
+            else {
+                data.Wishlu = $("#wish_move_wishlus").val();
+            }
+            return data;
+        }
+
+        /*
+        $("#wish_copy").click(function () {
+            var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+            if (somethingChecked) {
+                $("#wish_copy_container").slideToggle();
+                $("#wish_move_container").slideUp();
+            }
+            else {
+                swal("Oops...", "Please select one or more items to copy.", "warning");
+            }
+        });
+
+        $("#wish_copy_do").click(function () {
+            var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+            if (somethingChecked) {
+                $.ajax({
+                    type: "POST",
+                    url: "/item/copy",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(getCopyWishes()),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            $("#wish_copy_container").slideUp();
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            }
+            else {
+                swal("Oops...", "Please select one or more items to copy them to a wishlu.", "warning");
+            }
+        });
+
+        function getCopyWishes() {
+            var data = {}
+            data.Wishes = $.map($(".wish.selected"), function (element) { return $(element).data("id"); });
+            if ($("copy_wishlu_input").val() !== "") {
+                data.WishluName = $("#copy_wishlu_input").val();
+            }
+            else {
+                data.Wishlu = $("#wish_copy_wishlus").val();
+            }
+            return data;
+        }
+        */
+
+        $("#wish_delete").click(function () {
+            var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+            if (somethingChecked) {
+                swal({
+                    title: "Are you sure?",
+                    text: "The selected wish(es) will be permanently deleted!",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No, keep my wish(es).",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $("#wish_copy_container").slideUp();
+                        $("#wish_move_container").slideUp();
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/item/delete",
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            traditional: true,
+                            data: JSON.stringify(getDeleteWishes()),
+                            success: function (data, status, request) {
+                                if (data.result == true) {
+                                    swal("Success!", data.message, "success");
+                                    $(".wish.selected").remove();
+                                    $("#wish_assign_container").slideUp();
+                                    $("#wish_copy_container").slideUp();
+                                }
+                                else {
+                                    swal("Uh oh...", data.message, "error");
+                                }
+                            },
+                            error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                        });
+                    }
+                    else {
+                        swal("Cancelled", "Your wish(es) are safe and sound.");
+                    }
+                });
+            }
+            else {
+                swal("Oops...", "Please select one or more items to delete.", "warning");
+            }
+        });
+
+        function getDeleteWishes() {
+            var data = {}
+            data.Wishes = $.map($(".wish.selected"), function (element) { return $(element).data("id"); });
+            return data;
+        }
+
+        $("#sort").change(function () {
+            var url = $(this).val();
+            window.location = "/wish?sort=" + url;
+        });                
+    });
+
+    function clickAll() {
+        $('.checkboxicon').removeClass('fa-circle-o').addClass('fa-circle');
+        $('.roundCheckbox').prop('checked', true);
+        $(".wish").addClass("selected");
+    }
+
+    function clickNone() {
+        $('.checkboxicon').removeClass('fa-circle').addClass('fa-circle-o');
+        $('.roundCheckbox').prop('checked', false);
+        $(".wish").removeClass("selected");
+
+        $("#wish_assign_container").slideUp();
+    }
+
+    // Create JS object containing query string params
+    var urlParams;
+    (window.onpopstate = function () {
+        var match,
+            pl = /\+/g,  // Regex for replacing addition symbol with a space
+            search = /([^&=]+)=?([^&]*)/g,
+            decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+            query = window.location.search.substring(1);
+
+        urlParams = {};
+        while (match = search.exec(query))
+            urlParams[decode(match[1])] = decode(match[2]);
+    })();
+
+    $(document).ready(function () {
+        if (urlParams.sort != null) {
+            $('option:selected', '#sort').removeAttr('selected');
+            $('#sort').find('option[value="' + urlParams.sort + '"]').attr("selected", true);
+        }
+    });
+</script>
+}
+
+@section info {
+    <div class="col_12" style="text-align:left;height:200px;">
+        <span>Find, view, and manage all of the items in your wishlus here.</span>
+        <br />
+        <br />
+        <span>For easier searching, sort items alphabetically, by price, by rating, or by the date on which they were added.</span>
+        <br />
+        <br />
+        <span>You can also move items to a different wishlu or delete items entirely from wishlu.</span>
+        <br />
+        <br />
+        <span>Click on individual tiles to access the details about an item.</span>
+    </div>
+}
+
+<div class="col_10 clearfix nomargin nopadding">    
+    @foreach (Squid.Wishes.Wish wish in Model)
+    {        
+        <div class="col_4 pop wish" data-id="@wish.Id" style="position: relative; padding: 10px; height: 300px; border: 2px solid lightgray; border-radius: 15px; background: white;" onclick="doCheck($('#visible@(wish.Id.ToString())'));">
+            @if (wish.WishStatus == Squid.Wishes.WishStatus.Revealed)
+            {
+                <div class="rectangle" style="height:50px;">
+                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height:50px; text-transform: lowercase; ">gifted</span>
+                </div>
+            }
+            else if (wish.WishStatus == Squid.Wishes.WishStatus.Confirmed)
+            {
+                <div class="rectangle" style="height: 50px;">
+                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+                </div>
+            }            
+            <span id="visible@(wish.Id)" class="sitelink" style="position:absolute;top:10px;right:10px;">
+                <i class="checkboxicon fa-circle-o fa" style="color: #C6BDB3"></i>
+                @Html.CheckBox("CB", false, new { @value = wish.Id.ToString(), @style = "display: none;", @class = "roundCheckbox", @id = "CB" + wish.Id.ToString() })
+            </span>
+            <div class="col_12 nomargin" style="font-size: 12pt;">
+                <span class="sitelink" style="color: #998B7D;">
+                    @wish.Name.TruncateAtWord(25)
+                </span>
+            </div>            
+            <a href="@("/i/" + wish.Id.ToString())">
+                <div class="col_12 sitelink" style="text-align: center;">
+                    <div style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@(wish.ImageUrl)'); width: 175px; height: 175px; text-align: center;">&nbsp;</div>
+                </div>
+            </a>
+            <div class="col_12 right">
+                <span style="position: absolute; bottom: 15px; left: 15px; color: #998B7D; font-size: 12pt;">
+                    @String.Format("{0:C}", wish.Price)
+                </span>
+                <div class="rateit" data-rateit-readonly="true" data-rateit-value="@wish.Rating" style="position: absolute; bottom: 15px; right: 15px;">
+                </div>
+            </div>
+        </div>         
+    }    
+</div>
+
+<div class="col_2 clearfix omega" style="float:right; position: relative;">    
+    <!-- Sort -->
+    <div class="col_12 headerfooterFont" style="color:#9a8b7d;"><b>sort:</b></div>
+    <div class="col_12">
+        <select id="sort" class="full small-input input-like lowercase">
+            <option value="1">a - z</option>
+            <option value="2">z - a</option>
+            <option value="3">price: high to low</option>
+            <option value="4">price: low to high</option>
+            <option value="5">rating: highest first</option>
+            <option value="6">rating: lowest first</option>
+            <option selected value="7">date added: newest first</option>
+            <option value="8">date added: newest last</option>
+        </select>
+    </div>
+
+    <hr class="alt1 mg-sm" />
+    <!-- Select Items -->
+    <div class="col_6 headerfooterFont" style="color: #9a8b7d;"><b>select items:</b></div>
+    <div class="col_6 right">
+        <a class="button pop" style="padding:5px;" onclick="clickAll();">all</a>
+        <a class="button pop" style="padding:5px;" onclick="clickNone();">none</a>
+    </div>
+
+    <hr class="alt1 mg-sm" />
+    <!-- Actions -->
+    <div class="col_12 headerfooterFont" style="color: #9a8b7d;"><b>actions:</b></div>
+    <a class="button pop full center" id="wish_move">move items</a>
+    <div class="col_12 center" id="wish_move_container" style="display:none;">
+        <select class="full small-input input-like lowercase" id="wish_move_wishlus">
+            @foreach (Squid.Wishes.Wishlu wishlu in wishlus)
+            {                
+                <option value="@wishlu.Id">@wishlu.Name</option>
+            }
+        </select>
+        <hr class="or" />
+        <input type="text" class="input-like small-input full" id="move_wishlu_input" placeholder="enter name here" style="margin-top: 5px; margin-bottom: 5px;" />
+        <a class="button pop center" id="wish_move_do" style="padding:5px;">move</a>
+    </div>
+
+    @*
+    <a class="button pop full center" id="wish_copy">copy items</a>
+    <div class="col_12 center" id="wish_copy_container" style="display:none;">
+        <select class="full small-input input-like lowercase" id="wish_copy_wishlus">
+            @foreach (Squid.Wishes.Wishlu wishlu in wishlus)
+            {                
+                <option value="@wishlu.Id">@wishlu.Name</option>
+            }
+        </select>
+        <hr class="or" />
+        <input type="text" class="input-like small-input full" id="copy_wishlu_input" placeholder="enter name here" style="margin-top: 5px; margin-bottom: 5px;" />
+        <a class="button pop center" id="wish_copy_do" style="padding:5px;">copy</a>
+    </div>
+    *@
+
+    <a class="button pop full center" id="wish_delete">delete items</a>
+</div>

@@ -1,0 +1,112 @@
+﻿#wishlu_curtain {
+	position: fixed;
+	z-index:9223372036854776000!important;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background-color: #F2F2F2;
+	opacity: 1;
+}
+
+#wbcontainer div, 
+#wbcontainer span, 
+#wbcontainer p, 
+#wbcontainer a
+ {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	color: black;
+}
+#wbcontainer {
+	z-index:9999999;
+	top:0;
+	right:0;
+	bottom:0;
+	left:0;
+	position:absolute !important;
+}
+#headerbar {
+	background-color: white;
+	height: 50px;
+	border-bottom: 2px solid silver;
+	position:absolute !important;
+	top:0;
+	left:0;
+	right:0;
+}
+#button-toggle {
+	float:right;
+	height:100%;
+	width:150px;
+	border-left: 2px solid darkgray;    
+	font-weight:bold;
+	text-align:center;
+	cursor:pointer;
+	line-height:50px;
+}
+/*#wl_logo {
+
+}*/
+#button-toggle:hover {
+	background-color: lightblue;
+}
+
+#imagelist li:hover {
+	opacity:0.7;
+}
+
+#imagelist {
+	padding:0;	
+	margin: 75px 20px 10px 20px;
+	/*margin-top:75px;
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-bottom: 10px;*/
+}
+#imagelist li {
+	color:black;
+	float:left;
+	list-style:none;
+	background:white;
+	border: 2px solid #e7e7e7;
+	border-radius: 15px;
+	/*border-right: 1px solid #E7E7E7;
+	border-bottom: 1px solid #E7E7E7;*/
+	width:200px;
+	height:200px;
+	text-align:center;
+	position: relative;
+	padding:0;
+	margin: 0;
+}
+#imagelist img {
+	max-width:200px;
+	max-height:200px;
+	opacity:1;
+	margin:0 auto;
+	border:0;
+	padding:0;
+}
+#imagelist span {
+	left: 0;
+	position: absolute;
+	z-index: 999;
+	/*background: white;*/
+	display: block;
+	bottom: 0;
+	text-align: center;
+	line-height: 20px;
+	opacity: 0.7;
+	width:100%;
+	font-size:12px;
+}
+#imagelist li a {
+	color:#666;
+	font-size:12px;
+	text-decoration:none;
+	height:100%;
+	width:100%;
+	display: inline-block;
+}

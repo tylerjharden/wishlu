@@ -1,0 +1,388 @@
+﻿@model List<Squid.Wishes.MappedWishloop>
+@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+    
+    int wishLuCounter = 0;
+    int memberCounter = 0;
+    string wishLoopcolor = "FFFFFF";
+    string curMember = "";
+    string curMemberId = "";
+    string cols = "col_8";        
+}
+
+@section page {
+    my wishloops - wishlu
+}
+
+@section title {
+    my wishloops
+}
+
+@section styles {
+    <style>
+        .splotch {
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+        }
+
+            .splotch.selected {
+                border: 4px solid gray;
+            }
+    </style>
+}
+
+@section scripts {
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $("#mainContent").on("click", function () {
+                $("#wishloop_panel").slideUp();
+            });
+
+            $(".wishloop, #wishloop_panel").on("click", function (event) {
+                event.stopPropagation();
+            });
+
+            $(".wishloop_delete").on("click", function (e) {
+                $(".wishloop.selected").removeClass("selected");
+                $(this).parents(".wishloop").addClass("selected");
+
+                swal({
+                    title: "Are you sure?",
+                    text: "The selected wishloop(s) will be permanently deleted. Wishloop members will still belong to your all my friends wishloop.",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No, keep my wishloop.",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/wishloop/delete",
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            traditional: true,
+                            data: JSON.stringify({ Id: $(".wishloop.selected").data("id") }),
+                            success: function (data, status, request) {
+                                if (data.result == true) {
+                                    swal("Success!", data.message, "success");
+                                    $(".wishloop.selected").remove();
+                                    $("#wishloop_panel").slideUp();
+                                }
+                                else {
+                                    swal("Uh oh...", data.message, "error");
+                                }
+                            },
+                            error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                        });
+                    }
+                    else {
+                        swal("Canceled", "Your wishloop is safe and sound.");
+                    }
+                });
+            });
+
+            $(".wishloop_create").on("click", function () {
+                if ($("#wishloop_submit").text() == "update") {
+                    $("#wishloop_panel").slideUp();
+                    $("#wishloop_submit").text("create");
+                    $("input:checked").prop("checked", false);
+                    $("#wishloop_panel").slideDown();
+                }
+                else {
+                    $("#wishloop_panel").slideToggle();
+                }
+            });
+
+            $(".wishloop_edit").click(editClick);
+
+            function editClick() {
+                var wishloop = $(this).parents(".wishloop");
+                wishloop.addClass("selected");
+
+                if ($("#wishloop_submit").text() == "create") {
+                    $("#wishloop_panel").slideUp();
+
+                    $("#wishloop_name").val(wishloop.data("name"));
+                    $(".splotch.selected").removeClass("selected");
+                    $(".splotch[data-color='" + wishloop.data("color") + "']").addClass("selected");
+                    $("input:checked").prop("checked", false);
+
+                    wishloop.data("wishlus").split(",").forEach(function (e) {
+                        $("#" + e).prop("checked", true);
+                    });
+
+                    $("#wishloop_submit").text("update");
+                    $("#wishloop_panel").slideDown();
+                }
+                else {
+                    $("#wishloop_panel").slideUp();
+
+                    $("#wishloop_name").val(wishloop.data("name"));
+                    $(".splotch.selected").removeClass("selected");
+                    $(".splotch[data-color='" + wishloop.data("color") + "']").addClass("selected");
+                    $("input:checked").prop("checked", false);
+
+                    wishloop.data("wishlus").split(",").forEach(function (e) {
+                        $("#" + e).prop("checked", true);
+                    });
+
+                    $("#wishloop_panel").slideDown();
+                }
+            }
+
+            $("#wishloop_submit").click(function () {
+                if ($(this).text() == "create") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/wishloop/create",
+                        dataType: 'json',
+                        contentType: 'application/json; charset=utf-8',
+                        traditional: true,
+                        data: JSON.stringify(getCreateWishloop()),
+                        success: function (data, status, request) {
+                            if (data.result == true) {
+                                swal("Success!", data.message, "success");
+                                $("#wishloop_name").val("");
+                                $("input:checked").prop("checked", false);
+                                $("#wishloop_panel").slideUp();
+
+                                $("#wishloops").append('<div class="col_4 wishloop" style="border-color: #' + $(".splotch.selected").data("color") + '; padding-top: 10px;" id="tile' + data.id + '" data-id="' + data.id + '" data-name="' + data.name + '" data-color="' + $(".splotch.selected").data("color") + '" data-wishlus="' + data.wishlus + '"><div><h5 class="center nomargin" style="color: #a8a096; font-size: 0.8em;"><span class="lowercase"><a href="/wishloop/view/' + data.id + '">' + data.name + ' (0)</a></span></h5><ul class="center breadcrumbs nomargin" style="color: #a8a096;"><li><a class="wishloop_edit" href="#">EDIT</a></li><li><i class="fa fa-trash-o red wishloop_delete sitelink" style="margin-left: 5px;"></i></li></ul></div></div>');
+
+                                $(".wishloop_edit").unbind("click");
+                                $(".wishloop_edit").click(editClick);
+                            }
+                            else {
+                                swal("Uh oh...", data.message, "error");
+                            }
+                        },
+                        error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                    });
+                }
+                else if ($(this).text() == "update") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/wishloop/update",
+                        dataType: 'json',
+                        contentType: 'application/json; charset=utf-8',
+                        traditional: true,
+                        data: JSON.stringify(getUpdateWishloop()),
+                        success: function (data, status, request) {
+                            if (data.result == true) {
+                                swal("Success!", data.message, "success");
+                                $("#wishloop_name").val("");
+                                $("input:checked").prop("checked", false);
+                                $("#wishloop_panel").slideUp();
+
+                                var wishloop = $(".wishloop[data-id=" + data.id + "]");
+
+                                wishloop.data("wishlus", data.wishlus);
+                                wishloop.data("name", data.name);
+                                wishloop.data("color", $(".splotch.selected").data("color"));
+
+                                wishloop.css("border-color", "#" + $(".splotch.selected").data("color"));
+                                wishloop.children(".name").text(data.name);
+
+                                $(".wishloop.selected").removeClass("selected");
+                            }
+                            else {
+                                swal("Uh oh...", data.message, "error");
+                            }
+                        },
+                        error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                    });
+                }
+            });
+
+            function getCreateWishloop() {
+                var data = {}
+
+                data.Name = $("#wishloop_name").val();
+                data.Color = $(".splotch.selected").data("color");
+                data.Wishlus = $.map($("input:checked"), function (element) { return $(element).val(); });
+
+                return data;
+            }
+
+            function getUpdateWishloop() {
+                var data = {}
+                
+                data.Name = $("#wishloop_name").val();
+                data.Color = $(".splotch.selected").data("color");
+                data.Wishlus = $.map($("input:checked"), function (element) { return $(element).val(); });
+                data.Id = $(".wishloop.selected").data("id");
+
+                return data;
+            }
+
+            $(".splotch").click(function () {
+                $(".splotch.selected").removeClass("selected");
+                $(this).addClass("selected");
+            });
+
+            // ideas
+            $("#wishloop_ideas").click(function () {
+                swal("wishloop ideas", "kappa kappa emu sisters • coworkers • ladies I golf with • baby shower guests • poker club • book club • truffle club • NYU class of 2002 • microeconomics study group • best friends  • Jack only • Juliet • fortune cookie writers club • obligatory secret santa group • church group • people who always send me fruitcake • roller derby  • crew team • carpool", "info");
+            });
+        });
+    </script>        
+}
+
+@section info {
+    <div class="col_12" style="text-align: left; height: 400px; overflow: auto;">
+        <span>
+            <b>wishloops</b> are customizable circles of family & friends who you allow or disallow to view particular wishlus.  Wishloop members can opt to receive notifications whenever you add an item to a wishlu they have permission to see. All members in a wishloop can see whether other members have bought you an item in your wishlu, even though you can’t until the buyer elects to notify you. Click <b>create a new wishloop</b> to get started.
+        </span>
+        <br />
+        <br />
+        <span>
+            <b>create a new wishloop</b> lets you name and color code an infinite number of unique wishloops: big wishloops, small wishloops, or a wishloop with just one person. Click on the <b>light bulb icon</b> for some ideas.
+        </span>
+        <br />
+        <br />
+        <span>
+            Whenever people accept your invitation to join wishlu, they belong to your friends wishloop by default. You can shuffle wishloop members whenever you like to customize viewing privileges, and people may belong to more than one wishloop. People do not know to which wishloop they belong.
+        </span>
+        <br />
+        <br />
+        <span>
+            Click the <b>wrench icon</b> to edit a wishloop and to reassign which wishlus a wishloop can see.
+        </span>
+    </div>
+}
+
+@section actions {
+    <a class="button pop" id="wishloop_ideas"><i class="fa fa-2x fa-fw fa-lightbulb-o"></i></a>
+}
+
+<div class="col_12 pop nomargin center full" style="margin-bottom: 10px !important; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white; padding:5px;">
+    <b>wishloops are circles of family and friends with whom you share your wishlus.</b>
+</div>
+
+<div id="wishloop_panel" class="col_12 pop nomargin full" style="display: none; border: 2px solid lightblue; border-radius: 15px; background: white;">
+    <div class="col_6">
+        <div class="col_12">
+            <input type="text" id="wishloop_name" class="full small-input input-like" placeholder="wishloop name" />
+        </div>
+        <div class="col_12 center">
+            <div class="sitelink splotch selected" style="display:inline-block; background-color: #95D5E1;" data-color="95D5E1"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #D0D543;" data-color="D0D543"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #DD838F;" data-color="DD838F"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #F2B244;" data-color="F2B244"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #DE3F15;" data-color="DE3F15"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #C5ACCA;" data-color="C5ACCA"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #FDF39C;" data-color="FDF39C"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #A49689;" data-color="A49689"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #B3CEE1;" data-color="B3CEE1"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #CBEBC4;" data-color="CBEBC4"></div>
+        </div>
+    </div>
+    <div class="col_6">
+        <div class="col_12">
+            <span style="color: #9A8B7D;"><b>which wishlus can this wishloop see? (optional):</b></span>
+        </div>
+        <div class="col_12 nomargin nopadding" style="overflow-y:auto; max-height: 100px;">
+            @foreach (Squid.Wishes.Wishlu wishlu in Squid.Wishes.Wishlu.GetUsersWishLus(UserId))
+            {
+                if (wishlu.WishLuType == Squid.Wishes.WishluType.JustMe || wishlu.WishLuType == Squid.Wishes.WishluType.Public)
+                {
+
+                    continue;
+                }
+
+                if (wishlu.Visibility != Squid.Wishes.WishluVisibility.Friends)
+                {
+                    continue;
+                }
+
+                <div class="col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
+                    <span style="float: left; padding-left: 10px; ">
+                        @wishlu.Name
+                    </span>
+                    <span style="float: right; padding-right: 10px; ">
+                        <input type="checkbox" name="@wishlu.Id" id="@wishlu.Id" value="@wishlu.Id" />
+                    </span>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col_12 center">
+        <a id="wishloop_submit" class="button large pop center" href="#">create</a>
+    </div>
+</div>
+<div id="wishloops" class="clearfix full">
+    @foreach (Squid.Wishes.MappedWishloop wishloop in Model)
+    {
+        List<Squid.Users.User> members = wishloop.Members;
+        memberCounter = 0;
+        wishLoopcolor = wishloop.DisplayColor.ToString("X6");
+
+        if (wishLuCounter == 1)
+        {
+            <div class="col_4 wishloop square pop center wishloop_create link" style="background-image: url('//assets.wishlu.com/images/headerLogoWatermark.png'); background-size: contain;">
+                <span style="position: absolute; top: 45%; left:0; right: 0; font-size: 24pt;">create a new wishloop</span>
+            </div>
+        }
+
+        string wishlus = "";
+        foreach (Guid id in wishloop.Wishlus.Select(x => x.Id))
+        {
+            wishlus += id + ",";
+        }
+        if (wishlus.Length > 0)
+        {
+            wishlus = wishlus.Remove(wishlus.Length - 1, 1);
+        }
+
+        <div class="col_4 wishloop square pop" style="border-color: #@(wishLoopcolor);" id="tile@(wishloop.Id)" data-id="@wishloop.Id" data-name="@wishloop.Name" data-color="@wishLoopcolor" data-wishlus="@wishlus">
+            <div class="col_12">
+                <h6 class="center" style="padding-top: 5px;">
+                    <span class="lowercase"><a class="name" href="/o/@wishloop.Id">@wishloop.Name.TruncateAtWord(20) (@members.Count())</a></span>
+                </h6>
+                <div class="col_12 center">
+                    <a class="wishloop_edit" href="#" style="color: gray;"><i class="fa fa-wrench"></i></a>
+                    @if (wishloop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
+                    {
+                        <i class="fa fa-trash red wishloop_delete sitelink" style="margin-left: 10px; color: gray;"></i>
+                    }
+                </div>
+                @foreach (Squid.Users.User mem in members.Take(7))
+                {
+                    memberCounter++;
+                    curMember = mem.FullName;
+                    curMemberId = mem.Id.ToString();
+
+                    if (memberCounter == 2 || memberCounter == 7)
+                    {
+                        cols = "col_4";
+                    }
+                    if (memberCounter == 6)
+                    {
+                        cols = "col_8";
+                    }
+
+                    <a href="/u/@mem.Id">
+                        <div class="@(cols) nomargin">
+                            <div class="centerDiv circlefriend pop tooltip" data-delay="0" title="@(curMember)" style="width: 80px; height: 80px; background-image: url('@(mem.ImageUrl)'); @(memberCounter == 2 || memberCounter == 7 ? "margin-left: -25px;" : "")">
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+                wishLuCounter++;
+                memberCounter = 0;
+                cols = "col_8";
+
+    }
+    @if (wishLuCounter < 2)
+    {
+        <div class="col_4 wishloop square pop center wishloop_create link" style="background-image: url('//assets.wishlu.com/images/headerLogoWatermark.png'); background-size: contain;">
+            <span style="position: absolute; top: 45%; left:0; right: 0; font-size: 24pt;">create a new wishloop</span>
+        </div>
+    }
+</div>

@@ -1,0 +1,47 @@
+﻿@model Squid.Messages.IM
+
+@{
+    Squid.Users.User other = Squid.Users.User.GetUserById(Model.User1 == UserId ? Model.User2 : Model.User1); // get the other user in the conversation
+    Squid.Users.User current = Squid.Users.User.GetUserById(UserId); // get the current user
+}
+
+<div class="conversation_log" style="overflow-y: scroll; background:white; max-height: 320px;">
+    @foreach (Squid.Messages.Message message in Model.GetMessages().OrderBy(x => x.SendTime))
+    {
+        <div class="col_12">
+            <!-- User Profile Image -->
+            <div class="col_1">
+                @if (message.SenderId == UserId)
+                {
+                    <div class="circlefriend pop" style="background-image: url('@current.ImageUrl'); width:32px; height:32px;"></div>
+                }
+                else
+                {
+                    <div class="circlefriend pop" style="background-image: url('@other.ImageUrl'); width:32px; height:32px;"></div>
+                }
+            </div>
+            <!-- User Name, Message, Send Time -->
+            <div class="col_11">
+                <!-- User Name-->
+                <div class="col_6 nomargin left">
+                    <span class="col_12 nomargin" style="font-size: 10pt;">
+                        @if (message.SenderId == UserId)
+                        {
+                            <b>@current.FullName</b>
+                        }
+                        else
+                        {
+                            <b>@other.FullName</b>
+                        }
+                    </span>
+                    <span style="font-size: 10pt;">
+                        @message.BodyText
+                    </span>
+                </div>
+                <div class="col_6 nomargin right" style="font-size: 8pt;">
+                    @message.SendTime.GetValueOrDefault().ToString("M/d, h:mmtt")
+                </div>
+            </div>
+        </div>
+    }
+</div>

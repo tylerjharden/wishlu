@@ -1,0 +1,81 @@
+﻿.tt-body {
+  text-align: center;
+}
+
+.tt-side {
+  position: fixed;
+  right: -6px;
+  top: 100px;
+  padding: 5px 15px 5px 5px;
+  background: lightblue/*#ff696b*/;
+  z-index: 9999999999;
+  border-radius: 5px;
+  display: none;
+}
+
+.tt-side a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: 'Montserrat', Helvetica, Verdana, Arial, sans-serif;
+  background: url('cart.png') 5px 3px no-repeat;
+  padding-left: 30px;
+  line-height: 30px;
+}
+.tt-side:hover {
+  background: rgb(123, 176, 180)/*#f16568*/;
+}
+
+.tt-overlayer {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 999;
+  top: 0;
+  left: 0;
+  display: none;
+}
+
+.tt-iframe-container {
+  position: relative;
+}
+.tt-iframe {
+  position: fixed;
+  width: 400px;
+  height: 100%;
+  top: 0;
+  right: 0;
+  z-index: 9999999999;
+  display: none;
+}
+.tt-iframe-close {
+  position: absolute;
+  top: 100px;
+  left: -90px;
+  padding: 5px 15px 5px 5px;
+  background: lightblue/*#ff696b*/;
+  border-radius: 5px;
+  width: 80px;
+  z-index: 999;
+}
+.tt-iframe-close a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: 'Montserrat', Helvetica, Verdana, Arial, sans-serif;
+  background: url('cart.png') 5px 3px no-repeat;
+  padding-left: 30px;
+  line-height: 30px;
+}
+#ttIframe {
+  border: none;
+  box-shadow: 0 0 2px rgba(0,0,0, 0.65);
+  background: #fff;
+  z-index: 9999;
+  position: relative;
+}

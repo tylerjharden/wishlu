@@ -1,0 +1,73 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";        
+}
+
+@section meta {
+    <!-- Google -->
+    <meta name="description" content="Forgot your password? Request a new password for your wishlu account." />
+    <meta name="keywords" content="wishlu wish gift registry join forgot password" />
+
+    <meta name="author" content="" />
+    <meta name="copyright" content="" />
+    <meta name="application-name" content="wishlu" />
+
+    <!-- Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="wishlu" />
+    <meta property="og:title" content="Forgot password" />
+    <meta property="og:image" content="http://assets.wishlu.com/images/logobeta.jpg" />
+    <meta property="og:url" content="http://www.wishlu.com/join/register" />
+    <meta property="og:description" content="Forgot your password? Request a new password for your wishlu account." />
+}
+
+@section page {
+    forgot password - wishlu
+}
+
+@section title {
+    forgot password
+}
+
+@section scripts {
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#password_forgot").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/password/forgot",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Email: $("#password_email").val() }),
+                    success: function (data) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            location.href = "/signin";
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data) {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                });
+            });
+        });
+    </script>
+}
+        
+<h6 class="center">If you've forgotten your password, enter your email address and we will send you a link to reset it.</h6>
+<div class="col_12 center">
+    <p style="font-size: 10pt;" class="center">Be sure to check your spam or bulk mail if you've not received an email after several minutes.</p>
+</div>
+<div class="col_12 center">
+    <input class="large-input" id="password_email" style="width:80%;" placeholder="enter your email" type="text" required />
+</div>
+<div class="col_12 center">
+    <a class="button large pop" id="password_forgot">
+        reset
+    </a>
+</div>         

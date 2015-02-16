@@ -1,0 +1,459 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+
+    var all_friends = Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(UserId);
+}
+
+@section page {
+    my wishlus - wishlu
+}
+
+@section title {
+    my wishlus
+}
+
+@section styles {
+    <style>
+        .splotch {
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+        }
+
+            .splotch.selected {
+                border: 4px solid gray;
+            }
+
+        button.disabled {
+            background: gray;
+            text-shadow: none;
+        }
+
+            button.disabled:hover {
+                background: gray;
+                text-shadow: none;
+            }
+
+            button.disabled:active {
+                background: gray;
+                text-shadow: none;
+            }
+    </style>
+}
+
+@section scripts {
+    <script type="text/javascript" src="//assets.wishlu.com/js/qrcode.js"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function () {
+        $.get("/get/wishlus", null, function (result) {
+            $("#wishlus_container").html(result);
+
+            // Tooltips
+            $('.tooltip', '#wishlus_container').each(function () {
+                // variables
+                var content = $(this).attr('title');
+                var dataContent = $(this).attr('data-content');
+                var keepAlive = false;
+
+                // content
+                $('.tooltip-content').removeClass('hide').wrap('<div class="hide"></div>');
+                if (dataContent) { content = $(dataContent).html(); keepAlive = true; }
+
+                // tooltip
+                $(this).attr('title', '')
+                .tipTip({ defaultPosition: 'top', content: content, keepAlive: keepAlive, activation: 'hover', delay: 0 });
+            });
+
+            $("#mainContent").on("click", function () {
+                $("#wishlu_panel").slideUp();
+            });
+
+            $(".wishlu, #wishlu_panel").on("click", function (event) {
+                event.stopPropagation();
+            });
+
+            var create_qrcode = function (data) {
+                var qr = qrcode(4, 'M');
+                qr.addData(data);
+                qr.make();
+
+                return qr.createImgTag();
+            }
+
+            $(".wishlu_qr").on("click", function () {
+                var id = $(this).data("id");
+
+                var data = "http://www.wishlu.com/l/" + id;
+
+                var img = create_qrcode(data);
+
+                swal({ title: "QR Code", text: "This is your QR Code linking to the selected wishlu. You can scan this with your phone.", imageUrl: $(img).attr("src") });
+            });
+
+            $(".wishlu_delete").on("click", function () {
+                $(".wishlu.selected").removeClass("selected");
+                $(this).parents(".wishlu").addClass("selected");
+
+                swal({
+                    title: "Are you sure?",
+                    text: "The selected wishlu will be permanently deleted! (All of its wishes will be moved to your just me wishlu)",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No, keep my wishlu.",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/wishlu/delete",
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            traditional: true,
+                            data: JSON.stringify({ Id: $(".wishlu.selected").data("id") }),
+                            success: function (data, status, request) {
+                                if (data.result == true) {
+                                    swal("Success!", data.message, "success");
+                                    $(".wishlu.selected").remove();
+                                    $("#wishlu_panel").slideUp();
+                                }
+                                else {
+                                    swal("Uh oh...", data.message, "error");
+                                }
+                            },
+                            error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                        });
+                    }
+                    else {
+                        swal("Canceled", "Your wishlu is safe and sound.");
+                    }
+                });
+            });
+
+            $(".wishlu_create").on("click", function () {
+                if ($("#wishlu_submit").text() == "update") {
+                    $("#wishlu_panel").slideUp();
+                    $("#wishlu_submit").text("create");
+                    $("#wishlu_name").val("");
+                    $("#wishlu_date").val("");
+                    clickFriends();
+                    $("#@all_friends.Id").prop("checked", true);
+                        $("input:checked").prop("checked", false);
+                        $("#wishlu_panel").slideDown();
+                    }
+                    else {
+                        $("#wishlu_name").val("");
+                        $("#wishlu_date").val("");
+                        clickFriends();
+                        $("#@all_friends.Id").prop("checked", true);
+                        $("#wishlu_panel").slideToggle();
+                    }
+                });
+
+                function clickPublic() {
+                    $("#wishlu_friends_container").slideUp();
+                    $("#wishlu_friends").removeClass("disabled");
+                    $("#wishlu_private").removeClass("disabled");
+                    $("#wishlu_public").addClass("disabled");
+                }
+                $("#wishlu_public").on("click", clickPublic);
+
+                function clickFriends() {
+                    $("#wishlu_friends_container").slideDown();
+                    $("#wishlu_public").removeClass("disabled");
+                    $("#wishlu_private").removeClass("disabled");
+                    $("#wishlu_friends").addClass("disabled");
+                }
+                $("#wishlu_friends").on("click", clickFriends);
+
+                function clickPrivate() {
+                    $("#wishlu_friends_container").slideUp();
+                    $("#wishlu_public").removeClass("disabled");
+                    $("#wishlu_friends").removeClass("disabled");
+                    $("#wishlu_private").addClass("disabled");
+                }
+                $("#wishlu_private").on("click", clickPrivate);
+
+                $(".wishlu_edit").on("click", editClick);
+                function editClick() {
+                    var wishlu = $(this).parents(".wishlu");
+                    wishlu.addClass("selected");
+
+                    if ($("#wishlu_submit").text() == "create") {
+                        $("#wishlu_panel").slideUp();
+
+                        $("#wishlu_name").val(wishlu.data("name"));
+                        $(".splotch.selected").removeClass("selected");
+                        $(".splotch[data-color='" + wishlu.data("color") + "']").addClass("selected");
+                        $("input:checked").prop("checked", false);
+
+                        if (wishlu.data("date") != "01/01/0001") {
+                            $("#wishlu_date").val(wishlu.data("date"));
+                        }
+
+                        if (wishlu.data("visibility") == "Public") {
+                            clickPublic();
+                        }
+                        else if (wishlu.data("visibility") == "Friends") {
+                            clickFriends();
+                        }
+                        else if (wishlu.data("visibility") == "Private") {
+                            clickPrivate();
+                        }
+
+                        wishlu.data("wishloops").split(",").forEach(function (e) {
+                            $("#" + e).prop("checked", true);
+                        });
+
+                        $("#wishlu_submit").text("update");
+                        $("#wishlu_panel").slideDown();
+                    }
+                    else {
+                        $("#wishlu_panel").slideUp();
+
+                        $("#wishlu_name").val(wishlu.data("name"));
+                        $(".splotch.selected").removeClass("selected");
+                        $(".splotch[data-color='" + wishlu.data("color") + "']").addClass("selected");
+                        $("input:checked").prop("checked", false);
+
+                        if (wishlu.data("date") != "01/01/0001") {
+                            $("#wishlu_date").val(wishlu.data("date"));
+                        }
+
+                        if (wishlu.data("visibility") == "Public") {
+                            clickPublic();
+                        }
+                        else if (wishlu.data("visibility") == "Friends") {
+                            clickFriends();
+                        }
+                        else if (wishlu.data("visibility") == "Private") {
+                            clickPrivate();
+                        }
+
+                        wishlu.data("wishloops").split(",").forEach(function (e) {
+                            $("#" + e).prop("checked", true);
+                        });
+
+                        $("#wishlu_panel").slideDown();
+                    }
+                }
+
+                var isRunning = false;
+                $("#wishlu_submit").on("click", function () {
+                    if (isRunning) {
+                        return;
+                    }
+
+                    isRunning = true;
+
+                    if ($(this).text() == "create") {
+                        $.ajax({
+                            type: "POST",
+                            url: "/wishlu/create",
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            traditional: true,
+                            data: JSON.stringify(getCreateWishlu()),
+                            success: function (data, status, request) {
+                                if (data.result == true) {
+                                    swal("Success!", data.message, "success");
+                                    $("#wishlu_name").val("");
+                                    $("#wishlu_date").val("");
+                                    $("input:checked").prop("checked", false);
+                                    $("#wishlu_panel").slideUp();
+                                                                        
+                                    isRunning = false;
+
+                                    setTimeout(function () { location.href = "/l/" + data.id }, 3000)
+                                }
+                                else {
+                                    swal("Uh oh...", data.message, "error");
+                                    isRunning = false;
+                                }
+                            },
+                            error: function (data, status, request) { swal("Uh oh...", data.message, "error"); isRunning = false; }
+                        });
+                    }
+                    else if ($(this).text() == "update") {
+                        $.ajax({
+                            type: "POST",
+                            url: "/wishlu/update",
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            traditional: true,
+                            data: JSON.stringify(getUpdateWishlu()),
+                            success: function (data, status, request) {
+                                if (data.result == true) {
+                                    swal("Success!", data.message, "success");
+                                    $("#wishlu_name").val("");
+                                    $("#wishlu_date").val("");
+                                    $("input:checked").prop("checked", false);
+                                    $("#wishlu_panel").slideUp();
+
+                                    var wishlu = $(".wishlu[data-id='" + data.id + "']");
+
+                                    wishlu.data("wishloops", data.wishloops);
+                                    wishlu.data("name", data.name);
+                                    wishlu.data("color", $(".splotch.selected").data("color"));
+                                    wishlu.data("visibility", data.visibility);
+                                    wishlu.data("date", data.date);
+
+                                    wishlu.css("border-color", "#" + $(".splotch.selected").data("color"));
+                                    wishlu.children("a.name").html(data.name);
+
+                                    $(".wishlu.selected").removeClass("selected");
+
+                                    isRunning = false;
+
+                                    $.get("/get/wishlus", null, function (result) {
+                                        $("#wishlus_container").html(result);                                                                                
+                                    });
+                                }
+                                else {
+                                    swal("Uh oh...", data.message, "error");
+                                    isRunning = false;
+                                }
+                            },
+                            error: function (data, status, request) { swal("Uh oh...", data.message, "error"); isRunning = false; }
+                        });
+                    }
+                });
+
+                function getCreateWishlu() {
+                    var data = {}
+
+                    data.Name = $("#wishlu_name").val();
+                    data.Color = $(".splotch.selected").data("color");
+                    data.Wishloops = $.map($("input:checked"), function (element) { return $(element).val(); });
+                    data.EventDate = $("#wishlu_date").val();
+                    data.Visibility = $(".disabled").data("value");
+
+                    return data;
+                }
+
+                function getUpdateWishlu() {
+                    var data = {}
+
+                    data.Name = $("#wishlu_name").val();
+                    data.Color = $(".splotch.selected").data("color");
+                    data.Wishloops = $.map($("input:checked"), function (element) { return $(element).val(); });
+                    data.Id = $(".wishlu.selected").data("id");
+                    data.EventDate = $("#wishlu_date").val();
+                    data.Visibility = $(".disabled").data("value");
+
+                    return data;
+                }
+
+                $(".splotch").click(function () {
+                    $(".splotch.selected").removeClass("selected");
+                    $(this).addClass("selected");
+                });
+
+                // date picker
+                $("#wishlu_date").datepicker({ minDate: 0, maxDate: 365, altFormat: "mm/dd/yyyy" });
+
+                // ideas
+                $("#wishlu_ideas").click(function () {
+                    swal("wishlu ideas", "baby • dear Easter bunny • tying the knot • anniversary • golf • my trip to Belize • my bookshelf • graduation • dorm décor • care package requests • Father’s Day • Mother’s Day • my first house • Chloe’s 5th birthday party • spot and whisker • Valentine’s Day • my vintage kimono collection • j.crew  • spa services • fly fishing • my bah mitzvah • shoes! shoes! shoes! • ideas for Phil", "info");
+                });
+            });
+        });
+    </script>
+}
+
+@section info {
+    <div class="col_12" style="text-align: left; height: 300px; overflow: auto;">
+        <span>
+            <b>wishlus</b> are like wish lists, but better; they are shareable, shoppable collections of gifts you would like from any store or website for any occasion: your birthday, an anniversary, Christmas, a new baby, or a housewarming party. Click on <b>create a new wishlu</b> to get started.
+        </span>
+        <br />
+        <br />
+        <span>
+            <b>create a new wishlu</b> lets you make and name an infinite number of unique wishlus, link them to important dates, color code them and share them with selected wishloops, individual friends, or everyone. Click on the <b>light bulb icon</b> for some wishlu ideas.
+        </span>
+        <br />
+        <br />
+        <span>
+            <b>just me</b> is a private wishlu that only you can see. You can use it to keep track of items you haven’t yet assigned to a particular shared wishlu, items you would like to buy for yourself, or items you might want to buy for someone else.
+        </span>
+        @*<br />
+        <br />
+        <span>
+            <b>generate a QR tag</b> for any of your wishlus and text, snap, tweet, or pin it to quickly share gift ideas with friends and followers. Or, add it to an e-vite or print it on invitations to make it super easy for friends to see exactly what you are asking for when they scan the QR tag with their phones.  Click on the <b>QR tag icon</b> next to the wrench to create one.
+        </span>*@
+    </div>
+}
+
+@section actions {
+    <a class="button pop" id="wishlu_ideas"><i class="fa fa-2x fa-lightbulb-o fa-fw"></i></a>
+}
+
+<div class="col_12 pop nomargin center full" style="margin-bottom: 10px !important; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white; padding:5px;">
+    <b>wishlus are shoppable collections of items you would like to receive from anywhere for any occasion.</b>
+</div>
+
+<div id="wishlu_panel" class="col_12 pop nomargin full" style="display: none; border: 2px solid lightblue; border-radius: 15px; background: white;">
+    <div class="col_6">
+        <div class="col_12">
+            <input type="text" id="wishlu_name" class="full small-input input-like tooltip" data-delay="0" title="Enter a memorable name for your wishlu. This can be as broad or specific as you would like. Longer names may be shortened where necessary, so keep it resonable." placeholder="enter wishlu name" />
+        </div>
+        <div class="col_12 center">
+            <div class="sitelink splotch selected" style="display:inline-block; background-color: #95D5E1;" data-color="95D5E1"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #D0D543;" data-color="D0D543"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #DD838F;" data-color="DD838F"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #F2B244;" data-color="F2B244"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #DE3F15;" data-color="DE3F15"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #C5ACCA;" data-color="C5ACCA"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #FDF39C;" data-color="FDF39C"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #A49689;" data-color="A49689"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #B3CEE1;" data-color="B3CEE1"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #CBEBC4;" data-color="CBEBC4"></div>
+        </div>
+        <div class="col_12">
+            <span style="color: #9A8B7D;"><b>select date (optional):</b></span>
+        </div>
+        <div class="col_12 center">
+            <input class="input-like input-small tooltip" data-delay="0" title="Associate this wishlu with an upcoming date." type="text" name="wishlu_date" id="wishlu_date" placeholder="select a date" value="select a date" />
+        </div>
+    </div>
+    <div class="col_6">
+        <div class="col_6">
+            <span style="color: #9A8B7D;"><b>select wishlu visibility:</b></span>
+        </div>
+        <div class="col_6 right">
+            <button id="wishlu_public" class="button pop disabled tooltip" title="This wishlu will be visible to all wishlu users, including anonymous visitors." data-delay="0" data-value="Public" style="padding:8px;">public</button>
+            <button id="wishlu_friends" class="button pop tooltip" title="This wishlu will be visible to members of the wishloops you choose." data-value="Friends" data-delay="0" style="padding:8px;">shared</button>
+            <button id="wishlu_private" class="button pop tooltip" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:8px;">private</button>
+        </div>
+        <div class="col_12 hide" id="wishlu_friends_container">
+            <div class="col_12">
+                <span style="color: #9A8B7D;"><b>who can see this wishlu? (my wishloops)</b></span>
+            </div>
+            <div class="col_12 nomargin nopadding" style="overflow-y:auto; max-height: 100px;">
+                @foreach (Squid.Wishes.Wishloop wishloop in Squid.Wishes.Wishloop.GetUsersWishloops(UserId))
+                {
+                    <div class="col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
+                        <span style="float: left; padding-left: 10px; ">
+                            @wishloop.Name
+                        </span>
+                        <span style="float: right; padding-right: 10px; ">
+                            <input type="checkbox" name="@wishloop.Id" id="@wishloop.Id" value="@wishloop.Id" />
+                        </span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col_12 center">
+        <button id="wishlu_submit" class="button large pop center">create</button>
+    </div>
+</div>
+<div id="wishlus_container" class="center centerDiv">
+    <i class="fa fa-spin fa-spinner fa-5x" style="margin-top: 20px; color:gray;"></i>
+</div>
+
+

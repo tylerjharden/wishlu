@@ -1,0 +1,142 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/PopUpLayout.cshtml";
+        
+    // Facebook
+    string clientId = "296645670486904";
+    string redirectUrl = "http://www.wishlu.com/facebook/register";
+    string scope = "email,public_profile,user_birthday,user_friends,user_likes";
+    TempData["ReturnUrl"] = ViewBag.ReturnUrl;
+}
+
+@section meta {
+    <link rel="canonical" href="//www.wishlu.com/join" />
+
+    <!-- Google -->
+    <meta name="description" content="Join wishlu, the new way to give (and to get)." />
+    <meta name="keywords" content="wishlu wish gift registry join" />
+
+    <meta name="author" content="" />
+    <meta name="copyright" content="" />
+    <meta name="application-name" content="wishlu" />
+
+    <!-- Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="wishlu" />
+    <meta property="og:title" content="Join wishlu" />
+    <meta property="og:image" content="http://assets.wishlu.com/images/logobeta.jpg" />
+    <meta property="og:url" content="http://www.wishlu.com/join" />
+    <meta property="og:description" content="Join wishlu, the new way to give (and to get)." />
+}
+
+@section page {
+    join - wishlu
+}
+
+@section styles {
+<style>
+#JoinPopup
+{    
+    position: relative;
+    z-index: 200;    
+    /*height: auto;*/ /* 400px */
+    width: 380px; /* 400px */    
+    padding: 10px;
+    /*display: none;*/
+    margin: 50px auto;    
+    color: #918b7d;
+    font-family: Lato, Helvetica, Arial, Sans-Serif;
+    background: white;    
+    border: 5px solid #D3EEF2;
+    border-radius: 15px;    
+}
+
+    #InvitePopup
+{    
+    position: relative;
+    z-index: 200;    
+    /*height: auto;*/ /* 400px */
+    width: 380px; /* 400px */    
+    padding: 10px;
+    /*display: none;*/
+    margin: 50px auto;    
+    color: #918b7d;
+    font-family: Lato, Helvetica, Arial, Sans-Serif;
+    background: white;    
+    border: 5px solid #D3EEF2;
+    border-radius: 15px;    
+}
+</style>
+}
+
+@section scripts
+{
+
+<script type="text/javascript">    
+    $(document).ready(function () {
+        window.resizeTo(600, 400);
+    });
+</script>
+
+    <script>
+        $(document).ready(function () {
+            $("#invite_do").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/join/exists?code=" + $("#invite_code").val(),
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: null,
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            //swal("Success!", data.message, "success");
+                            location.href = "/join/invite?code=" + $("#invite_code").val();
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+        });
+    </script>
+}
+
+<div class="pop inset clearfix" id="JoinPopup">
+    <!-- Notification Bars-->
+    @RenderPage("~/Views/Shared/Templates/_NotificationBars.cshtml")
+    <!-- End Notification Bars -->
+    <div class="col_12">
+        <h4 style="margin-top: 0;">sign up for wishlu</h4>
+        <div class="col_12">
+            <a class="button pop full" style="color: #3B5998;" href="@(string.Format("https://graph.facebook.com/oauth/authorize?client_id={0}&redirect_uri={1}&scope={2}", clientId, redirectUrl, scope))">
+                <span class="fa fa-2x fa-facebook-square" style="color: #3B5998; margin-right: 10px;"></span>
+                <span style="font-size: 14pt; font-weight: bold;">continue with facebook</span>
+            </a>
+        </div>
+        <div class="col_12">
+            <a class="button pop full" href="/join/register">
+                <span class="fa fa-2x fa-envelope" style="margin-right: 10px;"></span>
+                <span class="center" style="font-size: 14pt; font-weight: bold;">sign up with email</span>
+            </a>
+        </div>
+    </div>  
+    <div class="col_12 center">
+        <a href="/signin">Already have an account?</a>
+    </div>  
+</div>
+
+<div class="pop inset clearfix" id="InvitePopup">
+    <div class="col_12">
+        <h4 style="margin-top: 0;">i have an invite code</h4>
+        <div class="col_12">
+            <input type="text" id="invite_code" class="full input-like large-input" placeholder="enter code here" />
+            <a id="invite_do" class="button pop full center" style="margin-top: 10px;">
+                <span style="font-size: 14pt; font-weight: bold;">continue</span>
+            </a>
+        </div>
+        
+    </div>  
+</div>

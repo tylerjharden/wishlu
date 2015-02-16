@@ -1,0 +1,196 @@
+﻿@using Disco.Common
+@model Milkshake.Store
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+    
+    Squid.Users.User currentUser = null;
+    if (UserId != null && UserId != Guid.Empty)
+    {
+        currentUser = Squid.Users.User.GetUserById(UserId);
+    }
+}
+
+@section page {
+    @{this.Write("wishlu - " + Model.Name);}
+}
+
+@section title {
+    <span id="headerlink"><a href="@Url.Action("index", "store")" style="color: #DED9D3; text-decoration: none;">stores</a></span>
+    <span class="fa fa-angle-right"></span>
+    <span>@Model.Name</span>
+}
+
+@section actions {
+
+}
+
+@section meta
+{
+
+}
+
+@section styles {
+    <link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/jquery.rating.css" />
+}
+
+@section scripts {
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.unobtrusive-ajax.js"></script>
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.rating.js"></script>
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.autosize.min.js"></script>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $("#products_container").on("click", ".product_save", function () {
+                var sel = $(this);
+                sel.addClass("disabled");
+                sel.text("saving...");
+
+                var product = {};
+
+                var product_type = sel.data("product-type");
+
+                if (product_type === "milkshake") {
+                    product.Id = sel.data("id");
+                    product.ProductType = "milkshake";
+                }
+                else if (product_type === "amazon") {
+                    product.ASIN = sel.data("asin");
+                    product.ProductType = "amazon";
+                }
+                else if (product_type === "bby") {
+                    product.SKU = sel.data("sku");
+                    product.ProductType = "bestbuy";
+                }
+                else {
+                    swal("Uh oh...", "The product you are attempting to save has invalid product data.");
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/item/add",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(product),
+                    success: function (data) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            sel.text("saved");
+                            //History.pushState(null, 'saved', '?state=saved');
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                            sel.removeClass("disabled");
+                            sel.text("save");
+                        }
+                    },
+                    error: function (data) {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                });
+            });
+
+            $.get("/get/shopproducts/@Model.Id", null, function (result) {
+                // Append Results
+                $("#products_container").html(result);
+                $("#products > .loading").hide();
+                //gettingProducts = false;
+
+                if ($(".product").length == 0) {
+                    $("#products").remove();
+                }
+                else {
+                    // Tooltips
+                    $('.tooltip, .tooltip-top, .tooltip-bottom, .tooltip-right, .tooltip-left', '#products_container').each(function () {
+                        // variables
+                        var tpos = 'top';
+                        var content = $(this).attr('title');
+                        var dataContent = $(this).attr('data-content');
+                        var keepAlive = false;
+                        var action = 'hover';
+                        var delay = $(this).attr('data-delay');
+                        if (delay === undefined) { delay = 1000; }
+
+                        // position
+                        if ($(this).hasClass('tooltip-top')) { tpos = 'top'; }
+                        if ($(this).hasClass('tooltip-right')) { tpos = 'right'; }
+                        if ($(this).hasClass('tooltip-bottom')) { tpos = 'bottom'; }
+                        if ($(this).hasClass('tooltip-left')) { tpos = 'left'; }
+
+                        // content
+                        $('.tooltip-content').removeClass('hide').wrap('<div class="hide"></div>');
+                        if (dataContent) { content = $(dataContent).html(); keepAlive = true; }
+
+                        // action (hover or click) defaults to hover
+                        if ($(this).attr('data-action') == 'click') { action = 'click'; }
+
+                        // tooltip
+                        $(this).attr('title', '')
+                        .tipTip({ defaultPosition: tpos, content: content, keepAlive: keepAlive, activation: action, delay: delay });
+                    });
+                }
+            });
+
+            @if (currentUser != null)
+            {
+                if (currentUser.FavoriteStores.Contains(Model.Id))
+                {
+                    <text>
+                $("#follow_store").html("unfollow");
+                </text>
+                }
+                else
+                {
+                    <text>
+                $("#follow_store").html("follow");
+                </text>
+                }
+
+                <text>
+                $("#follow_store").click(function () {
+                    var follow = $("#follow_store").html() == "follow";
+                    $("#follow_store").html("<i class='fa fa-spinner fa-spin'></i>");
+
+                    if (follow) {
+                        $.get("/store/follow/@Model.Id", null, function (result) {
+                            if (result == true) {
+                                $("#follow_store").html("unfollow");
+                            }
+                        });
+                    }
+                    else {
+                        $.get("/store/unfollow/@Model.Id", null, function (result) {
+                            if (result == true) {
+                                $("#follow_store").html("follow");
+                            }
+                        });
+                    }
+                });
+                </text>
+            }
+        });
+    </script>
+}
+
+<div class="grid" style="position: relative; padding: 0;">    
+    <div class="col_12 wishLuList center pop" style="background-color: white; border-color: gray; padding: 10px;">
+        <div class="col_12 pop" style="float: none; display: inline-block; position: relative; color: #a8a096; background-size: contain; background-position: center; background-repeat: no-repeat; background-image: url('//assets.wishlu.com/images/stores/@(Model.Logo)'); background-color: white; width: 100px; height: 100px;">
+        </div>
+        <h5 style="font-weight: 300;">@Model.Name</h5>
+        @if (currentUser != null)
+        {
+            <a id="follow_store" class="button pop" href="#">follow</a>
+        }
+    </div>    
+
+    <!-- Products -->
+    <div id="products" class="col_12 pop" style="border: 2px solid lightblue; border-radius: 15px; background:white;">
+        <h5 id="products_tab" style="margin-left: 10px; color: #a8a096;"><a href="/store/products/@Model.Id">products</a>:</h5>
+        <div class="col_12" id="products_container">
+
+        </div>
+        <div class="col_12 center loading" style="color: gray;">
+            @{ Html.RenderPartial("~/Views/Get/Products.cshtml", Milkshake.Search.StoreId(Model.Id,0,50)); }
+        </div>
+    </div>        
+</div>

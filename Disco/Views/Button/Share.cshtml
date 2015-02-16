@@ -1,0 +1,133 @@
+﻿@using Disco.Common
+@model Disco.Controllers.ButtonModel
+@{
+    Layout = "~/Views/Shared/Templates/PopUpLayout.cshtml";
+}
+
+@section page {
+    wishlu - add
+}
+
+@section styles {
+<style>
+#SharePopup
+{    
+    position: relative;
+    z-index: 200;    
+    /*height: auto;*/ /* 400px */
+    width: 720px; /* 400px */    
+    padding: 10px;
+    /*display: none;*/
+    margin: 50px auto;    
+    color: #918b7d;
+    font-family: Lato, Helvetica, Arial, Sans-Serif;
+    background: #fff;
+    border: 5px solid #D3EEF2;
+    border-radius: 15px;    
+}
+</style>
+}
+
+@section scripts
+{
+<script type="text/javascript" src="//assets.wishlu.com/js/autoNumeric.js"></script>
+
+<script>
+    $(document).ready(function () {
+        window.resizeTo(800, 560);
+
+        $("#WishQuantity").spinner({
+            spin: function (event, ui) {
+                if (ui.value < 0) {
+                    $(this).spinner("value", 0);
+                    return false;
+                }
+            }
+        });
+
+        $("#WishPrice").autoNumeric('init');
+
+        $("#saveWish").click(function () {
+            var wish = { Name: $("#WishName").val(), Description: $("#WishDesc").val(), Image: "@Model.Image", Price: $("#WishPrice").val(), Url: "@Model.Url", Notes: "", Quantity: $("#WishQuantity").val(), Wishlu: $("#Wishlu").val(), ProductType: "custom" };
+
+            $.ajax({
+                url: '/item/add',
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify(wish),
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    if (data.result) {
+                        swal("Success!", data.message, "success");
+                    }
+                    else {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                },
+                error: function (data) {
+                    swal("Uh oh...", data.message, "error");
+                }
+            });
+        });
+    });
+</script>
+}
+
+<div class="pop inset clearfix" id="SharePopup">
+    <div class="col_12">
+        <h5 style="margin-top: 0;">add new item</h5>
+        <div id="WishSuccess" class="notice success" style="display: none; opacity: 0.99;">
+            <i class="fa fa-check fa-2x"></i>
+            Your wish has been saved successfully.
+            <a href="#close" class="fa fa-remove"></a>
+        </div>
+        <div class="col_9">
+            <div class="col_12">
+                <div class="col_2 nomargin" style="font-size: 10pt; font-weight: bold; line-height: 25px;">Name</div>
+                <div class="col_10 nomargin"><input id="WishName" type="text" class="full" value="@Model.Name" /></div>                
+            </div>
+            <div class="col_12">
+                <div class="col_6 nomargin">
+                    <div class="col_4 nomargin" style="font-size: 10pt; font-weight: bold; line-height: 25px;">Price</div>
+                    <div class="col_8 nomargin"><input id="WishPrice" type="text" class="full" value="0.00" data-a-sign="$" data-a-dec="." data-a-sep="," /></div>                    
+                </div>
+                <div class="col_6 nomargin">
+                    <div class="col_4 nomargin" style="font-size: 10pt; font-weight: bold; line-height: 25px;">Quantity</div>
+                    <div class="col_8 nomargin"><input class="input-like" name="WishQuantity" id="WishQuantity" size="5" value="1" /></div>                    
+                </div>
+            </div>            
+            <div class="col_12">
+                <div class="col_2 nomargin" style="font-size: 10pt; font-weight: bold; line-height: 25px;">Wishlu</div>
+                <div class="col_10 nomargin">
+                    <select name="Wishlu" id="Wishlu" class="input-like full" style="width: 100%; color: #cbc3bb;">
+                        @*<option value="@Squid.Wishes.Wishlu.GetUsersFloatingWishLu((Guid)Session["uid"]).Id">create a new wishlu</option>*@
+                        <option selected value="@Squid.Wishes.Wishlu.GetUsersJustMeWishLu(UserId).Id">just me</option>
+                        @foreach (Squid.Wishes.Wishlu wishLu in Squid.Wishes.Wishlu.GetUsersWishLus(UserId))
+                        {
+                            if (wishLu.WishLuType == Squid.Wishes.WishluType.JustMe)
+                            {
+                                continue;
+                            }
+                            <option value="@wishLu.Id">
+                                @wishLu.Name
+                            </option>
+                        }
+                    </select>
+                </div>                
+            </div>
+            <div class="col_12">
+                <div class="col_2 nomargin" style="font-size: 10pt; font-weight: bold; line-height: 25px;">Description</div>
+                <div class="col_10 nomargin">
+                    <textarea id="WishDesc" class="full" style="height: 75px;">@Model.Description</textarea>
+                </div>                
+            </div>            
+        </div>
+        <div class="pop inset clearfix col_3" style="border: 1px solid gray; height: 150px; border-radius: 15px; background-image: url('@Model.Image'); background-repeat: no-repeat; background-size: contain; background-position: center;">
+            @*<img style="max-width: 100%; max-height: 100%; margin: auto; display: block;" src="@Model.Image" />*@
+        </div>        
+        <div class="col_12 right">
+            <a class="button pop" onclick="window.close();">close</a>
+            <a id="saveWish" class="button pop">add to wishlu</a>
+        </div>
+    </div>    
+</div>

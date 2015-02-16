@@ -1,0 +1,19 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section title {
+    Graph Search Test Page
+}
+<style media="screen" type="text/css">
+    form {
+        margin-left: 200px;
+    }
+</style>
+<form action="GraphSearch" method="post">
+    <div>
+        <label>Search (Anthropologie)</label>
+        <input type="text" id="s" name="s" />
+        <input type="submit" value="Search" />
+    </div>
+</form>

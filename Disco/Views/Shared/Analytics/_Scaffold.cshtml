@@ -1,0 +1,90 @@
+﻿<script>
+    // wishlu Internal Scaffolding
+    // Description: Wire up our various analytics, affiliates, extensions, and social systems together for rich Google Analytics
+    
+    // References:
+    // Google Analytics Social Tracking (pre-Universal): https://developers.google.com/analytics/devguides/collection/gajs/gaTrackingSocial
+    // Google Analytics Social Tracking (Universal): 
+
+    //////////////
+    // Facebook //
+    //////////////
+    // Likes    
+    try {
+        if (FB && FB.Event && FB.Event.subscribe) {
+            FB.Event.subscribe('edge.create', function (targetUrl) {
+                ga('send', 'social', 'facebook', 'like', targetUrl);
+            });
+        }
+    } catch (e) { }
+
+    // Unlikes    
+    try {
+        if (FB && FB.Event && FB.Event.subscribe) {
+            FB.Event.subscribe('edge.remove', function (targetUrl) {
+                ga('send', 'social', 'facebook', 'unlike', targetUrl);
+            });
+        }
+    } catch (e) { }
+
+    // Shares
+    try {
+        if (FB && FB.Event && FB.Event.subscribe) {
+            FB.Event.subscribe('message.send', function (targetUrl) {
+                ga('send', 'social', 'facebook', 'send', targetUrl);
+            });
+        }
+    } catch (e) { }
+    
+    /////////////
+    // Twitter //
+    /////////////
+    function trackTwitter(intent_event) {
+        if (intent_event) {
+            var targetUrl;
+            if (intent_event.target && intent_event.target.nodeName == 'IFRAME') {
+                targetUrl = extractParamFromUri(intent_event.target.src, 'url');
+            }
+            ga('send', 'social', 'twitter', 'tweet', targetUrl);
+        }
+    }
+
+    //Wrap event bindings - Wait for async js to load
+    try {
+        if (twttr && twttr.ready) {
+            twttr.ready(function (twttr) {
+                //event bindings
+                twttr.events.bind('tweet', trackTwitter);
+            });
+        }
+    } catch (e) { }
+    
+
+    ///////////////
+    // Pinterest //
+    ///////////////  
+    function pinClicked(href) {
+        var targetUrl;
+        targetUrl = extractParamFromUri(href, 'url');
+
+        ga('send', 'social', 'pinterest', 'pinned', targetUrl);
+        
+        window.open(href, 'Pinterest', 'height=300,width=665');
+        return false;
+    }
+
+    ///////////////////////
+    // Utility functions //
+    ///////////////////////
+    function extractParamFromUri(uri, paramName) {
+        if (!uri) {
+            return;
+        }
+        var regex = new RegExp('[\\?&#]' + paramName + '=([^&#]*)');
+        var params = regex.exec(uri);
+        if (params != null) {
+            return unescape(params[1]);
+        }
+        return;
+    }
+</script>

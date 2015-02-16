@@ -1,0 +1,13 @@
+﻿@foreach (Milkshake.Category cat in Model)
+{
+    if (cat.Id != null && cat.Id.ToString() == "10000000-0000-0000-0000-000000000000")
+    { continue; }       
+    
+    <div class="container">
+        <div id="tile_@cat.Id" data-id="@cat.Id" class="col_4 wishLuList tilelarge center category" style="padding-top: 5px; height: 75px; cursor: pointer;">
+            <h5 style="margin: 0;">
+                <span class="tileheader lowercase" style="font-size: 12pt;">@cat.Name</span>                
+            </h5>            
+        </div>
+    </div>
+}

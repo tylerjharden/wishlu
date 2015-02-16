@@ -1,0 +1,46 @@
+﻿@inherits RazorEngine.Templating.HtmlTemplateBase<Squid.Users.User>
+@helper Button(string link, string text)
+{
+    string background = @"background: rgb(252,252,252);
+        background: -moz-linear-gradient(top, rgba(252,252,252,1) 0, rgba(224,224,224,1) 100%);
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0,rgba(252,252,252,1)), color-stop(100%,rgba(224,224,224,1)));
+        background: -webkit-linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);
+        background: -o-linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#e0e0e0',GradientType=0 );
+        background: linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);";
+
+        <div style="text-align:center;">
+            <a class="button pop center" style="text-shadow:0 1px 0 #fff;font-size:14px;vertical-align: middle;color:#666;text-decoration:none;position:relative;top:0;left:0;box-sizing: border-box; display:inline-block; @background border:1px solid #ccc; border-radius: 5px; padding: 10px 15px;" href="@link">@text</a>
+        </div>
+}
+<!DOCTYPE HTML>
+
+
+<div style="width:600px; border: 2px solid lightblue; border-radius: 15px; margin:25px; padding: 25px;">
+    <div style="text-align:center;">
+        <img src="http://assets.wishlu.com/images/email/logo.png" />
+    </div>
+    
+    <br />
+    <br />
+
+    <h2>Hi @Model.FirstName,</h2>
+
+    <span style="text-align:center;">Thank you for joining wishlu. To finish signing up, please confirm your email.</span>
+    <br />
+    <br />
+    @Button(string.Format("http://www.wishlu.com/user/verify?token={0}!{1}", Model.Id, Model.VerificationCode), "confirm your email")
+    @*<a class="button pop center" style="text-shadow:0 1px 0 #fff;font-size:14px;vertical-align: middle;color:#666;text-decoration:none;position:relative;top:0;left:0;box-sizing: border-box; display:inline-block; @background border:1px solid #ccc; border-radius: 5px; padding: 10px 15px; " href="http://www.wishlu.com/user/verify?token=@(Model.Id)!@(Model.VerificationCode)">confirm your email</a>*@
+
+    <p>If the button isn't working paste the link below in your browser</p>
+    <p>http://www.wishlu.com/user/verify?token=@(Model.Id)!@(Model.VerificationCode)</p>
+</div>
+
+<div class="footer" style="width:600px; margin:25px; padding: 25px; text-align: center;">
+    <span>go to <a style="color: #aec03b" href="http://www.wishlu.com">wishlu.com</a></span>
+    <br />
+    <br />
+    <span>This email was sent to <i>@Model.LoginId</i> | Don't want activity notifications? <a style="color: #aec03b" href="http://www.wishlu.com/user/notifications">Change your email preferences.</a></span>
+    <br />
+    <span>&copy; 2014 wishlu. All Rights Reserved | <a style="color: #aec03b;" href="http://www.wishlu.com/privacy">Privacy Policy</a> | <a style="color: #aec03b;" href="http://www.wishlu.com/tos">Terms and Conditions</a></span>
+</div>

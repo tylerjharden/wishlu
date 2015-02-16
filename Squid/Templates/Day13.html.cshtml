@@ -1,0 +1,153 @@
+﻿@inherits RazorEngine.Templating.HtmlTemplateBase<Squid.Users.User>
+@helper Button(string link, string text)
+{
+    string background = @"background: rgb(252,252,252);
+        background: -moz-linear-gradient(top, rgba(252,252,252,1) 0, rgba(224,224,224,1) 100%);
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0,rgba(252,252,252,1)), color-stop(100%,rgba(224,224,224,1)));
+        background: -webkit-linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);
+        background: -o-linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#e0e0e0',GradientType=0 );
+        background: linear-gradient(top, rgba(252,252,252,1) 0,rgba(224,224,224,1) 100%);";
+
+                                                                                        <div style="text-align:center;">
+                                                                                            <a class="button pop center" style="text-shadow:0 1px 0 #fff;font-size:14px;vertical-align: middle;color:#666;text-decoration:none;position:relative;top:0;left:0;box-sizing: border-box; display:inline-block; @background border:1px solid #ccc; border-radius: 5px; padding: 10px 15px;" href="@link">@text</a>
+                                                                                        </div>
+}
+<!DOCTYPE html>
+
+<div style="width:100%; background:#f3f3f3; padding: 10px;">
+    <div style="width:600px; border: 2px solid lightblue; border-radius: 15px; background:white; margin:25px auto; padding: 25px; text-align:left;">
+        <div style="text-align:center;">
+            <img src="http://assets.wishlu.com/images/email/logo.png" />
+        </div>
+
+        <span>Hi @Model.FirstName,</span>
+
+        <h1 style="text-align: center;">wishlu is the new way to give (and to get).</h1>
+        <h2 style="text-align: center;">Here's a few ideas of what to ask for...</h2>
+
+        @if (Model.Gender == 'f')
+        {
+            <h3>To get creative.</h3>
+            <p>
+                Love photography? Adore painting? There's a wishlu waiting to be made for every palette of passionate pursuits.
+            </p>
+
+            <div style="text-align:center;">
+                <img style="width:100%;" src="http://assets.wishlu.com/images/tutorial/wishlus/diy.png" />
+            </div>
+            <br />
+            @Button("http://www.wishlu.com/item/hunt", "search for supplies now")
+            
+            <h3>To get schooled.</h3>
+            <p>
+                Polished skills never go out of style. Exploring your most cerebral curiosities with a highly intelligent wishlu: language courses, titles on required reading lists, and night classes to light up your entrepreneurial IQ.
+            </p>
+
+            <div style="text-align:center;">
+                <img style="width:100%;" src="http://assets.wishlu.com/images/tutorial/wishlus/bookshelf.png" />
+            </div>
+            <br />
+            @Button("http://www.wishlu.com/wishlu", "create a wishlu now")
+            
+            <h3>To get gorgeous.</h3>
+            <p>
+                Something on everyone's wish list: a well-stocked make-up bag. Create a wishlu that lets loved ones makeover yours with new finds, luxe beauty loot, and all of your tried-and-true staples.
+            </p>
+
+            <div style="text-align:center;">
+                <img style="width:50%;" src="http://assets.wishlu.com/images/tutorial/wishlus/nail%20art.png" />
+                @*<img style="width:50%;" src="http://assets.wishlu.com/images/tutorial/wishlus/mollys%20sephora%20loot.png" />*@
+                <img style="width:50%;" src="http://assets.wishlu.com/images/tutorial/wishlus/my%20makeup%20bag.png" />
+                @*<img style="width:50%;" src="http://assets.wishlu.com/images/tutorial/wishlus/sephora.png" />*@
+            </div>
+            <br />
+            @Button("http://www.wishlu.com/item/hunt", "search for your favorites now")
+            
+            <h3>To get away.</h3>
+            <p>
+                Taking a trip takes planning. Pack a wishlu 'til it barely zips closed with all your journey essentials, from the luggage you've longed for to a travel-sized bottle of your signature scent.
+            </p>
+
+            <div style="text-align:center;">
+                <img style="width:100%;" src="http://assets.wishlu.com/images/tutorial/wishlus/trip%20to%20marrakesh.png" />
+            </div>
+            <br />
+            @Button("http://www.wishlu.com/wishlu", "create a wishlu now")            
+        }
+        else
+        {
+            <h3>To get going.</h3>
+            <p>
+                Not having the right tools can stand in the way of your very best intentions. Make a wishlu to ask for what you need, please, and tackle that to-do list and DIY projects.
+            </p>
+    <!-- Illustration of wishlus with items specified -->
+            <br />
+            @Button("http://www.wishlu.com/item/hunt", "search for tools now")
+            
+            <h3>To get growing.</h3>
+            <p>
+                From seeds to sprouts, from roots to blooms, a well-tended-to wishlu helps unearth your latent green thumb.
+            </p>
+
+            <div style="text-align:center;">
+                <img style="width:100%;" src="http://assets.wishlu.com/images/tutorial/wishlus/my%20garden.png" />
+            </div>
+            <br />
+            @Button("http://www.wishlu.com/wishlu", "create a wishlu now")
+            
+
+            <h3>To get gadgets.</h3>
+            <p>
+                Feed your need for gizmos. An updateable wishlu keeps you current, connected, and on the cutting edge with the latest and greatest tech-savvy gear.
+            </p>
+
+            <div style="text-align:center;">
+                <img style="width:100%;" src="http://assets.wishlu.com/images/tutorial/wishlus/gadgets.png" />
+            </div>
+            <br />
+            @Button("http://www.wishlu.com/item/hunt", "search for gadgets now")
+            
+            <h3>To get gourmet.</h3>
+            <p>
+                Culinary aspirations both big and small deserve a tailored wishlu to satisfy your appetite, whether you want to bake a cake, throw a backyard barbecue, or host an impressive dinner for your nearest and dearest.
+            </p>
+            
+            <div style="text-align:center;">
+                <img style="width:100%;" src="http://assets.wishlu.com/images/tutorial/wishlus/bon%20appetit.png" />
+            </div>
+            <br />
+            @Button("http://www.wishlu.com/wishlu", "create a wishlu now")            
+        }
+
+        <h5>Have a question? <a style="color: #aec03b;" href="mailto:help@wishlu.com">Please ask here</a>.</h5>
+    </div>
+
+    <div class="footer" style="width:600px; margin:25px auto; padding: 25px; text-align: center;">
+        <span>go to <a style="color: #aec03b" href="http://www.wishlu.com">wishlu.com</a></span>
+        <br />
+        <br />
+        <span>This email was sent to <i>@Model.LoginId</i> | Don't want activity notifications? <a style="color: #aec03b" href="http://www.wishlu.com/user/notifications">Change your email preferences.</a></span>
+        <br />
+        <span>&copy; 2014 wishlu. All Rights Reserved | <a style="color: #aec03b;" href="http://www.wishlu.com/privacy">Privacy Policy</a> | <a style="color: #aec03b;" href="http://www.wishlu.com/tos">Terms and Conditions</a></span>
+        <br />
+        <br />
+        <div class="social">
+            <a href="http://www.facebook.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/facebook.png" />
+            </a>
+            <a href="http://www.twitter.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/twitter.png" />
+            </a>
+            <a href="http://plus.google.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/google-plus.png" />
+            </a>
+            <a href="http://www.pinterest.com/wishlu" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/pinterest.png" />
+            </a>
+            <a href="http://wishlu.tumblr.com" style="margin:5px; text-decoration:none;">
+                <img style="width:50px;" src="http://assets.wishlu.com/images/social/tumblr.png" />
+            </a>
+        </div>
+    </div>
+</div>

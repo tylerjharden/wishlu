@@ -1,0 +1,65 @@
+﻿@model Nest.ISearchResponse<Milkshake.Product>
+@using Disco.Common
+@using System.Text.RegularExpressions
+@{     
+    int prodcount = 0;
+}
+
+@foreach (Milkshake.Product curwish in Model.Documents)
+{
+    Milkshake.Offer o = curwish.GetLowestOffer();
+    
+    string name = HttpUtility.HtmlDecode(curwish.Name);
+    string description = HttpUtility.HtmlDecode(curwish.Description);
+
+    name = name.Replace("&#60;", "<");
+    name = name.Replace("&#62;", ">");
+    
+    name = Regex.Replace(name, @"<[^>]+>|&nbsp;", "").Trim();
+    name = Regex.Replace(name, @"\s{2,}", " ");
+
+    name = name.Replace("&nbsp;", " ");
+    name = name.Replace("&#160;", " ");
+    name = name.Replace("&#39;", "'");
+    name = name.Replace("&#34;", "\"");
+    name = name.Replace("&#47;", "/");
+
+    name = WebUtility.HtmlDecode(name);
+    
+    description = description.Replace("&#60;", "<");
+    description = description.Replace("&#62;", ">");
+    
+    description = Regex.Replace(description, @"<[^>]+>|&nbsp;", "").Trim();
+    description = Regex.Replace(description, @"\s{2,}", " ");
+
+    description = description.Replace("&nbsp;", " ");
+    description = description.Replace("&#160;", " ");
+    description = description.Replace("&#39;", "'");
+    description = description.Replace("&#34;", "\"");
+    description = description.Replace("&#47;", "/");
+
+    description = WebUtility.HtmlDecode(description);
+
+    // bergdorf goodman hack
+    curwish.Image = curwish.Image.Replace("http://images.berg", "http://berg");
+    
+    <div class="col_4 visible pop hunt-tile wishLuList" style="padding: 8px; border-width: 1px !important; background-color: white;">        
+        <a href="/p/@curwish.Id">
+            <div class="col_12 center" style="margin-top: 0; margin-bottom: 0; font-size: 14pt;">
+                <span style="color: #998B7D">
+                    @(name.Length <= 28 ? name : name.Substring(0, 25) + "...")
+                </span>
+            </div>
+            <div class="col_12">
+                <span style="margin-top: 0; color: #998B7D; font-size: 12pt;">
+                    @(Decimal.Parse(o.SalePrice).ToString("C"))
+                </span>
+            </div>
+            <div class="col_12" style="text-align: center;">
+                <div style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@(curwish.Image != null ? curwish.Image : "//assets.wishlu.com/images/DefaultWish.jpg")'); width: 175px; height: 175px; text-align: center;" data-id="@curwish.Id" data-name="@name" data-price="@o.Price" data-url="@o.Url" data-upc="@curwish.UPC" data-count="@prodcount" data-description="@description" data-shop="@o.Store" data-image="@curwish.Image">&nbsp;</div>
+            </div>            
+        </a>
+    </div>
+    prodcount++;
+}
+

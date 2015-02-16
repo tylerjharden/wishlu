@@ -1,0 +1,157 @@
+﻿@{
+    Layout = null;
+    Session["currentURL"] = @Request.Url.AbsoluteUri;
+}
+
+@functions {
+    public class Styles
+    {
+        public static IHtmlString Render(string cssfile)
+        {
+            return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
+        }
+    }
+
+    public class Scripts
+    {
+        public static IHtmlString Render(string jsfile)
+        {
+            return new HtmlString("<script src=\"" + jsfile + "\"></script>");
+        }
+    }
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>@RenderSection("page",false)</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+
+    <meta name="p:domain_verify" content="e685b1d62b2c1b5ce691b2576ee28a70" />
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="@Url.Content("//assets.wishlu.com/images/favicon.ico")" />
+
+    <!-- Page Meta -->
+    @RenderSection("meta", false)
+
+    <!-- Project Stylesheets -->
+    @Styles.Render("//assets.wishlu.com/css/WishLuStyles.css")    
+    @Styles.Render("//assets.wishlu.com/css/kickstart.css")
+    @Styles.Render("//assets.wishlu.com/css/sticky.full.css")
+    @Styles.Render("//assets.wishlu.com/css/themes/base/all.css")
+    @Styles.Render("//assets.wishlu.com/css/sweet-alert.css")
+        
+    <!-- Page Stylesheets -->
+    @RenderSection("styles", false)
+
+    <!-- Project Scripts -->
+    @Scripts.Render("//assets.wishlu.com/js/jquery-2.1.1.min.js")
+    @Scripts.Render("//assets.wishlu.com/js/jquery-ui.min-1.11.1.js")
+    @Scripts.Render("//assets.wishlu.com/js/jquery.validate.min.js")    
+    @Scripts.Render("//assets.wishlu.com/js/kickstart.js")    
+    @Scripts.Render("//assets.wishlu.com/js/roundCheckbox.js")
+    @Scripts.Render("//assets.wishlu.com/js/sticky.full.js")
+    @Scripts.Render("//assets.wishlu.com/js/sweet-alert.js")
+
+    <!-- Anti-CSRF -->
+    <script>
+        $(document).ready(function () {
+            var securityToken = $('[name=__RequestVerificationToken]').val();
+            $(document).ajaxSend(function (event, request, opt) {
+                if (opt.hasContent && securityToken) {   // handle all verbs with content
+                    //var tokenParam = "__RequestVerificationToken=" + encodeURIComponent(securityToken);
+                    //opt.data = opt.data ? [opt.data, tokenParam].join("&") : tokenParam;
+
+                    // ensure Content-Type header is present!
+                    if (opt.contentType !== false || options.contentType) {
+                        request.setRequestHeader("Content-Type", opt.contentType);
+                        request.setRequestHeader("__RequestVerificationToken", securityToken);
+                    }
+                }
+            });
+        });
+    </script>
+
+    <!-- Page Scripts -->
+    @RenderSection("scripts", false)
+
+    <!-- Google Fonts -->
+    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>
+    <script>
+        WebFont.load({
+            google: {
+                families: ['Lato:400', 'Lato:100', 'Lato:300']
+            }
+        });
+    </script>
+
+    <!-- Fonts.com Fonts -->
+    <!--<script type="text/javascript" src="http://fast.fonts.net/jsapi/4f0c62e0-0e42-4457-af02-15f8eabca127.js"></script>-->
+
+    <!-- TODO: Find which files are using this and update to the correct audited versions -->
+    <!-- Per-Page Header (meta, css, js, etc.)-->
+    @RenderSection("header", false)
+
+    <!-- Nicescroll -->
+    @*<script>
+        $(document).ready(
+            function () {
+                $("#Main").niceScroll({
+                    cursorwidth: 10,
+                    autohidemode: false
+                });                
+            }
+        );
+    </script>*@
+
+    <!-- Google Analytics -->
+    <script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-53572866-1', 'auto');
+    ga('require', 'displayfeatures');
+    ga('send', 'pageview');
+
+    </script>
+
+    <!-- Start Alexa Certify Javascript -->
+    <script type="text/javascript">
+        _atrk_opts = { atrk_acct: "LlhQk1ao6C52vg", domain: "wishlu.com", dynamic: true };
+        (function () { var as = document.createElement('script'); as.type = 'text/javascript'; as.async = true; as.src = "https://d31qbv1cthcecs.cloudfront.net/atrk.js"; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(as, s); })();
+    </script>
+    <noscript><img src="https://d5nxst8fruw4z.cloudfront.net/atrk.gif?account=LlhQk1ao6C52vg" style="display:none" height="1" width="1" alt="" /></noscript>
+    <!-- End Alexa Certify Javascript -->  
+
+    @*
+    <!-- Begin Inspectlet Embed Code -->
+    <script type="text/javascript" id="inspectletjs">
+        window.__insp = window.__insp || [];
+        __insp.push(['wid', 1530437258]);
+        (function () {
+            function __ldinsp() { var insp = document.createElement('script'); insp.type = 'text/javascript'; insp.async = true; insp.id = "inspsync"; insp.src = ('https:' == document.location.protocol ? 'https' : 'http') + '://cdn.inspectlet.com/inspectlet.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(insp, x); }
+            if (window.attachEvent) {
+                window.attachEvent('onload', __ldinsp);
+            } else {
+                window.addEventListener('load', __ldinsp, false);
+            }
+        })();
+    </script>
+    <!-- End Inspectlet Embed Code -->
+        *@
+</head>
+
+<body class="WishLuPage" style="background:#f5f5f5;">
+    @Html.AntiForgeryToken()
+    <div id="Main" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: visible;">
+        @RenderBody()
+    </div>
+</body>
+</html>

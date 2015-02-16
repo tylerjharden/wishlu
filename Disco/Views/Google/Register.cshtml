@@ -1,0 +1,250 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section title {
+    google+ <i class="fa fa-angle-right"></i> register
+}
+
+@section scripts {
+
+   <script type="text/javascript">
+       $(document).ready(function () {
+           $("#joinForm").validate({
+               errorPlacement: function (error, element) {
+                   error.appendTo($('#formError'));
+                   $('#formError').append("<br />");
+               },
+               rules: {
+                   joinFirstName: {
+                       required: true,
+                       minlength: 2,
+                       maxlength: 100
+                   },
+                   joinLastName: {
+                       required: true,
+                       minlength: 2,
+                       maxlength: 100
+                   },
+                   joinEmail: {
+                       required: true,
+                       email: true,
+                       remote: "/validate/available"
+                   },
+                   joinPassword: {
+                       required: true,
+                       minlength: 6,
+                       maxlength: 50
+                   },
+                   joinPasswordRepeat: {
+                       required: true,
+                       minlength: 6,
+                       maxlength: 50,
+                       equalTo: "#joinPassword"
+                   },
+                   joinKey: {
+                       required: true,
+                       minlength: 10,
+                       maxlength: 10
+                   },
+                   joinGender: {
+                       required: true
+                   },
+                   bdaymonth: {
+                       required: true,
+                       range: [1, 12]
+                   },
+                   bdayday: {
+                       required: true,
+                       range: [1, 31]
+                   },
+                   bdayyear: {
+                       required: true,
+                       range: [1910,@(DateTime.Now.Year - 12)]
+                   }
+               },
+               messages: {
+                   joinFirstName: "Please enter your first name.",
+                   joinLastName: "Please enter your last name.",
+                   joinEmail: {
+                       required: "Please enter your e-mail address.",
+                       remote: jQuery.validator.format("{0} is already in use.")
+                   },
+                   joinPassword: {
+                       required: "Please enter your password.",
+                       minlength: jQuery.validator.format("Your password must be at least {0} characters.")
+                   },
+                   joinPasswordRepeat: {
+                       required: "Please confirm your password.",
+                       minlength: jQuery.validator.format("Your confirmed password must be at least {0} characters."),
+                       equalTo: "Passwords must match!"
+                   },
+                   joinKey: {
+                       required: "Please enter your unique invitation code for alpha access.",
+                       minlength: "The invite code is too short.",
+                       maxlength: "The invite code is too long."
+                   },
+                   joinGender: {
+                       required: "Please select a gender."
+                   },
+                   bdaymonth: {
+                       required: "Specify your birth month."
+                   },
+                   bdayday: {
+                       required: "Specify your birth day."
+                   },
+                   bdayyear: {
+                       required: "Specify your birth year."
+                   }
+               },
+               submitHandler: function (form) {
+                   $('#joinBirthday').val($('#bdayyear').val() + '-' + $('#bdaymonth').val() + '-' + $('#bdayday').val() + ' 00:00:00');
+                   form.submit();
+               }
+           });                      
+       });
+</script>
+}
+
+@section styles {
+<style>
+    input[type="radio"] {
+        visibility: hidden;
+    }
+
+        input[type="radio"] + label {
+            color: gray;
+            /*color: white;*/
+            /*background-color: #ccc;*/
+            border-radius: 8px;
+            padding: 0.5em;
+            cursor: pointer;
+        }
+
+            input[type="radio"] + label span.fa-circle {
+                display: none;
+            }
+
+            input[type="radio"] + label span.fa-circle-o {
+                display: inline;
+            }
+
+        input[type="radio"]:checked + label span.fa-circle {
+            display: inline;
+        }
+
+        input[type="radio"]:checked + label span.fa-circle-o {
+            display: none;
+        }
+</style>
+}
+
+<div class="col_12 linkStyle" style="/*border: 1px solid red*/">
+    <form id="joinForm" name="joinForm" method="post" action="/join/create">
+        <div class="grid" style="text-align:left; color: Gray">
+            <div class="col_3"></div>
+            <div class="col_6">                
+                <input type="hidden" id="joinGoogleId" name="joinGoogleId" value="@Model.Id" />
+                <input type="hidden" id="joinGoogleAccessToken" name="joinGoogleAccessToken" value="@Model.AccessToken" />
+                <input type="hidden" id="joinGoogleRefreshToken" name="joinGoogleRefreshToken" value="@Model.RefreshToken" />
+                <span class="col_6" style="padding: 0;">
+                    <input class="full large-input" id="joinFirstName" name="joinFirstName" placeholder="first name" type="text" />
+                </span>
+                <span class="col_6" style="padding: 0;">
+                    <input class="full large-input" id="joinLastName" name="joinLastName" placeholder="last name" type="text" title="Please enter your last name. " />
+                </span>
+                <div class="col_12">
+                    <input class="full large-input" id="joinEMail" name="joinEmail" placeholder="email address" title="Please enter your e-mail address. " type="email" />
+                    <span class="instructions">You will use this whenever you sign in.</span>
+                </div>
+                <div class="col_12">
+                    <input class="full large-input" id="joinPassword" name="joinPassword" placeholder="password" type="password" title="Please enter your password. " minlength="6" maxlength="50" required />
+                    <span class="instructions">Your password is case sensitive and must be a minimum of 6 characters.</span>
+                </div>
+                <div class="col_12">
+                    <input class="full large-input" id="joinPasswordRepeat" name="joinPasswordRepeat" placeholder="confirm password" title="Please confirm your password. " type="password" required />
+                    <br />
+                </div>
+                <div class="col_12">
+                    <input class="full large-input" id="joinKey" name="joinKey" placeholder="access code" title="Please enter your unique invite code for alpha access. " type="text" required />
+                    <br />
+                </div>
+                <div class="col_12 nomargin center" style="font-size: 12pt;">
+                    <input type="radio" name="joinGender" id="male" value="male" style="margin-right: 5px;" />
+                    <label for="male">
+                        <span class="fa fa-circle"></span>
+                        <span class="fa fa-circle-o"></span>
+                        Male
+                    </label>
+                    <input type="radio" name="joinGender" id="female" value="female" style="margin-right: 5px;" />
+                    <label for="female">
+                        <span class="fa fa-circle"></span>
+                        <span class="fa fa-circle-o"></span>
+                        Female
+                    </label>
+                </div>
+                <div class="col_12 nomargin nocase center" style="font-size: 12pt;">
+                    Share your birthday with your wishlu friends.
+                    <input type="hidden" value="" id="joinBirthday" name="joinBirthday" />
+                </div>
+                <div class="col_12 noamrgin center">
+                    <div class="col_4">
+                        <select name="bdaymonth" id="bdaymonth" class="full small-input input-like lowercase" style="width: 143px;" title="Please indicate your birth month" required>
+                            <option value="">Month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <div class="col_4">
+                        <select name="bdayday" id="bdayday" class="full small-input input-like lowercase" style="width: 115px;" title="Please indicate your birth day" required>
+                            <option value="">Day</option>
+                            @for (int i = 1; i <= 31; i++)
+                            {
+                                <option value="@(i)">@(i)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col_4">
+                        <select name="bdayyear" id="bdayyear" class="full small-input input-like lowercase selectwishloop" style="width: 130px;">
+                            <option value="">Year</option>
+                            @for (int i = (DateTime.Now.Year - 12); i >= 1910; i--)
+                            {
+                                <option value="@(i)">@(i)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col_12 nomargin center">
+                    <input type="checkbox" id="hideage" name="hideage" value="true" />
+                    <label for="hideage">Please hide my age from others</label>
+                </div>
+                <div class="col_12 nomargin center">                    
+                    <a href="/tos" target="_blank">
+                        <span class="popupsmall" style="padding-left: 10px; text-decoration: underline; text-transform: none; font-size: 10pt;">By registering, you agree to the terms and conditions of use.</span>
+                    </a>
+                </div>
+
+                <div class="col_12" style="text-align: center;">
+                    <input class="button large pop" style="font-size: 1.7em;" type="submit" value="join." />
+                </div>
+            </div>
+            <div class="col_3">
+                <div class="col_12 center">
+                    <div id="formError" style="font-size: 0.7em;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

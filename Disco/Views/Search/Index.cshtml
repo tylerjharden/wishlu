@@ -1,0 +1,199 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section page {
+    search - wishlu
+}
+
+@section title {
+    search
+}
+
+@section scripts {
+<script>
+    $(document).ready(function () {
+        $.get("/get/products?query=@WebUtility.UrlEncode(ViewBag.Query)&limit=3", null, function (result) {
+            // Append Results
+            $("#products_container").html(result);
+            $("#products > .loading").hide();
+            //gettingProducts = false;
+
+            if ($(".product").length == 0) {
+                $("#products").remove();
+            }
+            else {
+                $("#products_container").append('<a class="button pop center full" href="/product/search?query=@ViewBag.Query">see more...</a>');
+
+                // Tooltips
+                $('.tooltip, .tooltip-top, .tooltip-bottom, .tooltip-right, .tooltip-left', '#products_container').each(function () {
+                    // variables
+                    var tpos = 'top';
+                    var content = $(this).attr('title');
+                    var dataContent = $(this).attr('data-content');
+                    var keepAlive = false;
+                    var action = 'hover';
+                    var delay = $(this).attr('data-delay');
+                    if (delay === undefined) { delay = 1000; }
+
+                    // position
+                    if ($(this).hasClass('tooltip-top')) { tpos = 'top'; }
+                    if ($(this).hasClass('tooltip-right')) { tpos = 'right'; }
+                    if ($(this).hasClass('tooltip-bottom')) { tpos = 'bottom'; }
+                    if ($(this).hasClass('tooltip-left')) { tpos = 'left'; }
+
+                    // content
+                    $('.tooltip-content').removeClass('hide').wrap('<div class="hide"></div>');
+                    if (dataContent) { content = $(dataContent).html(); keepAlive = true; }
+
+                    // action (hover or click) defaults to hover
+                    if ($(this).attr('data-action') == 'click') { action = 'click'; }
+
+                    // tooltip
+                    $(this).attr('title', '')
+                    .tipTip({ defaultPosition: tpos, content: content, keepAlive: keepAlive, activation: action, delay: delay });
+                });
+            }
+        });
+
+        $(document).ready(function () {
+            $("#products_container").on("click", ".product_save", function () {
+                var sel = $(this);
+                sel.addClass("disabled");
+                sel.text("saving...");
+
+                var product = {};
+
+                var product_type = sel.data("product-type");
+
+                if (product_type === "milkshake") {
+                    product.Id = sel.data("id");
+                    product.ProductType = "milkshake";
+                }
+                else if (product_type === "amazon") {
+                    product.ASIN = sel.data("asin");
+                    product.ProductType = "amazon";
+                }
+                else if (product_type === "bby") {
+                    product.SKU = sel.data("sku");
+                    product.ProductType = "bestbuy";
+                }
+                else {
+                    swal("Uh oh...", "The product you are attempting to save has invalid product data.");
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/item/add",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(product),
+                    success: function (data) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            sel.text("saved");
+                            //History.pushState(null, 'saved', '?state=saved');
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                            sel.removeClass("disabled");
+                            sel.text("save");
+                        }
+                    },
+                    error: function (data) {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                });
+            });
+        });
+
+        $.get("/get/people?query=@WebUtility.UrlEncode(ViewBag.Query)", null, function (result) {
+            $("#people_container").html(result);
+            $("#people > .loading").hide();
+
+            $("#people_tab").html("people (" + $(".user").length + ")");
+
+            if ($(".user").length == 0) {
+                $("#people").remove();
+            }
+
+            $(".request_friend").click(function () {
+                var button = $(this);
+
+                button.html("<i class='fa fa-spinner fa-spin'></i>");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/friends/add/" + button.data("id"),
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: null,
+                    success: function (data, status, request) {
+                        if (data == true) {
+                            swal("Success!", "Your friend request was sent.", "success");
+                            button.html('<i class="fa fa-check fa-fw" style="color:#79e0c3;"></i>');
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                            button.html('<i class="fa fa-times fa-fw" style="color:#b5919b;"></i>');
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); button.html('<i class="fa fa-times fa-fw" style="color:#b5919b;"></i>'); }
+                });
+            });
+        });
+
+        $.get("/get/shops?query=@WebUtility.UrlEncode(ViewBag.Query)&limit=3", null, function (result) {
+            $("#stores_container").html(result);
+            $("#stores > .loading").hide();
+
+            $("#stores_tab").html("stores (" + $(".shop").length + ")");
+
+            $(".shoptile").bind("click", function () {
+                var shopid = $(this).data("id");
+
+                window.location = "/s/" + shopid;
+            });
+
+            if ($(".shop").length == 0) {
+                $("#stores").remove();
+            }
+        });
+    });
+</script>
+}
+
+<!-- Products -->
+<div id="products" class="col_12 pop" style="border: 2px solid lightblue; border-radius: 15px; background:white;">
+    <h5 id="products_tab" style="margin-left: 10px; color: #a8a096;">products</h5>
+    <div class="col_12" id="products_container">
+
+    </div>
+    <div class="col_12 center loading" style="color: gray;">
+        <i class="fa fa-spinner fa-spin fa-5x"></i>
+    </div>
+</div>
+
+<!-- People -->
+<div id="people" class="col_12 pop" style="border: 2px solid lightblue; border-radius: 15px; background:white;">
+    <h5 id="people_tab" style="margin-left: 10px; color: #a8a096;">people</h5>
+    <div class="col_12" id="people_container">
+
+    </div>
+    <div class="col_12 center loading" style="color: gray;">
+        <i class="fa fa-spinner fa-spin fa-5x"></i>
+    </div>
+</div>
+
+<!-- Stores -->
+<div id="stores" class="col_12 pop" style="border: 2px solid lightblue; border-radius: 15px; background:white;">
+    <h5 id="stores_tab" style="margin-left: 10px; color: #a8a096;">stores</h5>
+    <div class="col_12" id="stores_container">
+
+    </div>
+    <div class="col_12 center loading" style="color: gray;">
+        <i class="fa fa-spinner fa-spin fa-5x"></i>
+    </div>
+</div>

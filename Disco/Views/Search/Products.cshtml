@@ -1,0 +1,20 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section title {
+      Products Search
+}
+<style media="screen" type="text/css">
+    form
+    {
+        margin-left:200px;
+    }
+</style>
+<form action="products" method="post">
+    <div class="col_10 center centerDiv">        
+        <input class="large-input" type="text" id="txtSearch" name ="txtSearch" style="width: 700px; margin-bottom: 25px;"/>
+        <br />
+        <input class="button large pop" type="submit" value="search"/>
+    </div>
+</form>

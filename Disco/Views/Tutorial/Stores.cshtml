@@ -1,0 +1,155 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";
+
+    var user = Squid.Users.User.GetUserById(UserId);
+}
+
+@functions {
+    public class Styles
+    {
+        public static IHtmlString Render(string cssfile)
+        {
+            return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
+        }
+    }
+
+    public class Scripts
+    {
+        public static IHtmlString Render(string jsfile)
+        {
+            return new HtmlString("<script src=\"" + jsfile + "\"></script>");
+        }
+    }
+}
+
+@section styles {
+    @Styles.Render("//assets.wishlu.com/css/themes/base/all.css")
+
+    <style>
+        #DoPopup {
+            position: relative;
+            z-index: 200;
+            line-height: normal;
+            height: auto;
+            min-height: 320px;
+            width: 100%;
+            min-width: 320px;
+            max-width: 1240px;
+            display: none;
+            margin: 100px auto;
+            padding: 10px;
+            color: #918b7d;
+            font-family: Lato, Helvetica, Arial, Sans-Serif;
+            background: white;
+            border: 5px solid #D3EEF2;
+            border-radius: 15px;
+            overflow: visible;
+        }
+    </style>        
+
+<style type="text/css">
+    .shoptile {
+        opacity: 0.6;
+        border-color: lightgray;
+    }
+
+        .shoptile:hover:not(.shopselected) {
+            opacity: 0.8;
+        }
+
+    .shopselected {
+        opacity: 1.0;
+        border-color: #D5E14D !important;
+        border-width: 4px !important;
+    }
+</style>
+}
+
+@section page {
+    tutorial (step 4) - wishlu
+}
+
+@section scripts {
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery-ui.min-1.11.1.js"></script>
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery.validate.js"></script>
+
+<script type="text/javascript">    
+    $(document).ready(function () {
+        $("#DoPopup").waitForImages(function () {
+            $(this).fadeIn();
+        });
+
+        $.get("/get/shops", null, function (result) {
+            $("#shopslist").html(result);
+
+            var selectedshopcount = 0;
+            
+            var shopids = @(Html.Raw(Json.Encode(Model)).ToHtmlString().Replace("\"", ""));
+                        
+            $(".shoptile").each(function() {
+                var fbid = $(this).data("fbid");
+                var ind = $.inArray(fbid, shopids);
+                
+                if (ind > -1) {                    
+                    $(this).addClass("shopselected");
+                    $(this).addClass("pop");
+                }
+            })
+
+            $(".shoptile").on("click", function () {                
+                $(this).toggleClass("shopselected");
+                $(this).toggleClass("pop");                    
+            });
+        });
+
+        $(".stores_finished").on("click", function() {
+            var data = { }
+
+            data = $.map($(".shopselected"), function (element) { return $(element).data("id"); });
+
+            $.ajax({
+                type: "POST",
+                url: "/tutorial/stores",
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                traditional: true,
+                data: JSON.stringify({Stores: data}),
+                success: function (data) {
+                    if (data.result == true) {                        
+                        swal("Success!", data.message, "success");    
+                        setTimeout(function() { location.href = "/dash"; }, 4000);
+                    }
+                    else {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                },
+                error: function (data) {
+                    swal("Uh oh...", data.message, "error");
+                }
+            });
+        });
+    });
+</script>
+}
+
+<div id="DoPopup" class="pop inset clearfix">
+    <h5 id="titleHeader">step 4: choose your favorite stores and get started</h5>
+    <a class="right" style="position: absolute; top: 10px; right: 15px;" href="@Url.Action("skip","tutorial")">
+        skip
+    </a>
+    <div class="col_12 center">
+        <a class="button large pop stores_finished">
+            finished
+        </a>
+    </div>
+    <div class="col_12" style="float:none;">
+        <div id="shopslist" class="center full" style="color: gray;">
+            <i class="fa fa-spin fa-spinner fa-3x"></i>
+        </div>
+    </div>
+    <div class="col_12 center">
+        <a class="button large pop stores_finished">
+            finished
+        </a>
+    </div>
+</div>

@@ -1,0 +1,79 @@
+﻿<style>
+    .item div .info {
+        visibility: hidden;
+    }
+
+    .item:hover div .info {
+        visibility: visible;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $(".thumbs_up").click(function () {
+
+        });
+    });
+</script>
+@foreach (Squid.Users.FeedItem item in Model)
+{
+    <div class="pop item" style="height: auto !important; width: 150px; overflow: hidden; border: 1px solid lightgray; border-radius: 15px; position:relative; background-color: white;">
+        <a href="/i/@item.Wish.Id">
+            <div class="full" style="float: none; display: inline-block; position: relative; background-size: cover; background-position: center; background-image: url('@(item.Wish.ImageUrl)'); background-color: white; width:100%; min-height: 250px; height: auto;">
+                <div class="info full left" style="padding: 5px; position: absolute; bottom: 0; color: white; background: rgba(0,0,0,0.6);">
+                    <span style="color: white;">@item.Wish.Name.TruncateAtWord(25)</span>
+                    <br />
+                    <span style="font-size: 8pt;">@item.Wish.Price.ToString("C")</span>
+                </div>
+                <div class="info thumbs left" style="position: absolute; bottom: 60px;left: 5px; right: 5px;">
+                    <button class="button pop thumbs_up" style="padding:5px; color:#c1dd5c" data-id="@item.Wish.Id">
+                            <i class="fa fa-fw fa-thumbs-up"></i>
+                        </button>
+                    @*<button class="button pop thumbs_down" style="padding:5px; color:#f2cec5" data-id="@item.Wish.Id">
+                        <i class="fa fa-fw fa-thumbs-down"></i>
+                    </button>*@
+                    @*<button class="button pop share right" style="padding:5px; color:gray">
+                            <i class="fa fa-fw fa-share-alt"></i>
+                        </button>*@
+                </div>
+            </div>
+            @if (item.Wish.WishStatus == Squid.Wishes.WishStatus.Revealed)
+            {
+                <div class="rectangle" style="position: absolute; top: 0;height: 30px;">
+                    <span class="rectangle-text granted" style="font-size: 16pt; font-weight: 100; height: 30px; text-transform: lowercase;">gifted</span>
+                </div>
+            }
+            else if (item.Wish.WishStatus == Squid.Wishes.WishStatus.Confirmed)
+            {
+                <div class="rectangle" style="position: absolute; top: 0; height: 30px;">
+                    <span class="rectangle-text granted" style="font-size: 16pt; font-weight: 100; height: 30px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+                </div>
+            }
+            else if (item.Wish.WishStatus != Squid.Wishes.WishStatus.Requested)
+            {
+                <div class="rectangle" style="position: absolute; top: 0;height: 30px;">
+                    <span class="rectangle-text granted" style="font-size: 16pt; font-weight: 100; height: 30px; text-transform: lowercase;">@item.Wish.WishStatus</span>
+                </div>
+            }
+        </a>
+        <div class="full" style="float: left; padding: 5px; border-top: 1px solid lightgray; line-height: 100%;">
+            <div class="col_3 nomargin nopadding">
+                <a href="/u/@item.User.Id">
+                    <div class="circlefriend pop sitelink" style="background-image: url('@item.User.ImageUrl'); background-position: center; display: inline-block; border: 1px solid gray; width: 35px; height: 35px; margin-right: 5px;">
+                    </div>
+                </a>
+            </div>
+            <div class="col_9 nomargin nopadding">
+                <div class="col_12 nomargin nopadding left">
+                    <a href="/u/@item.User.Id">
+                        <span style="font-size: 8pt; color: gray;"><b>@item.User.FullName</b></span>
+                    </a>
+                </div>
+                <div class="col_12 nomargin nopadding left">
+                    <a href="/l/@item.WishLu.Id">
+                        <span style="font-size: 8pt; color: lightgray;"><b>@item.WishLu.Name</b></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

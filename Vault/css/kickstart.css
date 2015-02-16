@@ -1,0 +1,274 @@
+/*
+	99Lime.com HTML KickStart by Joshua Gatcke
+	kickstart.css
+
+	Don't edit the file if you want HTML KickStart to be upgradeable.
+	Instead, copy any CSS selectors you want to modify to your style.css file.
+
+	// Colors
+	blue: #4D99E0;
+*/
+/*---------------------------------
+	IMPORTS
+-----------------------------------*/
+@import url(kickstart-buttons.css);
+@import url(kickstart-forms.css);
+@import url(kickstart-grid.css);
+@import url(font-awesome.min.css);
+
+/*---------------------------------
+	HTML ELEMENTS
+-----------------------------------*/
+*{
+-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+box-sizing: border-box;         /* Opera/IE 8+ */
+}
+/*a{color:#4D99E0;outline:0;}*/
+a:active{color:inherit;}
+a:visited{}
+a:hover{}
+a img{border:0;}
+a [class^="fa-"]{color:inherit;text-decoration:none;}
+strong,b{/*color:#000;*/font-weight:bold;}
+em,i{}
+.hide{display:none;}
+.show{display:block;}
+
+/*---------------------------------
+	UTILITY
+-----------------------------------*/
+.center{text-align:center;}
+.left{text-align:left;}
+.right{text-align:right;}
+
+/*---------------------------------
+	HR
+-----------------------------------*/
+hr{clear:both;border-bottom:0;border-top:1px dotted #ccc;border-right:0;border-left:0;margin:30px 0;min-height: 0;height:1px;}
+hr.alt1{border-style: solid;}
+hr.alt2{border-style: dashed;}
+
+/*---------------------------------
+	HTML5 ELEMENTS (shim)
+-----------------------------------*/
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section {
+display:block;
+}
+
+/*---------------------------------
+	HEADINGS
+-----------------------------------*/
+h1,h2,h3,h4,h5,h6{
+font-weight:bold;
+line-height:140%;
+}
+
+h1{
+font-size:3.5em;
+margin:10px 0 10px 0;
+}
+
+h2{
+font-size:3em;
+margin:10px 0 10px 0;
+}
+
+h3{
+font-size:2.5em;
+margin:10px 0 10px 0;
+line-height:130%;
+}
+
+h4{
+font-size:2em;
+margin:10px 0 10px 0;
+}
+
+h5{
+font-size:1.5em;
+margin:10px 0 10px 0;
+}
+
+h6{
+font-size:1.2em;
+margin:10px 0 5px 0;
+}
+
+/*---------------------------------
+	PARAGRAPHS
+-----------------------------------*/
+p{
+margin:10px 0;
+}
+
+/*---------------------------------
+	BLOCKQUOTES
+-----------------------------------*/
+blockquote{
+font-size:1.5em;
+line-height:1.5em;
+font-style: italic;
+margin:30px 30px 30px 0;
+padding:0 0 0 20px;
+border-left:1px solid #ccc;
+}
+
+	blockquote span{font-size:0.7em;display:block;}
+	blockquote.small{font-size:1.2em;}
+
+/*---------------------------------
+	LISTS
+-----------------------------------*/
+ul, ol{
+padding:0;
+margin:0 0 20px 25px;
+}
+
+li{
+padding:5px 0;
+margin:0;
+}
+
+ul.list-unstyled{
+padding:0;
+margin:0 0 20px 0;
+}
+
+ul.list-unstyled li{
+padding:5px 0;
+margin:0;
+list-style-type:none;
+
+}
+	
+ul.alt{
+padding:0;
+margin:0 0 20px 0;
+}
+
+ul.alt li{
+list-style-type:none;
+border-top:1px dotted #ccc;
+border-bottom:1px dotted #ccc;
+margin:0 0 -1px 0;
+background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAICAYAAADaxo44AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MTYzMzgwOTlGMTFCMTFFMEI1MkRGM0FBMkZDRDcwNjAiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MTYzMzgwOUFGMTFCMTFFMEI1MkRGM0FBMkZDRDcwNjAiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDoxNjMzODA5N0YxMUIxMUUwQjUyREYzQUEyRkNENzA2MCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDoxNjMzODA5OEYxMUIxMUUwQjUyREYzQUEyRkNENzA2MCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PiuCJc0AAABYSURBVHjaYnz16pUBAwPDBQY0wATE54F4JhALoUuAQBoQ3wPiIiBmAwkwAo36j2bKNSAuZmLABGzIRoHAR5BKINYG4h0sUMG5QFwGxO9gqkAShticCxBgAAEREVycYZLIAAAAAElFTkSuQmCC') /*img/icon-arrow-right.png*/ no-repeat 5px 0.7em;
+padding-left:20px;
+}
+
+/*---------------------------------
+	TABS
+-----------------------------------*/
+ul.tabs{
+margin:10px 0 -1px 0;
+padding:0;
+width:100%;
+border-bottom:1px solid #e5e5e5;
+float:left;
+font-size:0;
+}
+
+	ul.tabs.left{text-align:left;}
+	ul.tabs.center{text-align:center;}
+	ul.tabs.right{text-align:right;}
+	ul.tabs.right li{margin:0 0 0 -2px;}
+
+	ul.tabs li{
+	font-size:14px;
+	list-style-type:none;
+	margin:0 -2px 0 0;
+	padding:0;
+	display:inline-block;
+	*display:inline;/*IE ONLY*/
+	position:relative;
+	top:0;
+	left:0;
+	*top:1px;/*IE 7 ONLY*/
+	zoom:1;
+	}
+
+	ul.tabs li a{
+	text-decoration:none;
+	color:#666;
+	display:inline-block;
+	padding:9px 15px;
+	position: relative;
+	top:0;
+	left:0;
+	line-height:100%;
+	background:#f5f5f5;	
+	box-shadow: inset 0 -3px 3px rgba(0,0,0,0.03);
+	border:1px solid #e5e5e5;
+	border-bottom:0;
+	font-size:0.9em;
+	zoom:1;
+	}
+
+	ul.tabs li a:hover{
+	background:#fff;
+	}
+
+	ul.tabs li.current a{
+	position:relative;
+	top:1px;
+	left:0;
+	background:#fff;	
+	box-shadow: none;
+	color:#222;
+	}
+
+	.tab-content{
+	border:1px solid #efefef;
+	border:1px solid #e5e5e5;
+	background:#fff;
+	clear:both;
+	padding:20px;
+	margin: 0;
+	/*margin:0 0 40px 0;*/
+	}
+
+/*---------------------------------
+	IMAGES
+-----------------------------------*/
+/*
+	for img .style1, .style2, .style3
+	view js/kickstart.js Image Style Helpers
+*/
+img{
+margin:0;
+padding:0;
+display:inline-block;
+position:relative;
+zoom:1;
+vertical-align: bottom;
+}
+
+	img.align-left, .img-wrap.align-left{float:left;margin:0 10px 5px 0;}
+	img.align-right, .img-wrap.align-right{float:right;margin:0 0 5px 10px;}
+	img.full-width{clear:both;display:block;width:100%;height:auto;margin:0 0 10px 0;}
+
+	div.caption{
+	background:#f5f5f5;
+	border:1px solid #ddd;
+	padding:3px;
+	max-width:100%;
+	display:inline-block;
+	height:auto;
+	}
+
+		div.caption img{
+		display:block;
+		padding:0;
+		margin:0;
+		width:100%;
+		height:auto;
+		}
+
+		div.caption span{
+		display:block;
+		margin-top:3px;
+		font-size:0.8em;
+		color:#666;
+		padding:0 5px;
+		}

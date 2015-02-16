@@ -1,0 +1,129 @@
+﻿@using Facebook;
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section title {
+      wishlu sandbox
+}
+
+<script>
+    $(document).ready(function () {
+        $(".inviteUser").click(function () {
+            var user_id = $(this).data("id");
+
+            if (user_id == "") return;
+
+            $(this).html("<i class='fa fa-spin fa-spinner center'></i>")
+
+            $(this).disabled = true;
+
+            var button = $(this);
+
+            FB.ui({
+                app_id: '296645670486904',
+                method: 'send',
+                link: 'http://wishlu.com',
+                to: user_id,
+                display: 'popup'
+            }, function (response) {
+                if (response && !response.error_code) {
+                    button.html("<i class='fa fa-check center' style='color: green;'></i>")
+                    button.removeClass("inviteUser");
+                    button.click(function (e) { e.preventDefault(); });
+                    button.attr("href", "");
+                    button.data("id", "")
+                }
+                else {
+                    button.html("invite")
+                }
+            });
+        });
+
+        @*$(".inviteUsers").click(function () {
+            var user_ids = "";
+            
+            $(".cb_id:checked").each(function () {
+                user_ids = user_ids + $(this).val() + ",";
+            });
+                        
+            if (user_ids == "") return;
+
+            $(this).html("<i class='fa fa-spin fa-spinner center'></i>")
+
+            $(this).disabled = true;
+
+            var button = $(this);
+
+            FB.ui({
+                app_id: '296645670486904',
+                method: 'send',
+                link: 'http://wishlu.com',
+                to: user_ids,
+                display: 'popup'
+            }, function (response) {
+                if (response && !response.error_code) {
+                    button.html("<i class='fa fa-check center' style='color: green;'></i>")
+                    button.removeClass("inviteUser");
+                    button.click(function (e) { e.preventDefault(); });
+                    button.attr("href", "");
+                    button.data("id", "")
+                }
+                else {
+                    button.html("invite")
+                }
+            });
+        });*@
+    });
+</script>
+
+<h5 class="center">find your friends</h5>
+
+<div class="col_8 pop" style="border: 2px solid lightblue; background-color: white; border-radius: 15px;">
+    <h6 class="center" style="color: gray;">see who's here</h6>
+    <div class="col_12">
+        <div class="col_12" style="line-height: 50px;">
+            <a class="button pop inviteUsers" href="#">invite selection</a>
+        </div>
+        @foreach (var friend in Model.here)
+        {
+            <div class="col_12 nomargin" style="border-bottom: 1px solid lightgray; padding-left: 15px;">                
+                <div class="col_3">
+                    <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-image: url('http://graph.facebook.com/@friend.id/picture'); width: 50px; height: 50px;">
+                    </div>
+                </div>
+                <div class="col_6" style="line-height: 50px;">
+                    <b>@friend.name</b>
+                </div>
+                <div class="col_3" style="line-height: 50px;">
+                    <a class="button pop inviteUser" data-id="@friend.id" href="#">invite</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="col_4 pop" style="border: 2px solid lightblue; background-color: white; border-radius: 15px;">
+    <h6 class="center" style="color: gray;">invite whoever's missing</h6>
+    <div class="col_12" style="overflow-y: scroll; height: 500px;">
+        @foreach (var friend in Model.missing)
+        {
+            <div class="col_12 nomargin" style="border-bottom: 1px solid lightgray; padding-left: 15px;">
+                @*<div class="col_1">
+                    <input class="cb_id" type="checkbox" value="@friend.id" />
+                </div>*@
+                <div class="col_3">
+                    <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-image: url('http://graph.facebook.com/@friend.id/picture'); width: 50px; height: 50px;">
+                    </div>
+                </div>
+                <div class="col_6" style="line-height: 50px;">
+                    <b>@friend.name</b>
+                </div>
+                <div class="col_3" style="line-height: 50px;">
+                    <a class="button pop inviteUser" data-id="@friend.id" href="#">invite</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+

@@ -1,0 +1,248 @@
+﻿@{
+    Layout = "~/Views/Admin/_Layout.cshtml";
+}
+
+@section breadcrumb
+{
+    <li class="active">Store Wizard</li>
+}
+
+@section title
+{
+    Store Wizard
+}
+
+@section subtitle
+{
+    Add new stores to the Milkshake database using a simple wizard
+}
+
+<div class="vd_content-section clearfix">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel widget">
+                <div class="panel-heading vd_bg-grey">
+                    <h3 class="panel-title"> <span class="menu-icon"> <i class="fa fa-magic"></i> </span> Store Wizard </h3>
+                </div>
+                <div class="panel-body">
+                    <form id="shopform" class="form-horizontal" action="@Url.Action("AddStore", "Admin")" method="post" role="form">
+                        <div id="addshopwizard" class="form-wizard">
+                            <ul>
+                                <li>
+                                    <a href="#tab21" data-toggle="tab">
+                                        <div class="menu-icon"> 1 </div>
+                                        Store Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#tab22" data-toggle="tab">
+                                        <div class="menu-icon"> 2 </div>
+                                        Social Links
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#tab23" data-toggle="tab">
+                                        <div class="menu-icon"> 3 </div>
+                                        WishLu Information
+                                    </a>
+                                </li>                                
+                            </ul>
+                            <div class="progress progress-striped active">
+                                <div class="progress-bar progress-bar-info"> </div>
+                            </div>
+                            <div class="tab-content no-bd pd-25">
+                                <div class="tab-pane" id="tab21">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Store Name</label>
+                                        <div class="col-sm-3 controls">
+                                            <input id="shopname" name="shopname" type="text" class="input-border-btm">
+                                        </div>                                        
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Website</label>
+                                        <div class="col-sm-3 controls">
+                                            <input id="shopsite" name="shopsite" type="text" class="input-border-btm">
+                                        </div>                                        
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Image URL</label>
+                                        <div class="col-sm-3 controls">
+                                            <input id="shopimage" name="shopimage" type="text" class="input-border-btm">
+                                        </div>                                        
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="tab22">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Facebook <i class="fa fa-2x fa-facebook-square"></i></label>
+                                        <div class="col-sm-5 controls">
+                                            <input id="shopfacebook" name="shopfacebook" type="text" class="input-border-btm">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Twitter <i class="fa fa-2x fa-twitter"></i></label>
+                                        <div class="col-sm-5 controls">
+                                            <input id="shoptwitter" name="shoptwitter" type="text" class="input-border-btm">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Google Plus <i class="fa fa-2x fa-google-plus"></i></label>
+                                        <div class="col-sm-5 controls">
+                                            <input id="shopgoogle" name="shopgoogle" type="text" class="input-border-btm">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Wanelo</label>
+                                        <div class="col-sm-5 controls">
+                                            <input id="shopwanelo" name="shopwanelo" type="text" class="input-border-btm">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Pinterest <i class="fa fa-2x fa-pinterest"></i></label>
+                                        <div class="col-sm-5 controls">
+                                            <input id="shoppinterest" name="shoppinterest" type="text" class="input-border-btm">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Instagram <i class="fa fa-2x fa-instagram"></i></label>
+                                        <div class="col-sm-5 controls">
+                                            <input id="shopinstagram" name="shopinstagram" type="text" class="input-border-btm">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">YouTube <i class="fa fa-2x fa-youtube"></i></label>
+                                        <div class="col-sm-5 controls">
+                                            <input id="shopyoutube" name="shopyoutube" type="text" class="input-border-btm">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Tumblr <i class="fa fa-2x fa-tumblr"></i></label>
+                                        <div class="col-sm-5 controls">
+                                            <input id="shoptumblr" name="shoptumblr" type="text" class="input-border-btm">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="tab23">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Is verified?</label>
+                                        <div class="col-sm-7 controls">
+                                            <div class="vd_checkbox checkbox-success">
+                                                <input type="checkbox" value="1" id="isverified" name="isverified">
+                                                <label for="isverified"> Mark this store as having been verified </label>
+                                            </div>                                            
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Is brick and mortar?</label>
+                                        <div class="col-sm-7 controls">
+                                            <div class="vd_checkbox checkbox-success">
+                                                <input type="checkbox" value="1" id="isbrick" name="isbrick">
+                                                <label for="isbrick"> Mark this store as having physical brick and mortar locations </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Is online?</label>
+                                        <div class="col-sm-7 controls">
+                                            <div class="vd_checkbox checkbox-success">
+                                                <input type="checkbox" value="1" id="isonline" name="isonline">
+                                                <label for="isonline"> Mark this store as doing business online </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Is chain?</label>
+                                        <div class="col-sm-7 controls">
+                                            <div class="vd_checkbox checkbox-success">
+                                                <input type="checkbox" value="1" id="ischain" name="ischain">
+                                                <label for="ischain"> Mark this store as a chain (i.e. Target, BestBuy, etc.) </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Is boutique?</label>
+                                        <div class="col-sm-7 controls">
+                                            <div class="vd_checkbox checkbox-success">
+                                                <input type="checkbox" value="1" id="isboutique" name="isboutique">
+                                                <label for="isboutique"> Mark this store as a small, unique, boutique store (i.e. DASH, Ladybugs, etc.) </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Is featured?</label>
+                                        <div class="col-sm-7 controls">
+                                            <div class="vd_checkbox checkbox-success">
+                                                <input type="checkbox" value="1" id="isfeatured" name="isfeatured">
+                                                <label for="isfeatured"> Mark this store as a featured store (appears first in store listings) </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Shop Level</label>
+                                        <div class="col-sm-10 controls">
+                                            <select id="shoplevel" name="shoplevel" class="width-10  input-border-bottom">
+                                                <option>Free</option>
+                                                <option>Bronze</option>
+                                                <option>Silver</option>
+                                                <option>Gold</option>
+                                                <option>Platinum</option>
+                                                <option>Diamond</option>
+                                            </select>                                            
+                                        </div>
+                                    </div>
+                                </div>                                
+                                <div class="form-actions-condensed wizard">
+                                    <div class="row mgbt-xs-0">
+                                        <div class="col-sm-9 col-sm-offset-2"> <a class="btn vd_btn prev" href="javascript:void(0);"><span class="menu-icon"><i class="fa fa-fw fa-chevron-circle-left"></i></span> Previous</a> <a class="btn vd_btn next" href="javascript:void(0);">Next <span class="menu-icon"><i class="fa fa-fw fa-chevron-circle-right"></i></span></a> <a class="btn vd_btn vd_bg-green finish" href="javascript:void(0);" onclick="$('#shopform').submit();"><span class="menu-icon"><i class="fa fa-fw fa-check"></i></span> Finish</a> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Panel Widget -->
+        </div>
+        <!-- col-md-12 -->
+    </div>
+    <!-- row -->        
+</div>
+<!-- .vd_content-section -->
+
+@section scripts
+{
+    <!-- Bootstrap Wizard -->
+    <script type="text/javascript" src='@Url.Content("//assets.wishlu.com/css/admin/plugins/bootstrap-wizard/jquery.bootstrap.wizard.min.js")'></script>
+
+    <script>
+        $(document).ready(function () {
+            "use strict";
+
+            $('#addshopwizard').bootstrapWizard({
+                'tabClass': 'nav nav-pills nav-justified',
+                'nextSelector': '.wizard .next',
+                'previousSelector': '.wizard .prev',
+                'onTabShow': function (tab, navigation, index) {
+                    $('#addshopwizard .finish').hide();
+                    $('#addshopwizard .next').show();
+                    if ($('#addshopwizard .nav li:last-child').hasClass('active')) {
+                        $('#addshopwizard .next').hide();
+                        $('#addshopwizard .finish').show();
+                    }
+                    var $total = navigation.find('li').length;
+                    var $current = index + 1;
+                    var $percent = ($current / $total) * 100;
+                    $('#addshopwizard').find('.progress-bar').css({ width: $percent + '%' });
+                },
+                'onTabClick': function (tab, navigation, index) {
+                    //return false;
+                },
+                'onNext': function () {
+                    //scrollTo('#addshopwizard', -100);
+                },
+                'onPrevious': function () {
+                    //scrollTo('#addshopwizard', -100);
+                }
+            });
+        });
+    </script>
+}

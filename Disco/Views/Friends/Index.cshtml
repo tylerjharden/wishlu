@@ -1,0 +1,209 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+    
+    List<Squid.Users.User> suggested = Squid.Users.User.GetSuggestedFriends(UserId);
+    List<Squid.Users.User> requested = Squid.Users.User.GetRequestedFriends(UserId);
+    List<Squid.Users.User> incoming = Squid.Users.User.GetIncomingFriendRequests(UserId);
+}
+
+@section page {
+    wishlu - my friends
+}
+
+@section title {
+    my friends
+}
+
+@section actions {
+    @*<a href=#" class="button pop">add a friend</a>*@
+    <a class="button pop" href="/friends/requests">view requests</a>
+}
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $(".request_friend").click(function () {
+                var button = $(this);
+
+                button.html("<i class='fa fa-spinner fa-spin'></i>");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/friends/add/" + button.data("id"),
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: null,
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", "Your friend request was sent.", "success");
+                            button.html('<i class="fa fa-check fa-fw" style="color:#79e0c3;"></i>');
+                            button.unbind("click");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                            button.html('<i class="fa fa-times fa-fw" style="color:#b5919b;"></i>');
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); button.html('<i class="fa fa-times fa-fw" style="color:#b5919b;"></i>'); }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#people_search").keyup(function (e) {
+                if (e.keyCode == 13) {
+                    $("#people_search_do").click();
+                }
+            });
+
+            $("#people_search_do").click(function () {
+                if ($("#people_search").val().length == 0) {
+                    return false;
+                }
+
+                $("#people").slideDown();
+                
+                $.get("/get/people?query=" + encodeURIComponent($("#people_search").val()), null, function (result) {
+                    $("#people > .loading").hide();
+                    $("#people_container").html(result);
+                    
+                    $("#people_header").show();
+                    $("#people_header").html("results (" + $(".user").length + ")");
+
+                    if ($(".user").length == 0) {
+                        $("#people_header").hide();
+                        $("#people_container").html("<h5 style='text-align:center;'>Sorry, there are no users matching the provided search query.</h5>");
+                    }
+
+                    $(".request_friend").click(function () {
+                        var button = $(this);
+
+                        button.html("<i class='fa fa-spinner fa-spin'></i>");
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/friends/add/" + button.data("id"),
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            traditional: true,
+                            data: null,
+                            success: function (data, status, request) {
+                                if (data.result == true) {
+                                    swal("Success!", "Your friend request was sent.", "success");
+                                    button.html('<i class="fa fa-check fa-fw" style="color:#79e0c3;"></i>');
+                                }
+                                else {
+                                    swal("Uh oh...", data.message, "error");
+                                    button.html('<i class="fa fa-times fa-fw" style="color:#b5919b;"></i>');
+                                }
+                            },
+                            error: function (data, status, request) { swal("Uh oh...", data.message, "error"); button.html('<i class="fa fa-times fa-fw" style="color:#b5919b;"></i>'); }
+                        });
+                    });
+                });
+            });
+        });
+    </script>
+}
+
+@section info {
+    <span>Click on friends’ photos to access their profiles and wishlus.</span>
+    <br />
+    <br />
+    <span>Under <b>suggested friends</b>, click on <b>add friend</b> to connect with friends of friends and other people you may know.</span>
+}
+
+<div class="col_12 full">
+    <div class="col_4">
+        <input id="people_search" type="text" class="input-like small-input full" placeholder="search for people" value="" />
+    </div>
+    <div class="col_2">
+        <a id="people_search_do" class="button pop" style="padding: 8px;">
+            search
+        </a>
+    </div>
+</div>
+
+<div id="people" class="col_12 full alpha" style="color: #a8a096; background-color: white; border: 4px solid gray; border-radius: 15px; display: none;">
+    <div class="col_12">
+        <h5 id="people_header" style="margin-left: 10px; font-weight: 300;">results:</h5>
+        <div id="people_container">
+        </div>        
+    </div>
+    <div class="col_12 center loading" style="color: gray;">
+        <i class="fa fa-spinner fa-spin fa-5x"></i>
+    </div>
+</div>
+
+<div class="col_12 full alpha" style="color: #a8a096; background-color: white; border: 4px solid gray; border-radius: 15px;">
+    <div class="col_12">
+        <h5 style="margin-left: 10px; font-weight: 300;">friends (@Model.Count):</h5>
+        @foreach (Squid.Users.User friend in Model)
+        {
+            try
+            {
+                <a href="/u/@friend.Id">
+                    <div class="col_2 square center" style="background: white; border-radius: 15px; border: 2px solid gray;">
+                        <div class="col_12 full">
+                            <div class="col_10 square circle" style="float:none;display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.ImageUrl : "//assets.wishlu.com/images/GenericFriend.png")?width=200&height=200'); background-color: white;">
+                            </div>
+                            <h6 class="lowercase" style="font-size:100%;">
+                                @(friend.FullName)
+                            </h6>
+                        </div>
+                    </div>
+                </a>
+            }
+            catch { }
+        }
+    </div>
+</div>
+
+@if (suggested.Count > 0)
+{
+    <div class="col_12 full alpha wishLuList" style="color: #a8a096; background-color: white; border: 4px solid gray; border-radius: 15px;">
+        <div class="col_12">
+            <h5 style="margin-left: 10px; font-weight: 300;">suggested friends (@suggested.Count):</h5>
+            @foreach (Squid.Users.User friend in suggested)
+            {
+                try
+                {
+                    <div class="col_2 square center" style="background: white; border-radius: 15px; border: 2px solid gray;">
+                        <div class="col_12 full">
+                            <a href="@Url.Action("view", "user", routeValues: new { @id = friend.Id })">
+                                <div class="col_10 square circle" style="float:none;display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.ImageUrl : "//assets.wishlu.com/images/GenericFriend.png")?width=200&height=200'); background-color: white;">
+                                </div>
+                                <h6 class="lowercase" style="font-size:100%;">
+                                    @(friend.FullName)
+                                </h6>
+                            </a>
+                            @if (requested.Contains(friend))
+                            {
+                                <a class="button disabled" href="#" style="padding:5px;">
+                                    request sent
+                                </a>
+                            }
+                            else if (incoming.Contains(friend))
+                            {
+                                <a class="button accept_friend" href="#" style="padding:5px;" data-id="@friend.Id">
+                                    accept request
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="button request_friend" href="#" style="padding:5px;" data-id="@friend.Id">
+                                    add friend
+                                </a>
+                            }                            
+                        </div>
+                    </div>
+                }
+                catch { }
+            }
+        </div>
+    </div>
+}

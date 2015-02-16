@@ -1,0 +1,112 @@
+﻿@model List<Squid.Wishes.Wish>
+@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+
+    string curMemberF = "friends ";
+    string curMemberL = "wishlus";
+    Squid.Users.User curMember = Squid.Users.User.GetUserById(ViewBag.WishLu.UserId);
+    curMemberF = curMember.FirstName;
+    curMemberL = curMember.LastName.Substring(0, 1);
+
+    string wishLucolorLocal = "FFFFFF";
+
+    if (ViewBag.WishLu.DisplayColor == 0)
+    {
+        wishLucolorLocal = "95D5E1";
+    }
+    if (ViewBag.WishLu.DisplayColor > 0)
+    {
+        wishLucolorLocal = (((int)ViewBag.WishLu.DisplayColor).ToString("X6"));
+    }
+}
+
+@section title {
+    <span><a href="/friends" style="color: #DED9D3;">my friends</a></span>
+    <span class="fa fa-angle-right"></span>&nbsp;
+    <span><a href="/u/@curMember.Id" style="color: #DED9D3; text-decoration: none;">@(curMemberF + " " + curMemberL + ".")</a></span>
+    <span class="fa fa-angle-right"></span>&nbsp;
+    <span><a href="@Url.Action("indexother", "wishlu", new { @id = curMember.Id })" style="color: #DED9D3; text-decoration: none;">wishlus</a></span>
+    <span class="fa fa-angle-right"></span>&nbsp;
+    <span style="color: #@(wishLucolorLocal)">@ViewBag.WishLu.Name</span>
+    <span style="color: #DED9D3; position: relative; top: -4px; margin-left: 15px; font-size: 0.7em;">
+        |
+    </span>
+    <span style="color: #@(wishLucolorLocal); position: relative; top: -3px; margin-left: 15px; font-size: 0.7em;">
+        @ViewBag.WishCount
+    </span>
+}
+
+@section meta {
+    <!-- Privacy -->
+    @if (!curMember.AllowIndexing)
+    {
+        <meta name="robots" content="noindex" />
+    }
+}
+
+@section styles {
+    <link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/rateit.css" />
+}
+
+@section scripts {
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.rateit.js"></script>
+}
+
+@section info {
+    <span>View the gifts your friend is requesting.</span>
+    <br />
+    <br />
+    <span>Items marked as <b>gifted</b> means someone else has bought or plans on buying your friend the item.</span>
+    <br />
+    <br />
+    <span>Items that your friend has confirmed as receiving are marked as <b>gifted with a checkmark</b>.</span>
+    <br />
+    <br />
+    <span>Click on individual item tiles to view the details about an item and to gift your friend the item.</span>
+}
+
+<div class="col_12 clearfix nomargin nopadding">
+    @foreach (Squid.Wishes.Wish wish in Model)
+    {
+        <a href="@("/i/" + wish.Id.ToString())">
+            <div class="col_4 pop wish" style="position: relative; padding: 10px; height: 300px; border: 2px solid lightgray; border-radius: 15px; background: white;">
+                @if (wish.WishStatus == Squid.Wishes.WishStatus.Confirmed)
+                {
+                    <div class="rectangle" style="height: 50px;">
+                        <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+                    </div>
+                }
+                else if (wish.WishStatus == Squid.Wishes.WishStatus.Revealed)
+                {
+                    <div class="rectangle" style="height: 50px;">
+                        <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted</span>
+                    </div>
+                }
+                else if (wish.WishStatus.ToString() != "Requested")
+                {
+                    <div class="rectangle" style="height: 50px;">
+                        <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase; ">@wish.WishStatus</span>
+                    </div>
+                }
+                <div>
+                    <div class="col_12 nomargin" style="font-size: 12pt;">
+                        <span class="sitelink" style="color: #998B7D">
+                            @wish.Name.TruncateAtWord(45)
+                        </span>
+                    </div>
+                    <div class="col_12 sitelink" style="text-align: center;">
+                        <div style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@(wish.ImageUrl != null ? wish.ImageUrl : "//assets.wishlu.com/images/DefaultWish.jpg")'); width: 175px; height: 175px; text-align: center;">&nbsp;</div>
+                    </div>
+                    <div class="col_12 right">
+                        <span style="position: absolute; bottom: 15px; left: 15px; color: #998B7D; font-size: 12pt;">
+                            @String.Format("{0:C}", wish.Price)
+                        </span>
+                        <div class="rateit" data-rateit-readonly="true" data-rateit-value="@wish.Rating" style="position: absolute; bottom: 15px; right: 15px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    }
+</div>

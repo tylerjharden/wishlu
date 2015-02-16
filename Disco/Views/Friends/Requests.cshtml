@@ -1,0 +1,66 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section page {
+    wishlu - my friend requests
+}
+
+@section title {
+    <span><a href="/friends" style="color: #DED9D3;">my friends</a></span>&nbsp;
+    <span class="fa fa-angle-right"></span>&nbsp;
+    requests
+}
+
+@section actions {
+    <a class="button pop" href="/friends">view friends</a>
+}
+
+<div class="clearfix" style="position: relative;">
+    <div class="col_12 clearfix" style="position: relative; padding: 0;">
+        <div class="col_12 clearfix">
+            <div class="col_12">
+                @{
+                    if (Model != null)
+                    {
+                        if (Model.Count == 0)
+                        {
+                            <h4 class="center">You currently have no new friend requests.</h4>
+                        }
+                        else
+                        {
+                            foreach (Squid.Users.User inviter in Model)
+                            {
+                                try
+                                {
+                                    <div class="col_2 center pop nomargin" style="margin-right:5px !important; margin-bottom:5px !important; width: 150px; height: 150px; background: white; -moz-border-radius: 15px; -webkit-border-radius: 15px; border-radius: 15px; border: 2px solid gray;">
+                                        <a href="@Url.Action("view", "user", routeValues: new { @id = inviter.Id })">
+                                            <div class="col_12 circle pop" style="margin-bottom: 0;float:none;display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@inviter.ImageUrl'); background-color: white; width: 75px; height: 75px;">
+                                            </div>
+                                        </a>
+                                        <h6 class="lowercase nomargin" style="font-size:10pt;">
+                                            @(inviter.FullName)
+                                        </h6>
+                                        <a class="button pop" href="/friends/accept/@inviter.Id" style="padding:5px;">
+                                            <i class="fa fa-check fa-fw" style="color:#79e0c3;"></i>
+                                        </a>
+                                        <a class="button pop" href="/friends/decline/@inviter.Id" style="padding:5px;">
+                                            <i class="fa fa-times fa-fw" style="color:#b5919b;"></i>
+                                        </a>
+                                    </div>
+                                }
+                                catch
+                                { <h4 class="center">You currently have no new friend requests.</h4> }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <h4 class="center">You currently have no new friend requests.</h4>
+                    }
+}
+            </div>
+        </div>
+    </div>
+</div>

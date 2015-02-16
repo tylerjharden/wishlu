@@ -1,0 +1,146 @@
+﻿@{
+    Layout = "~/Views/Admin/_Layout.cshtml";
+}
+
+@section breadcrumb
+{
+    <li class="active">Store Manager</li>
+}
+
+@section title
+{
+    Store Manager
+}
+
+@section subtitle
+{
+    Management center for adding, removing, and editing stores
+}
+
+<div class="vd_content-section clearfix">    
+    <!-- Existing Stores-->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel widget">
+                <div class="panel-heading vd_bg-grey">
+                    <h3 class="panel-title"> <span class="menu-icon"> <i class="fa fa-dot-circle-o"></i> </span> Stores (Milkshake) </h3>
+                </div>
+                <div class="panel-body table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Store Name</th>
+                                <th>Product Count</th>
+                                <th>Attributes</th>
+                                <th>Level</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (Milkshake.Store store in Milkshake.Store.GetStores().OrderBy(x => x.Name))
+                            {
+                                <tr>
+                                    <td>@store.Id</td>
+                                    <td>@store.Name</td>
+                                    <td class="center">@store.ProductCount</td>
+                                    <td class="center">
+                                        @if (store.IsBoutique)
+                                        {
+                                            <i data-original-title="boutique" data-toggle="tooltip" data-placement="top" class="fa fa-camera-retro"></i>
+                                        }
+                                        @if (store.IsBrickAndMortar)
+                                        {
+                                            <i data-original-title="has brick and mortar location" data-toggle="tooltip" data-placement="top" class="fa fa-building"></i>
+                                        }
+                                        @if (store.IsChain)
+                                        {
+                                            <i data-original-title="chain of stores" data-toggle="tooltip" data-placement="top" class="fa fa-chain"></i>
+                                        }
+                                        @if (store.IsFeatured)
+                                        {
+                                            <i data-original-title="featured store" data-toggle="tooltip" data-placement="top" class="fa fa-star"></i>
+                                        }
+                                        @if (store.IsOnline)
+                                        {
+                                            <i data-original-title="online store" data-toggle="tooltip" data-placement="top" class="fa fa-shopping-cart"></i>
+                                        }
+                                        @if (store.IsVerified)
+                                        {
+                                            <i data-original-title="verified store" data-toggle="tooltip" data-placement="top" class="fa fa-check-circle"></i>
+                                        }                                        
+                                    </td>
+                                    <td class="center">
+                                        @switch (store.Level)
+                                        {
+                                            case Milkshake.StoreLevel.None:
+                                            case Milkshake.StoreLevel.Free:
+                                            default:
+                                                <span class="label label-default">@store.Level.ToString()</span>
+                                                break;
+
+                                            case Milkshake.StoreLevel.Bronze:
+                                            case Milkshake.StoreLevel.Silver:
+                                                <span class="label label-warning">@store.Level.ToString()</span>
+                                                break;
+
+                                            case Milkshake.StoreLevel.Gold:
+                                            case Milkshake.StoreLevel.Platinum:
+                                            case Milkshake.StoreLevel.Diamond:
+                                            <span class="label label-success">@store.Level.ToString()</span>
+                                                break;
+                                        }                                        
+                                    </td>
+                                    <td class="menu-action"><a data-original-title="view" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-green vd_green" href="@Url.Action("store", "admin", new { @id = store.Id })"> <i class="fa fa-eye"></i> </a> <a data-original-title="edit" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-yellow vd_yellow"> <i class="fa fa-pencil"></i> </a> <a data-original-title="delete" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-red vd_red"> <i class="fa fa-times"></i> </a></td>
+                                </tr>
+                            }                                                                                    
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Panel Widget -->
+        </div>
+        <!-- col-md-12 -->
+    </div>
+
+</div>
+<!-- .vd_content-section -->
+
+@section scripts
+{
+    <!-- Bootstrap Wizard -->
+    <script type="text/javascript" src='@Url.Content("//assets.wishlu.com/css/admin/plugins/bootstrap-wizard/jquery.bootstrap.wizard.min.js")'></script>
+
+    <script>
+        $(document).ready(function () {
+            "use strict";
+
+            $('#addshopwizard').bootstrapWizard({
+                'tabClass': 'nav nav-pills nav-justified',
+                'nextSelector': '.wizard .next',
+                'previousSelector': '.wizard .prev',
+                'onTabShow': function (tab, navigation, index) {
+                    $('#addshopwizard .finish').hide();
+                    $('#addshopwizard .next').show();
+                    if ($('#addshopwizard .nav li:last-child').hasClass('active')) {
+                        $('#addshopwizard .next').hide();
+                        $('#addshopwizard .finish').show();
+                    }
+                    var $total = navigation.find('li').length;
+                    var $current = index + 1;
+                    var $percent = ($current / $total) * 100;
+                    $('#addshopwizard').find('.progress-bar').css({ width: $percent + '%' });
+                },
+                'onTabClick': function (tab, navigation, index) {
+                    //return false;
+                },
+                'onNext': function () {
+                    //scrollTo('#addshopwizard', -100);
+                },
+                'onPrevious': function () {
+                    //scrollTo('#addshopwizard', -100);
+                }
+            });
+        });
+    </script>
+}

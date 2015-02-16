@@ -1,0 +1,29 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+}
+
+@section page {
+    categories sitemap - wishlu
+}
+
+@section title {
+    sitemap - categories
+}
+
+<div class="col_12">
+    <div id="categorylist" class="center clearfix centerDiv" style="width: 90%; color: gray;">
+        @foreach (Milkshake.Category cat in Milkshake.Category.GetRootCategories())
+        {
+            if (cat.Id != null && cat.Id.ToString() == "10000000-0000-0000-0000-000000000000")
+            { continue; }
+
+            <a class="container" href="/c/@cat.Id">
+                <div id="tile_@cat.Id" data-id="@cat.Id" class="col_4 wishLuList tilelarge center category" style="padding-top: 5px; height: 75px; cursor: pointer;">
+                    <h5 style="margin: 0;">
+                        <span class="tileheader lowercase" style="font-size: 12pt;">@cat.Name</span>
+                    </h5>
+                </div>
+            </a>
+        }
+    </div>
+</div>

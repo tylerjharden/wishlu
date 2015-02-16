@@ -1,0 +1,344 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+
+    var user = Squid.Users.User.GetUserById(UserId);
+
+    string code = Squid.Users.User.GetInvitationCode(UserId);
+    string join_url = string.Format("http://www.wishlu.com/join/invite?code={0}", code);
+}
+
+@section title {
+    invite / find friends
+}
+
+@section page {
+    invite / find friends - wishlu
+}
+
+@section styles {
+    <style>
+        .requestUser {
+            -webkit-transition: all 0.25s ease;
+            -moz-transition: all 0.25s ease;
+            -o-transition: all 0.25s ease;
+            transition: all 0.25s ease;
+        }
+
+            .requestUser:hover {
+                -webkit-transform: scale(1.2);
+                -moz-transform: scale(1.2);
+                -o-transform: scale(1.2);
+                -ms-transform: scale(1.2);
+                transform: scale(1.2);
+            }
+
+        .requestedUser:hover {
+            -webkit-transform: scale(1.2);
+            -moz-transform: scale(1.2);
+            -o-transform: scale(1.2);
+            -ms-transform: scale(1.2);
+            transform: scale(1.2);
+        }
+    </style>
+
+<style>
+    .twitter-share-button {
+        vertical-align: top;
+    }
+</style>
+}
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $("#info_popup").hide();
+
+            // email
+            $("#invite_do").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/invite/invite",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Emails: $("#invite_emails").val() }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+
+            // facebook
+            $(".inviteUser").click(function () {
+                var user_id = $(this).data("id");
+
+                if (user_id == "") return;
+
+                $(this).html("<i class='fa fa-spin fa-spinner center'></i>")
+
+                $(this).disabled = true;
+
+                var button = $(this);
+
+                FB.getLoginStatus(function (response) {
+                    if (response.authResponse) {
+                        FB.ui({
+                            method: 'send',
+                            link: 'http://www.wishlu.com/u/@UserId',
+                            to: user_id,
+                            display: 'iframe'
+                        }, function (response) {
+                            if (response && !response.error_code) {
+                                button.html("<i class='fa fa-check center' style='color: green;'></i>")
+                                button.removeClass("inviteUser");
+                                button.click(function (e) { e.preventDefault(); });
+                                button.attr("href", "");
+                                button.data("id", "")
+                            }
+                            else {
+                                button.html("invite")
+                            }
+                        });
+                    }
+                });
+            });
+
+            $(".requestUser").click(addfriend);
+
+            $(".requestedUser").click(deletefriend);
+
+            function addfriend() {
+                var user_id = $(this).data("id");
+                var img = $(this);
+
+                img.children(".fail").hide();
+                img.children(".success").hide();
+
+                img.children(".loading").show();
+
+                $.post("/friends/add/" + user_id, null, function (data) {
+                    img.children(".loading").hide();
+                    if (data.result == true) {
+                        img.children(".success").show();
+                        img.toggleClass("requestUser");
+                        img.toggleClass("requestedUser");
+                        img.unbind("click");
+                        img.click(deletefriend);
+                    }
+                    else {
+                        img.children(".fail").show();
+                    }
+                });
+            }
+
+            function deletefriend() {
+                var user_id = $(this).data("id");
+                var img = $(this);
+
+                img.children(".fail").hide();
+                img.children(".success").hide();
+
+                img.children(".loading").show();
+
+                $.post("/friends/delete/" + user_id, null, function (data) {
+                    img.children(".loading").hide();
+                    if (data.result == true) {
+                        img.toggleClass("requestUser");
+                        img.toggleClass("requestedUser");
+                        img.unbind("click");
+                        img.click(addfriend);
+                    }
+                    else {
+                        img.children(".fail").show();
+                    }
+                });
+            }
+
+            $("#facebook_connect").click(function () {
+                $("#facebook_connect > a").html("<i class='fa fa-spinner fa-spin'></i>");
+                FB.login(function (response) {
+                    if (response.status === 'connected') {
+                        var uid = response.authResponse.userID;
+                        var accessToken = response.authResponse.accessToken;
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/facebook/set",
+                            dataType: 'json',
+                            contentType: 'application/json; charset=utf-8',
+                            traditional: true,
+                            data: JSON.stringify({ AccessToken: accessToken, UID: uid }),
+                            success: function (data) {
+                                if (data.result == true) {
+                                    FB.api('/me', function (response) {
+                                        swal("Success!", "Good to see you, " + response.first_name + ". You have successfully connected your wishlu account to Facebook.", "success");
+                                        location.reload();
+                                    });
+                                }
+                                else {
+                                    swal("Uh oh...", data.message, "error");
+                                }
+                            },
+                            error: function (data) {
+                                swal("Uh oh...", data.message, "error");
+                            }
+                        });
+
+                        $("#facebook_connect").hide();
+
+                        //FB.api('/me/friends', function (response) {
+                        //    $("#facebook_here").fadeIn();
+                        //    if (response.data) {
+                        //        $.each(response.data, function (index, friend) {
+                        //            $("#facebook_here").append("<div>" + friend.name + "</div>")
+                        //        });
+                        //    }
+                        //});
+                    } else if (response.status === 'not_authorized') {
+                        swal("Uh oh...", "You logged into Facebook, but you didn't authorize wishlu to connect with your Facebook account. Please try again, making sure to allow wishlu's requested permissions.", "error");
+                    } else {
+                        swal("Uh oh...", "You didn't log into Facebook. In order to connect with Facebook, you have to login to prove you are who you say you are.", "error");
+                        $("#facebook_connect").text("Connect with Facebook");
+                    }
+                }, { scope: 'public_profile,email,user_likes,user_birthday,user_friends,read_friendlists', return_scopes: true });
+            });
+
+            $("#facebook_invite").click(function () {                
+                FB.getLoginStatus(function (response) {
+                    if (response.authResponse) {
+                        FB.ui({
+                            method: 'send',
+                            link: '@join_url',
+                            display: 'iframe'
+                        });
+                        /*FB.ui({
+                            method: 'apprequests',
+                            filters: ['app_non_users'],
+                            message: 'Join me on wishlu!',
+                            title: 'Invite friends to join you on wishlu',
+                            display: 'iframe'
+                        }, function (response) {
+                            console.log(response);
+                        });*/
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Social Scripts -->
+    <!-- Twitter -->
+    <script>!function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (!d.getElementById(id)) { js = d.createElement(s); js.id = id; js.src = "https://platform.twitter.com/widgets.js"; fjs.parentNode.insertBefore(js, fjs); } }(document, "script", "twitter-wjs");</script>
+}
+
+<div class="col_12 pop" style="color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
+    <h5 class="center">invitation link</h5>
+    <div class="col_12 center">
+        <p>Copy, share, tweet, or post your unique invitation link below so that your friends can join you on wishlu:</p>
+        <input type="text" class="input-like large-input center" size="25" value="@code.ToUpper()" readonly />
+    </div>
+    <div class="col_12 center" style="display: inline !important; position: relative; zoom: 1; vertical-align: top !important; padding: 5px; background: white;">
+        <fb:share-button href="@join_url" layout="button" style="vertical-align: top !important;"></fb:share-button>
+        <fb:send href="@join_url" colorscheme="light" style="vertical-align: top !important;"></fb:send>
+        <div class="g-plus" data-action="share" data-annotation="none" data-href="@join_url"></div>
+        <a href="https://twitter.com/share" class="twitter-share-button" data-related="wishlu:The official Wishlu Twitter" data-via="wishlu" data-url="@join_url" data-text="Join me on wishlu" data-lang="en" data-size="medium" data-count="none">Tweet</a>
+    </div>
+</div>
+
+<div class="col_6 pop" style="color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
+    <h5 class="center">email</h5>
+    <div class="col_12">
+        <p>Invite people you know to join you on wishlu. Once they accept your invitation, they will automatically belong to your friends wishloop. You can assign them to other wishloops if you like, too.</p>
+        <p>We'll send them a message with a link to join. Enter their email addresses below, separated by commas.</p>
+    </div>
+    <div class="col_12 center">
+        <textarea class="full" id="invite_emails" name="InviteEmails" rows="3"></textarea>
+    </div>
+    <div class="col_12 center">
+        <a class="button pop" id="invite_do">
+            <i class="fa fa-fw fa-paper-plane"></i> invite
+        </a>
+    </div>
+</div>
+
+<div class="col_6 pop center" style="margin-right: 0; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
+    <h5 class="center"><i class="fa fa-fw fa-facebook-square" style="color:#3b5998;"></i>facebook</h5>
+    @if (Model.user.IsFacebookSynced)
+    {
+        <div class="col_12">
+            <h6 class="center" style="color: gray;">see who's here</h6>
+            <div class="col_12">
+                @foreach (Squid.Users.User friend in Model.here)
+                {
+                    if (Model.user.FriendRequestExists(friend.Id))
+                    {
+                        <a class="col_2 requestedUser center" data-id="@friend.Id" href="#" style="position:relative;">
+                            <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-position: center; background-image: url('http://graph.facebook.com/@friend.FacebookPageId/picture'); width: 75px; height: 75px;">
+                            </div>
+                            <div class="col_12 nomargin" style="font-size: 8pt;">
+                                <b>@friend.FullName</b>
+                            </div>
+                            <i class="loading fa fa-spinner fa-3x fa-spin" style="display:none;position:absolute;top:15px;left:22px; color:gray;"></i>
+                            <i class="success fa fa-check fa-3x" style="position:absolute;top:15px;left:22px; color:#79e0c3;"></i>
+                            <i class="fail fa fa-times fa-3x" style="display:none;position:absolute;top:15px;left:22px; color:#b5919b;"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="col_2 requestUser center" data-id="@friend.Id" href="#" style="position:relative;">
+                            <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-position: center; background-image: url('http://graph.facebook.com/@friend.FacebookPageId/picture'); width: 75px; height: 75px;">
+                            </div>
+                            <div class="col_12 nomargin" style="font-size: 8pt;">
+                                <b>@friend.FullName</b>
+                            </div>
+                            <i class="loading fa fa-spinner fa-3x fa-spin" style="display:none;position:absolute;top:15px;left:22px; color:gray;"></i>
+                            <i class="success fa fa-check fa-3x" style="display:none;position:absolute;top:15px;left:22px; color:#79e0c3;"></i>
+                            <i class="fail fa fa-times fa-3x" style="display:none;position:absolute;top:15px;left:22px; color:#b5919b;"></i>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+        <div class="col_12">
+            <a class="button large pop" id="facebook_invite">
+                invite whoever's missing
+            </a>
+            @*<div class="col_12" style="overflow-y: scroll; max-height: 320px;">
+                    @foreach (var friend in Model.missing)
+                    {
+                        <div class="col_12 nomargin" style="border-bottom: 1px solid lightgray; padding-left: 15px;">						@
+                            <div class="col_3">
+                                <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-image: url('http://graph.facebook.com/@friend.id/picture'); width: 50px; height: 50px;">
+                                </div>
+                            </div>
+                            <div class="col_6" style="line-height: 50px; font-size: 12px;">
+                                <b>@friend.name</b>
+                            </div>
+                            <div class="col_3" style="line-height: 50px;">
+                                <a class="button pop inviteUser" data-id="@friend.id" href="#" style="padding:5px;">invite</a>
+                            </div>
+                        </div>
+                    }
+                </div>*@
+        </div>
+    }
+    else
+    {
+        <div class="col_12 center" id="facebook_connect">
+            <i class="fa fa-facebook-square fa-3x" style="color:#3b5998;"></i>
+            <br />
+            <a class="button large pop">Connect with Facebook</a>
+        </div>
+        <div class="col_12 center hide" id="facebook_here">
+
+        </div>
+    }
+</div>

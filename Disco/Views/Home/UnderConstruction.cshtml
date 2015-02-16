@@ -1,0 +1,150 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section title {
+    under construction
+}
+
+@section styles {
+    <style>
+        .ucball {
+	width: 50px;
+	height: 50px;
+	background-color: #FF5460;	
+	border-radius: 50%;
+	margin: 200px auto 0;
+	-webkit-animation: ucball 300ms cubic-bezier(0.165, 0.840, 0.440, 1.000) infinite alternate;
+	-webkit-animation-delay: 0;
+	-moz-animation: ucball 300ms cubic-bezier(0.165, 0.840, 0.440, 1.000) infinite alternate;
+	-o-animation: ucball 300ms cubic-bezier(0.165, 0.840, 0.440, 1.000) infinite alternate;
+	animation: ucball 300ms cubic-bezier(0.165, 0.840, 0.440, 1.000) infinite alternate;
+	-moz-animation-delay: 0;
+	-o-animation-delay: 0;
+	animation-delay: 0;
+}
+
+.ucshadow {
+	width: 50px;
+	height: 20px;	
+	border-radius: 50%;
+	background-color: #FF5460;
+	display: block;
+	margin: 0 auto;
+	position: relative;
+	top: -10px;
+	opacity: 0.7;
+	-webkit-animation: ucshadow 300ms cubic-bezier(0.165, 0.840, 0.440, 1.000) infinite alternate;
+	-webkit-animation-delay: 0;
+	-moz-animation: ucshadow 300ms cubic-bezier(0.165, 0.840, 0.440, 1.000) infinite alternate;
+	-o-animation: ucshadow 300ms cubic-bezier(0.165, 0.840, 0.440, 1.000) infinite alternate;
+	animation: ucshadow 300ms cubic-bezier(0.165, 0.840, 0.440, 1.000) infinite alternate;
+	-moz-animation-delay: 0;
+	-o-animation-delay: 0;
+	animation-delay: 0;
+}
+
+@-webkit-keyframes ucball {
+	0% {
+		-moz-transform: translateY(0);
+		-ms-transform: translateY(0);
+		-o-transform: translateY(0);
+		-webkit-transform: translateY(0);
+		transform: translateY(0);
+	}
+
+	100% {
+		-moz-transform: translateY(-150);
+		-ms-transform: translateY(-150);
+		-o-transform: translateY(-150);
+		-webkit-transform: translateY(-150);
+		transform: translateY(-150);
+	}
+}
+
+@-webkit-keyframes ucshadow {
+	0% {
+		-moz-transform: scale(.5);
+		-ms-transform: scale(.5);
+		-o-transform: scale(.5);
+		-webkit-transform: scale(.5);
+		transform: scale(.5);
+	}
+
+	100% {
+		-moz-transform: scale(1.1);
+		-ms-transform: scale(1.1);
+		-o-transform: scale(1.1);
+		-webkit-transform: scale(1.1);
+		transform: scale(1.1);
+		opacity: .1;
+	}
+}
+
+@keyframes ucball {
+	0% {
+		-moz-transform: translateY(0);
+		-ms-transform: translateY(0);
+		-o-transform: translateY(0);
+		-webkit-transform: translateY(0);
+		transform: translateY(0);
+	}
+
+	100% {
+		-moz-transform: translateY(-150);
+		-ms-transform: translateY(-150);
+		-o-transform: translateY(-150);
+		-webkit-transform: translateY(-150);
+		transform: translateY(-150);
+	}
+}
+
+@-moz-keyframes ucshadow {
+	0% {
+		-moz-transform: scale(.5);
+		-ms-transform: scale(.5);
+		-o-transform: scale(.5);
+		-webkit-transform: scale(.5);
+		transform: scale(.5);
+	}
+
+	100% {
+		-moz-transform: scale(1.1);
+		-ms-transform: scale(1.1);
+		-o-transform: scale(1.1);
+		-webkit-transform: scale(1.1);
+		transform: scale(1.1);
+		opacity: .1;
+	}
+}
+
+@keyframes ucshadow {
+	0% {
+		-moz-transform: scale(.5);
+		-ms-transform: scale(.5);
+		-o-transform: scale(.5);
+		-webkit-transform: scale(.5);
+		transform: scale(.5);
+	}
+
+	100% {
+		-moz-transform: scale(1.1);
+		-ms-transform: scale(1.1);
+		-o-transform: scale(1.1);
+		-webkit-transform: scale(1.1);
+		transform: scale(1.1);
+		opacity: .1;
+	}
+}
+    </style>
+}
+
+<div class="linkStyle" style="padding-left: 0; padding-right: 0; position: relative; overflow: auto; height: 100%;">
+    <div class="col_12 center" style="position: relative; overflow: auto; height: 630px; padding: 0;">        
+        <h1>Under Construction</h1>
+        <p>Sorry! But you've reached one of our pages that is not quite yet finished. Here's a bouncy ball instead :D</p>
+        <div class="ucball"></div>
+        <span class="ucshadow"></span>
+    </div>
+</div>

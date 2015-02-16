@@ -1,0 +1,70 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section page {
+    contact us - wishlu
+}
+
+@section title {
+    contact us
+}
+
+@section scripts {
+<script>
+    $(document).ready(function () {
+        $("#contact_submit").click(function () {
+            $(this).html("<i class='fa fa-spinner fa-spin'></i>")
+
+            $.ajax({
+                type: "POST",
+                url: "/contact/send",
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                traditional: true,
+                data: JSON.stringify(getContact()),
+                success: function (data, status, request) {
+                    if (data.result == true) {
+                        $("#contact_submit").html("<i class='fa fa-check'></i>");
+                        swal("Success!", data.message, "success");                        
+                    }
+                    else {
+                        swal("Uh oh...", data.message, "error");                        
+                    }
+                },
+                error: function (data, status, request) { swal("Uh oh...", data.message, "error"); isRunning = false; }
+            });
+        });
+
+        function getContact()
+        {
+            var data = {}
+            data.Subject = $("#contact_subject").val();
+            data.Message = $("#contact_message").val();
+
+            return data;
+        }
+    });
+</script>
+}
+
+<div class="col_12 pop" style="border: 2px solid lightblue; border-radius: 15px; background:white;">
+    <h5 style="margin-left: 10px; color: #a8a096;">We'd love to hear from you.</h5>
+    <div class="col_6" style="float:none; margin: 0 auto;">
+        <form class="center">
+            <fieldset>
+                <legend>Subject</legend>
+                <input id="contact_subject" class="full" value="" />
+            </fieldset>
+            <fieldset>
+                <legend>Message</legend>
+                <textarea id="contact_message" class="full" rows="5"></textarea>
+            </fieldset>
+            <div class="col_12">
+                <a id="contact_submit" class="col_4 button pop" style="margin: 0 auto; float: none;">
+                    Submit
+                </a>
+            </div>
+        </form>
+    </div>    
+</div>

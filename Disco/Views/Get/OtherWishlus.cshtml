@@ -1,0 +1,135 @@
+﻿@{
+    string wishLucolor = "95D5E1";
+    string wishLuAltColor = "000000";
+}
+
+<script>
+    $(document).ready(function () {
+        $("body").on("click", ".wishlu_subscribe", function () {
+            var button = $(this);
+            var id = button.data("id");
+
+            button.html("<i class='fa fa-spinner fa-spin'></i>")
+
+            $.ajax({
+                type: "POST",
+                url: "/wishlu/follow",
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                traditional: true,
+                data: JSON.stringify({ Id: id }),
+                success: function (data, status, request) {
+                    if (data.result == true) {
+                        button.removeClass("wishlu_subscribe").addClass("wishlu_unsubscribe");
+                        button.html("<i class='fa fa-fw fa-times-circle-o'></i>unsubscribe");                        
+                    }
+                    else {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                },
+                error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+            });
+        });
+
+        $("body").on("click", ".wishlu_unsubscribe", function () {
+            var button = $(this);
+            var id = button.data("id");
+
+            button.html("<i class='fa fa-spinner fa-spin'></i>")
+
+            $.ajax({
+                type: "POST",
+                url: "/wishlu/unfollow",
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                traditional: true,
+                data: JSON.stringify({ Id: id }),
+                success: function (data, status, request) {
+                    if (data.result == true) {
+                        button.removeClass("wishlu_unsubscribe").addClass("wishlu_subscribe");
+                        button.html("<i class='fa fa-fw fa-rss'></i>subscribe to notifications");
+                    }
+                    else {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                },
+                error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+            });
+        });
+    });
+</script>
+
+@foreach (Squid.Wishes.WishluWishes pair in Model)
+{
+    Squid.Wishes.Wishlu wishLu = pair.Wishlu;
+    IEnumerable<Squid.Wishes.Wish> wishes = pair.Wishes;
+
+    // skip empty wishlus
+    if (wishes == null || wishes.Count() == 0)
+    {
+        continue;
+    }
+
+    wishLucolor = wishLu.DisplayColor.ToString("X6");
+    wishLuAltColor = System.Drawing.ColorTranslator.ToHtml(Disco.Common.Helpers.ContrastColor(System.Drawing.ColorTranslator.FromHtml("#" + wishLucolor)));
+
+    <div class="col_4 pop square" id="wishlu_@wishLu.Id" style="border: 4px solid; border-color: #@wishLucolor; border-radius: 15px; background: white;">
+        <div class="col_12">
+            <a href="/l/@wishLu.Id">
+                <h6 class="center">
+                    <span class="lowercase">@(wishLu.Name.Length <= 20 ? wishLu.Name : wishLu.Name.Substring(0, 17) + "...")</span>
+                    <span style="font-weight: lighter; padding-left: 5px; padding-right: 5px;">|</span>
+                    <span style="font-weight: lighter;">@(wishes.Count())</span>
+                </h6>
+                <span class="center">@((wishLu.EventDateTime == null) ? "     " : Convert.ToDateTime(wishLu.EventDateTime.ToString()).ToString("M.d.yyyy"))</span>
+            </a>
+
+            <div class="col_12 center" style="margin: 10px auto;">
+                @foreach (Squid.Wishes.Wish wish in wishes.OrderByDescending(x => x.Rating).Take(6))
+                {
+                    string thisImage = "//assets.wishlu.com/images/DefaultWish.jpg";
+                    if (@wish.ImageUrl != null)
+                    {
+                        thisImage = @wish.ImageUrl;
+                    }
+                    <a href="@("/i/" + wish.Id.ToString())" style="position:relative;">
+                        <div class="col_4 center square" style="position:relative; border: 1px solid #a8a096; background-position: center; background-size: contain; background-repeat: no-repeat; background-image: url('@(thisImage)'); background-color: white; font-size: .75em;">
+                            @if (wish.WishStatus == Squid.Wishes.WishStatus.Revealed)
+                            {
+                                <div class="rectangle" style="height: 20px;">
+                                    <span class="rectangle-text granted" style="font-size: 10pt; font-weight: 100; height: 20px; text-transform: lowercase;">gifted</span>
+                                </div>
+                            }
+                            else if (wish.WishStatus == Squid.Wishes.WishStatus.Confirmed)
+                            {
+                                <div class="rectangle" style="height: 20px;">
+                                    <span class="rectangle-text granted" style="font-size: 10pt; font-weight: 100; height: 20px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+                                </div>
+                            }
+                            else if (wish.WishStatus != Squid.Wishes.WishStatus.Requested)
+                            {
+                                <div class="rectangle" style="height: 20px;">
+                                    <span class="rectangle-text granted" style="font-size: 10pt; font-weight: 100; height: 20px; text-transform: lowercase;">@wish.WishStatus</span>
+                                </div>
+                            }
+                        </div>
+                    </a>
+                }
+            </div>
+
+            @if (Request.IsAuthenticated && wishLu.UserId != UserId)
+            {
+                <div class="col_12 center nomargin nopadding">
+                    @if (wishLu.HasFollower(UserId))
+                    {
+                        <a class="button pop wishlu_unsubscribe" style="padding:5px; margin:0;" data-id="@wishLu.Id"><i class="fa fa-fw fa-times-circle-o"></i>unsubscribe</a>
+                    }
+                    else
+                    {                    
+                        <a class="button pop wishlu_subscribe" style="padding:5px; margin:0;" data-id="@wishLu.Id"><i class="fa fa-fw fa-rss"></i>subscribe to notifications</a>                    
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}

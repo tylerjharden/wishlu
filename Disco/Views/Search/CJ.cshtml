@@ -1,0 +1,55 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section title {
+    Commission Junction Search Test Page
+}
+<style media="screen" type="text/css">
+    form {
+        margin-left: 200px;
+    }
+</style>
+<form action="CJSearch" method="post">
+    <div>
+        <label>Search (My Advertisers)</label>
+        <input type="text" id="txtSearch" name="txtSearch" />
+        
+    </div>
+    <div>
+        <label>Select which retailers, merchants, brands, etc. to search:</label>
+
+        <div id="mercs">            
+            <label for="carparts_cb">CarParts.com</label>
+            <input type="checkbox" id="carparts_cb" name="carparts_cb" />
+            <br />
+            <label for="creative_cb">CREATIVE</label>
+            <input type="checkbox" id="creative_cb" name="creative_cb" />
+            <br />
+            <label for="elf_cb">e.l.f. Cosmetics</label>
+            <input type="checkbox" id="elf_cb" name="elf_cb" />
+            <br />
+            <label for="hartstrings_cb">Hartstrings</label>
+            <input type="checkbox" id="hartstrings_cb" name="hartstrings_cb" />
+            <br />
+            <label for="zagg_cb">ZAGG | invisibleSHIELD</label>
+            <input type="checkbox" id="zagg_cb" name="zagg_cb" />
+            <br />
+            <label for="jellybelly_cb">JellyBelly</label>
+            <input type="checkbox" id="jellybelly_cb" name="jellybelly_cb" />
+            <br />
+            <label for="logitech_cb">Logitech</label>
+            <input type="checkbox" id="logitech_cb" name="logitech_cb" />
+            <br />
+            <label for="skechers_cb">Skechers</label>
+            <input type="checkbox" id="skechers_cb" name="skechers_cb" />
+        </div>
+    </div>
+    <input type="submit" value="Search" />
+</form>
+
+<script type="text/javascript">
+    $(document).ready(function ($) {
+        //$("#mercs").buttonset();
+    });
+</script>

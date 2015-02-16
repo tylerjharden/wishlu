@@ -1,0 +1,44 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section page {
+    subcategories - wishlu
+}
+
+@section title {
+    subcategories
+}
+
+@section styles {
+<style type="text/css">
+    .shoptile {
+        opacity: 1.0;
+        border-color: lightgray;
+    }        
+</style>
+}
+
+@section scripts {
+
+<script type="text/javascript">    
+    $(document).ready(function () {
+        $.get("/Get/Subcategories/@Model", null, function (result) {
+            $("#categorylist").html(result);
+                        
+            $(".category").bind("click", function () {
+                var catid = $(this).data("id");
+                                
+                window.location = "/c/" + catid;
+            });
+        });
+    });
+</script>
+}
+
+<div class="col_12">
+    <div id="categorylist" class="center clearfix centerDiv" style="width: 90%; color: gray;">
+        <i class="fa fa-spin fa-spinner fa-5x"></i>
+    </div>
+</div>

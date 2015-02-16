@@ -1,0 +1,56 @@
+﻿@{
+    int wishCounter = 0;
+    string wishLucolor = "95D5E1";
+    string wishLuAltColor = "000000";
+}
+
+@foreach (Squid.Wishes.Wishlu wishLu in Squid.Wishes.Wishlu.GetUsersWishLus(UserId))
+{
+    // TODO: PREVENT NULL WISHLU NAMES
+    if (wishLu.Name == null)
+    {
+        wishLu.Name = "null";
+    }
+
+    wishCounter = 0; 
+    if (wishLu.DisplayColor == 0)
+    {
+        wishLucolor = "95D5E1";
+    }
+    if (wishLu.DisplayColor > 0)
+    {
+        wishLucolor = (((int)wishLu.DisplayColor).ToString("X6"));
+    }
+    wishLuAltColor = @System.Drawing.ColorTranslator.ToHtml(Disco.Common.Helpers.ContrastColor(System.Drawing.ColorTranslator.FromHtml("#" + wishLucolor)));
+                            
+    <div class="col_3 wishLuList" style="width: 250px; border-color: #@wishLucolor; background-color: white; padding: 5px;">
+        <h5 style="text-align: left; margin: 0px;">
+            <span class="tileheader lowercase">@Html.ActionLink((wishLu.Name.Length <= 20 ? wishLu.Name : wishLu.Name.Substring(0, 17) + "..."), "view", "wishlu", routeValues: new { @Id = wishLu.Id }, htmlAttributes: new { @class = "view", @style = "text-decoration: none;" })</span>
+            <span style="font-weight: lighter; padding-left: 5px; padding-right: 5px; font-size: 0.6em;">|</span>
+            <span style="font-weight: lighter; margin: 0px; font-size: 0.6em;">@(wishLu.Wishes.Count())</span>
+        </h5>
+        <div class="col_12 nomargin">
+            @foreach (Squid.Wishes.Wish wish in wishLu.Wishes.OrderByDescending(x => (x.Rating == null ? 0 : (int)x.Rating)).Take(6))
+            {
+                string thisImage = "/Images/DefaultWish.jpg";
+                if (@wish.ImageUrl != null)
+                {
+                    thisImage = @wish.ImageUrl;
+                }
+                <a href="@("/i/" + wish.Id.ToString() + "?wishlu=" + wishLu.Id.ToString())">
+                    <div class="col_4" style="border: 1px solid #a8a096; background-size: cover; background-repeat: no-repeat; background-image: url('@(thisImage)'); background-color: white; height: 70px; width: 70px;">
+                    </div>
+                </a>
+                wishCounter++;
+            }
+            @for (int k = wishCounter; k < 6; k++)
+            {
+                <a href="/item/hunt/?state=search&wishlu=@(wishLu.Id)" class="popup-window-link">
+                    <div class="col_4" style="border: 1px solid #a8a096; background-size: cover; background-repeat: no-repeat; background-image: url('/Images/DefaultWish.jpg'); background-color: white; height: 70px; width: 70px;">
+                    </div>
+                </a>
+            }
+        </div>
+    </div>    
+}
+

@@ -1,0 +1,177 @@
+﻿@using Disco.Common
+@model Squid.Users.User
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+}
+
+@section title {
+    @if (Model.Id == UserId)
+    {
+        <span>my friends</span>
+    }
+    else
+    {
+        <span id="headerlink"><a href="@Url.Action("index", "friends")" style="color: #DED9D3;">my friends</a></span>
+        <span class="fa fa-angle-right"></span>
+        <span><a href="/u/@Model.Id" style="color: #DED9D3;">@Model.FirstName @Model.LastName[0].</a></span>
+        <span class="fa fa-angle-right"></span>
+        <span>friends</span>
+    }
+    
+}
+
+@section meta
+{
+    <!-- Google -->
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+
+    <meta name="author" content="" />
+    <meta name="copyright" content="" />
+    <meta name="application-name" content="" />
+
+    <!-- Facebook -->
+    <meta property="og:title" content="" />
+    <meta property="og:type" content="wishludev:wish" />
+    <meta property="og:image" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:description" content="" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="" />
+    <meta name="twitter:description" content="" />
+    <meta name="twitter:image" content="" />
+
+    <!-- Pinterest -->
+}
+
+@section styles {
+    <link rel="stylesheet" type="text/css" href="/Content/jquery.rating.css" />
+
+    <style>
+        .large-tile {
+            width: 275px !important;
+            height: 275px !important;
+            background-color: white;
+            position: relative;
+        }
+    </style>
+}
+
+@section scripts {
+    <script type="text/javascript" src="/Scripts/jquery.unobtrusive-ajax.js"></script>
+    <script type="text/javascript" src="/Scripts/jquery.rating.js"></script>
+    <script type="text/javascript" src="/Scripts/jquery.autosize.min.js"></script>
+
+    @*<script type="text/javascript" src="/Scripts/jquery.jeditable.js"></script>*@
+
+    @*script>
+            $(document).ready(function() {
+                $('.edit').editable('/user/ajaxedit', {
+                    indicator: '<i class="fa fa-spinner fa-spin"></i>',
+                    tooltip: 'Click to edit...',
+                    submit: "Save"
+                });
+            });
+        </script>*@
+
+    <script>
+        $(document).ready(function () {
+            $(".request_friend").click(function () {
+                var button = $(this);
+
+                button.html("<i class='fa fa-spinner fa-spin'></i>");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/friends/add/" + button.data("id"),
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: null,
+                    success: function (data, status, request) {
+                        if (data == true) {
+                            swal("Success!", "Your friend request was sent.", "success");
+                            button.html('<i class="fa fa-check fa-fw" style="color:#79e0c3;"></i>');
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                            button.html('<i class="fa fa-times fa-fw" style="color:#b5919b;"></i>');
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); button.html('<i class="fa fa-times fa-fw" style="color:#b5919b;"></i>'); }
+                });
+            });
+        });
+    </script>
+}
+
+@{
+    List<Squid.Users.User> friends = Squid.Users.User.GetUsersFriends(Model.Id);
+    List<Squid.Users.User> mutual = Squid.Users.User.GetUsersFriends(UserId).Intersect(friends, new Squid.Users.UserComparer()).ToList();
+    friends.RemoveAll(x => mutual.Contains(x, new Squid.Users.UserComparer()));
+}
+
+@if (mutual.Count > 0)
+{
+    <div class="col_12 wishLuList" style="color: #a8a096; background-color: white; border-color: gray;">
+        <div class="col_12">
+            <h5 style="margin-left: 10px; font-weight: 300;">mutual friends (@mutual.Count):</h5>
+            @foreach (Squid.Users.User friend in mutual.Where(x => x.Id != UserId))
+            {
+                try
+                {
+                    <a href="@Url.Action("view", "user", routeValues: new { @id = friend.Id })">
+                        <div class="col_2 center pop nomargin" style="margin-right:5px !important; margin-bottom:5px !important; width: 175px; height: 175px; background: white; -moz-border-radius: 15px; -webkit-border-radius: 15px; border-radius: 15px; border: 2px solid gray;">
+                            <div class="col_12 circle pop" style="margin-bottom: 0;float:none;display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.ImageUrl : "//assets.wishlu.com/images/GenericFriend.png")'); background-color: white; width: 100px; height: 100px;">
+                            </div>
+                            <h6 class="lowercase nomargin" style="font-size:10pt;">
+                                @(friend.FullName)
+                            </h6>
+                        </div>
+                    </a>
+                }
+                catch { }
+            }
+        </div>
+    </div>
+}
+@if (friends.Count > 1)
+{
+    <div class="col_12 wishLuList" style="color: #a8a096; background-color: white; border-color: gray;">
+        <div class="col_12">
+            <h5 style="margin-left: 10px; font-weight: 300;">friends (@(friends.Count - 1)):</h5>
+            @foreach (Squid.Users.User friend in friends.Where(x => x.Id != UserId))
+            {
+                try
+                {
+
+                    <div class="col_2 center pop nomargin" style="margin-right:5px !important; margin-bottom:5px !important; width: 175px; height: 175px; background: white; -moz-border-radius: 15px; -webkit-border-radius: 15px; border-radius: 15px; border: 2px solid gray;">
+                        <a href="@Url.Action("view", "user", routeValues: new { @id = friend.Id })">
+                            <div class="col_12 circle pop" style="margin-bottom: 0;float:none;display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.ImageUrl : "//assets.wishlu.com/images/GenericFriend.png")'); background-color: white; width: 100px; height: 100px;">
+                            </div>
+                            <h6 class="lowercase nomargin" style="font-size:10pt;">
+                                @(friend.FullName)
+                            </h6>
+                        </a>
+                        @if (!friend.FriendRequestExists(UserId))
+                        {
+                            <a class="button pop request_friend" href="#" style="padding:5px;" data-id="@friend.Id">
+                                add friend
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="button pop disabled" href="#" style="padding:5px;">
+                                request sent
+                            </a>
+                        }
+                    </div>
+
+                }
+                catch { }
+            }
+        </div>
+    </div>
+}    

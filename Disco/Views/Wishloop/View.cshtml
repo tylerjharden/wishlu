@@ -1,0 +1,531 @@
+﻿@using Disco.Common
+@model Disco.ViewModels.LoopViewModel
+@{
+	Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+	
+	string wishLoopcolorLocal = "95D5E1";
+
+	if (Model.wishLoop.DisplayColor > 0)
+	{
+		wishLoopcolorLocal = (Model.wishLoop.DisplayColor).ToString("X6");
+	}
+}
+
+@section page {
+	@Model.wishLoop.Name wishloop - wishlu
+}
+
+@section title {
+	@Html.ActionLink("my wishloops", "index", "wishloop", null, new { @style = "text-decoration: none;" })
+	<span class="fa fa-angle-right" style="margin-left: 5px; margin-right: 5px;"></span>
+	<span id="title_name" style="color: #@(wishLoopcolorLocal);">@Model.wishLoop.Name</span>
+	<span style="color: #DED9D3; position: relative; top: -4px; margin-left: 15px; font-size: 0.7em;">
+		|
+	</span>
+	<span id="title_count" style="color: #@(wishLoopcolorLocal); position: relative; top: -3px; margin-left: 15px; font-size: 0.7em;">
+		@Model.wishLoopMembers.Count
+	</span>
+}
+
+@section styles {
+	<style>
+		.splotch {
+			border-radius: 50%;
+			width: 15px;
+			height: 15px;
+		}
+
+			.splotch.selected {
+				border: 2px solid gray;
+			}
+	</style>
+}
+
+@section scripts {
+	<script type="text/javascript">
+		jQuery(document).ready(function ($) {
+			$("#wishloop_save").click(function () {
+				$.ajax({
+					type: "POST",
+					url: "/wishloop/name",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify(getWishloopName()),
+					success: function (data, status, request) {
+						if (data.result == true) {
+							$("#title_name").text(data.name);
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
+
+			function getWishloopName() {
+				var data = {}
+				data.Name = $("#wishloop_name").val();
+				data.Id = "@Model.wishLoop.Id";
+				return data;
+			}
+
+			$(".splotch").click(function () {
+				var cur = $(this);
+				var sel = $(".splotch.selected");
+
+				sel.removeClass("selected");
+				cur.addClass("selected");
+
+				$.ajax({
+					type: "POST",
+					url: "/wishloop/color",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify(getWishloopColor()),
+					success: function (data, status, request) {
+						if (data.result == true) {
+							$("#title_name").css("color", "#" + cur.data("color"));
+							$("#title_count").css("color", "#" + cur.data("color"));
+						}
+						else {
+							cur.removeClass("selected");
+							sel.addClass("selected");
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
+
+			function getWishloopColor() {
+				var data = {}
+				data.Color = $(".splotch.selected").data("color");
+				data.Id = "@Model.wishLoop.Id";
+				return data;
+			}
+
+			$("#wishloop_assign_do").click(function () {
+				$.ajax({
+					type: "POST",
+					url: "/wishloop/assign",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify(getAssignWishlus()),
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal("Success!", data.message, "success");
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
+
+			function getAssignWishlus() {
+				var data = {}
+				data.Wishlus = $.map($(".lu:checked"), function (element) { return $(element).val(); });
+				data.Id = "@Model.wishLoop.Id";
+				return data;
+			}
+
+			$("#member_add").click(function () {
+				$("#member_add_container").slideToggle();
+			});
+
+			$("#member_add_do").click(function () {
+				$.ajax({
+					type: "POST",
+					url: "/wishloop/add",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify(getAddMembers()),
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal("Success!", data.message, "success");
+							$("#member_add_container").slideUp();
+							location.reload();
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
+
+			function getAddMembers() {
+				var data = {}
+				data.Members = $.map($(".user:checked"), function (element) { return $(element).val(); });
+				data.Id = "@Model.wishLoop.Id";
+				return data;
+			}
+
+			$("#member_remove").click(function () {
+				var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+				if (somethingChecked) {
+					swal({
+						title: "Are you sure?",
+						text: "The selected members will be removed from this wishloop!",
+						type: "warning",
+						showCancelButton: true,
+						confirmButtonText: "Yes",
+						cancelButtonText: "No, keep them here.",
+						closeOnConfirm: false,
+						closeOnCancel: false
+					},
+					function (isConfirm) {
+						if (isConfirm) {
+							$.ajax({
+								type: "POST",
+								url: "/wishloop/remove",
+								dataType: 'json',
+								contentType: 'application/json; charset=utf-8',
+								traditional: true,
+								data: JSON.stringify(getRemoveMembers()),
+								success: function (data, status, request) {
+									if (data.result == true) {
+										swal("Success!", data.message, "success");
+										$(".member.selected").remove();
+										$("#member_assign_container").slideUp();
+									}
+									else {
+										swal("Uh oh...", data.message, "error");
+									}
+								},
+								error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+							});
+						}
+						else {
+							swal("Canceled", "Your friends are still here.");
+						}
+					});
+				}
+				else {
+					swal("Oops...", "Please select one or more members to remove.", "warning");
+				}
+			});
+
+			function getRemoveMembers() {
+				var data = {}
+				data.Members = $.map($(".member.selected"), function (element) { return $(element).data("id"); });
+				data.Id = "@Model.wishLoop.Id";
+				return data;
+			}
+
+			$("#member_copy").click(function () {
+				var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+				if (somethingChecked) {
+					$("#member_copy_container").slideToggle();
+				}
+				else {
+					swal("Oops...", "Please select one or more members to copy to another wishloop.", "warning");
+				}
+			});
+
+			$("#member_copy_do").click(function () {
+				$.ajax({
+					type: "POST",
+					url: "/wishloop/copy",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify(getCopyMembers()),
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal("Success!", data.message, "success");
+							$("#member_copy_container").slideUp();
+							$(".member.selected").removeClass("selected");
+							$(".wishloop_copy:checked").prop("checked", false);
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
+
+			function getCopyMembers() {
+				var data = {}
+				data.Members = $.map($(".member.selected"), function (element) { return $(element).data("id"); });
+				data.Wishloops = $.map($(".wishloop_copy:checked"), function (element) { return $(element).val(); });
+				return data;
+			}
+
+			$("#member_move").click(function () {
+				var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+				if (somethingChecked) {
+					$("#member_move_container").slideToggle();
+				}
+				else {
+					swal("Oops...", "Please select one or more members to move to another wishloop.", "warning");
+				}
+			});
+
+			$("#member_move_do").click(function () {
+				$.ajax({
+					type: "POST",
+					url: "/wishloop/move",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify(getMoveMembers()),
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal("Success!", data.message, "success");
+							$("#member_move_container").slideUp();
+							$(".member.selected").remove();
+							$(".wishloop_copy:checked").prop("checked", false);
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
+
+			function getMoveMembers() {
+				var data = {}
+				data.Members = $.map($(".member.selected"), function (element) { return $(element).data("id"); });
+				data.Wishloops = $.map($(".wishloop_move:checked"), function (element) { return $(element).val(); });
+				data.Id = "@Model.wishLoop.Id";
+				return data;
+			}
+
+			$(".splotch[data-color='@wishLoopcolorLocal']").addClass("selected");
+		});
+
+		function clickAll() {
+			$('.checkboxicon').removeClass('fa-circle-o').addClass('fa-circle');
+			$('.roundCheckbox').prop('checked', true);
+			$(".member").addClass("selected");
+		}
+
+		function clickNone() {
+			$('.checkboxicon').removeClass('fa-circle').addClass('fa-circle-o');
+			$('.roundCheckbox').prop('checked', false);
+			$(".member").removeClass("selected");
+
+			$("#wish_assign_container").slideUp();
+		}
+	</script>
+}
+
+@section info {
+	<div class="col_12" style="text-align:left;height:250px;overflow:auto;">
+		<span>Manage your wishloop from here. You can</span>
+		<ul>
+			<li>Edit its name and color.</li>
+			<li>Allow its members to see the wishlus of your choice via <b>assign.</b></li>
+			<li>Add, remove, copy, and move wishloop members.  Note that your friends aren’t notified when you assign them to a particular wishloop or wishloops.</li>
+			<li>Click on wishloop members to view their profiles, which have lots of info to help you buy them a gift, and to access their wishlus.</li>
+		</ul>
+	</div>
+}
+
+@{
+	int wishLuCounter = 0;
+}
+<div class="col_10 clearfix nomargin nopadding">
+	@foreach (Squid.Users.User curMember in Model.wishLoopMembers.OrderBy(x => x.FullName))
+	{
+		<div class="col_4 member pop" style="background-color: white; border: 2px solid lightgray; border-radius: 15px;" onclick="doCheck($('#visible@(curMember.Id)'));" data-id="@curMember.Id">
+			<span id="visible@(curMember.Id)" class="sitelink" style="padding-top: 10px; float:right;"><i class="checkboxicon fa fa-circle-o icon" style="color: #C6BDB3"></i>@Html.CheckBox("CB", false, new { @value = curMember.Id.ToString(), @style = "opacity: 0;", @class = "roundCheckbox", @id = "CB" + curMember.Id.ToString() })</span>
+			<div class="circle pop" style="margin: 10px auto; width: 225px; height: 225px; padding: 10px;">
+				<a href="/u/@curMember.Id">
+					<h5 class="lowercase" style="font-size: 12pt; color: #9a8b7d;">
+						@curMember.FullName
+					</h5>
+				</a>
+				<div class="col_12" style="margin-top: 0;">
+					<div class="centerDiv circlefriend pop" style="background-image: url('@(curMember.ImageUrl)'); border: 1px solid gray; width: 125px; height: 125px; border-radius: 50%;"></div>
+				</div>
+				<h6 class="lowercase" style=" font-size: 8pt; color: #9a8b7d;">
+					@(String.Format("{0:MMM d}", curMember.DateOfBirth))
+				</h6>
+			</div>
+		</div>
+		wishLuCounter++;
+	}
+</div>
+<div class="col_2 clearfix omega" style="float:right;position: relative;">
+	<!-- Edit -->
+	<div class="col_12 nomargin" style="color:#9a8b7d;"><b>edit:</b></div>
+	@if (Model.wishLoop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
+	{
+		<!-- Wishloop Title -->
+		<div class="col_12">
+			<input id="wishloop_name" class="input-like lowercase" style="width:80%;" value="@Model.wishLoop.Name" />
+			<a id="wishloop_save" class="button pop right" style="padding:8px;"><i class="fa fa-save"></i></a>
+		</div>
+	}
+	<!-- Wishloop Color -->
+	<div class="col_12 center">
+		<div class="sitelink splotch" style="display:inline-block; background-color: #95D5E1;" data-color="95D5E1"></div>
+		<div class="sitelink splotch" style="display:inline-block; background-color: #D0D543;" data-color="D0D543"></div>
+		<div class="sitelink splotch" style="display:inline-block; background-color: #DD838F;" data-color="DD838F"></div>
+		<div class="sitelink splotch" style="display:inline-block; background-color: #F2B244;" data-color="F2B244"></div>
+		<div class="sitelink splotch" style="display:inline-block; background-color: #DE3F15;" data-color="DE3F15"></div>
+		<div class="sitelink splotch" style="display:inline-block; background-color: #C5ACCA;" data-color="C5ACCA"></div>
+		<div class="sitelink splotch" style="display:inline-block; background-color: #FDF39C;" data-color="FDF39C"></div>
+		<div class="sitelink splotch" style="display:inline-block; background-color: #A49689;" data-color="A49689"></div>
+		<div class="sitelink splotch" style="display:inline-block; background-color: #B3CEE1;" data-color="B3CEE1"></div>
+		<div class="sitelink splotch" style="display:inline-block; background-color: #CBEBC4;" data-color="CBEBC4"></div>
+	</div>
+
+	@if (Model.wishLoop.WishloopType != Squid.Wishes.WishloopType.AllFriends)
+	{
+		<a class="button pop full center" id="member_add" style="font-size:10pt;">add members</a>
+		<div class="col_12 center" id="member_add_container" style="display:none;">
+			<div class="col_12" style="overflow-y:scroll; height: 150px;">
+				@foreach (Squid.Users.User user in Squid.Users.User.GetUsersFriends(UserId).OrderBy(x => x.FullName))
+				{
+					if (Model.wishLoopMembers.Count(x => x.Id == user.Id) > 0)
+					{
+						continue;
+					}
+
+					<div class="col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
+						<span style="float:left;font-size:10pt;">
+							@user.FullName
+						</span>
+						<span style="float:right;">
+							<input class="user" type="checkbox" name="@user.Id" id="@user.Id" value="@user.Id" />
+						</span>
+					</div>
+				}
+			</div>
+			<a class="button pop center" id="member_add_do" style="padding:5px;font-size:10pt;">add</a>
+		</div>
+	}
+
+	<hr class="alt1 mg-sm" />
+
+	<!-- Wishlus -->
+	<div class="col_12 nomargin" style="color:#9a8b7d;"><b>which wishlus can this wishloop see?</b></div>
+	<div class="col_12 center full" id="wishloop_assign_container">
+		<div class="col_12 full nomargin nopadding" style="overflow-y:auto; min-height: 75px; max-height: 100px;">
+			@{List<Guid> wishlus = Model.wishLoop.GetWishluIds();}
+			@foreach (Squid.Wishes.Wishlu wishlu in Squid.Wishes.Wishlu.GetUsersWishLus(UserId).OrderBy(x => x.Name))
+			{
+				if (wishlu.WishLuType == Squid.Wishes.WishluType.JustMe || wishlu.WishLuType == Squid.Wishes.WishluType.Public)
+				{
+					continue;
+				}
+
+				if (wishlu.Visibility != Squid.Wishes.WishluVisibility.Friends)
+				{
+					continue;
+				}
+
+				<div class="col_12 lowercase nomargin center" style="height: 25px; color: #9A8B7D;">
+					<span style="float:left;font-size:10pt;">
+						@wishlu.Name.TruncateAtWord(25)
+					</span>
+					<span style="float:right;">
+						@if (wishlus.Contains(wishlu.Id))
+						{
+							<input class="lu" type="checkbox" name="@wishlu.Id" id="@wishlu.Id" value="@wishlu.Id" checked />
+						}
+						else
+						{
+							<input class="lu" type="checkbox" name="@wishlu.Id" id="@wishlu.Id" value="@wishlu.Id" />
+						}
+					</span>
+				</div>
+			}
+		</div>
+
+		<a class="button pop center" id="wishloop_assign_do" style="padding: 5px;font-size:10pt;">assign</a>
+	</div>
+
+	<hr class="alt1 mg-sm" />
+
+	<!-- Select Members -->
+	<div class="col_6 nomargin" style="color: #9a8b7d;"><b>select members:</b></div>
+	<div class="col_6 right">
+		<a class="button pop" href="#" style="padding:5px;font-size:10pt;" onclick="clickAll();">all</a>
+		<a class="button pop" href="#" style="padding:5px;font-size:10pt;" onclick="clickNone();">none</a>
+	</div>
+
+	<hr class="alt1 mg-sm" />
+
+	<!-- Actions -->
+	<div class="col_12 nomargin" style="color: #9a8b7d;"><b>actions:</b></div>
+
+	@if (Model.wishLoop.WishloopType != Squid.Wishes.WishloopType.AllFriends)
+	{		
+		<a class="button pop full center" id="member_remove" style="font-size:10pt;">remove members</a>
+	}
+	<a class="button pop full center" id="member_copy" style="font-size:10pt;">copy members</a>
+	<div class="col_12 center" id="member_copy_container" style="display:none;">
+		<div class="col_12" style="overflow-y:auto; min-height: 100px; max-height: 150px;">
+			@foreach (Squid.Wishes.Wishloop wishloop in Squid.Wishes.Wishloop.GetUsersWishloops(UserId).OrderBy(x => x.Name))
+			{
+				if (wishloop.Id == Model.wishLoop.Id)
+				{
+					continue;
+				}
+
+				if (wishloop.WishloopType == Squid.Wishes.WishloopType.AllFriends)
+				{
+
+					continue;
+				}
+
+				<div class="col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
+					<span style="float:left;font-size:10pt;">
+						@wishloop.Name.TruncateAtWord(25)
+					</span>
+					<span style="float:right;">
+						<input class="wishloop_copy" type="checkbox" name="@wishloop.Id" id="@wishloop.Id" value="@wishloop.Id" />
+					</span>
+				</div>
+			}
+		</div>
+
+		<a class="button pop center" id="member_copy_do" style="padding:5px;font-size:10pt;">copy</a>
+	</div>
+
+	@if (Model.wishLoop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
+	{
+		<a class="button pop full center" id="member_move" style="font-size:10pt;">move members</a>
+		<div class="col_12 center" id="member_move_container" style="display:none;">
+			<div class="col_12" style="overflow-y:auto; min-height: 100px; max-height: 150px;">
+				@foreach (Squid.Wishes.Wishloop wishloop in Squid.Wishes.Wishloop.GetUsersWishloops(UserId).OrderBy(x => x.Name))
+				{
+					if (wishloop.Id == Model.wishLoop.Id)
+					{
+						continue;
+					}
+
+					if (wishloop.WishloopType == Squid.Wishes.WishloopType.AllFriends)
+					{
+						continue;
+					}
+		
+					<div class="col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
+						<span style="float:left;font-size:10pt;">
+							@wishloop.Name.TruncateAtWord(25)
+						</span>
+						<span style="float:right;">
+							<input class="wishloop_move" type="checkbox" name="@wishloop.Id" id="@wishloop.Id" value="@wishloop.Id" />
+						</span>
+					</div>
+				}
+			</div>
+			<a class="button pop center" id="member_move_do" style="padding:5px;font-size:10pt;">move</a>
+		</div>
+	}    
+</div>

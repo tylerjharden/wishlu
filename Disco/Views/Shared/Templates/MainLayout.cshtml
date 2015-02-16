@@ -1,0 +1,519 @@
+﻿@{
+    Layout = null;
+    Session["currentURL"] = @Request.Url.AbsoluteUri;
+
+    Squid.Users.User currentUser = null;
+
+    if (Request.IsAuthenticated)    
+        currentUser = Squid.Users.User.GetUserById(UserId);
+    
+}
+
+@functions {
+    public class Styles
+    {
+        public static IHtmlString Render(string cssfile)
+        {
+            return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
+        }
+    }
+
+    public class Scripts
+    {
+        public static IHtmlString Render(string jsfile)
+        {
+            return new HtmlString("<script src=\"" + jsfile + "\"></script>");
+        }
+    }
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# profile: http://ogp.me/ns/profile#">    
+    @* ******** *@
+    @* Metadata *@
+    @* ******** *@
+    <!-- Core Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+
+    <!-- Page Title -->
+    <title>@RenderSection("page", false)</title>
+
+    <!-- Attribution -->
+    <meta name="author" content="wishlu" />
+    <meta name="copyright" content="Copyright © 2011 - @DateTime.Now.Year wishlu.  All rights reserved." />
+    
+    <!-- Unified Viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <!-- Referrer -->
+    <meta name="referrer" content="origin">
+
+    <!-- Facebook Site-Level -->
+    <meta property="fb:app_id" content="296645670486904" />
+    <meta property="og:site_name" content="wishlu">
+
+    <!-- Alexa -->
+    <meta name="alexaVerifyID" content="Pp0cBr8gUwxE88jqPDgZ42thJCY" />
+
+    <!-- Twitter -->
+    <meta name="twitter:app:url:iphone" content="wishlu://">
+    <meta name="twitter:app:url:ipad" content="wishlu://">
+    <meta name="twitter:app:android" content="com.wishlu">
+    <meta name="twitter:site" content="@("@wishlu")">
+    <meta name="twitter:app:id:ipad" content="000000000">
+    <meta name="twitter:app:url:googleplay" content="wishlu://">
+    <meta name="twitter:app:id:iphone" content="000000000">
+
+    <!-- Pinterest -->
+    <meta name="p:domain_verify" content="e685b1d62b2c1b5ce691b2576ee28a70" />
+    <meta name="pinterest" content="nohover">
+
+    <!-- App Link -->
+    <meta name="al:android:app_name" content="wishlu">
+    <meta name="al:ios:app_name" content="wishlu">
+    <meta name="al:ios:app_store_id" content="000000000">
+    <meta name="al:android:package" content="com.wishlu">
+    <meta name="al:android:url" content="pinterest://">
+    <meta name="al:ios:url" content="wishlu://">
+
+    <!-- Microsoft Windows Metro Tiles -->
+    <meta name="application-name" content="wishlu">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="http://assets.wishlu.com/images/headerLogo.png">
+
+    <!-- Page Metadata -->
+    @RenderSection("meta", false)
+
+    @* ***** *@
+    @* Links *@
+    @* ***** *@
+    <!-- Alternate Links -->
+    <link rel="alternate" hreflang="en" href="https://www.wishlu.com/" />
+
+    <!-- Chrome Webstore Link -->
+    <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/00000000000000000000">
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="http://assets.wishlu.com/images/headerLogo.png">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://assets.wishlu.com/images/favicon.ico" />
+
+    <!-- OpenSearch Support -->
+    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="wishlu">
+
+    <!-- Publisher (Google+) -->
+    <link rel="publisher" href="https://plus.google.com/+wishluofficial">
+
+    <!-- Page Links -->
+    @RenderSection("links", false)
+
+    @* ****** *@
+    @* Styles *@
+    @* ****** *@
+    <!-- Project Stylesheets -->
+    @Styles.Render("//assets.wishlu.com/css/easing.css")
+    @Styles.Render("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css")
+    @Styles.Render("//assets.wishlu.com/css/kickstart.css")    
+    @Styles.Render("//assets.wishlu.com/css/WishLuStyles.css")
+    @Styles.Render("//assets.wishlu.com/css/sweet-alert.css")    
+       
+    <!-- Page Stylesheets -->
+    @RenderSection("styles", false)
+
+    <!-- Subresources -->
+    <!-- TODO: Move CSS images intro sprites as a subresource for optimization -->
+       
+    @* ******* *@
+    @* Scripts *@
+    @* ******* *@
+    <!-- Project Scripts -->
+    @Scripts.Render("https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js")
+    @Scripts.Render("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js")
+    @Scripts.Render("//assets.wishlu.com/js/jquery.validate.min.js")
+    @Scripts.Render("//assets.wishlu.com/js/kickstart.js")
+    @Scripts.Render("//assets.wishlu.com/js/sweet-alert.js")
+    @Scripts.Render("//assets.wishlu.com/js/jquery-scrollToTop.min.js")
+
+    <!-- Page Scripts -->
+    @RenderSection("scripts", false)
+
+    @* ********** *@
+    @* Affiliates *@
+    @* ********** *@
+    <!-- CommissionJunction Affiliate Scripts -->
+    @{ Html.RenderPartial("~/Views/Shared/Affiliates/_CJ.cshtml"); }
+
+    @* ********* *@
+    @* Analytics *@
+    @* ********* *@
+    <!-- Google Analytics -->
+    @{ Html.RenderPartial("~/Views/Shared/Analytics/_GoogleAnalytics.cshtml"); }
+
+    <!-- Alexa Certify -->
+    @{ Html.RenderPartial("~/Views/Shared/Analytics/_Alexa.cshtml"); }
+
+    <!-- Inspectlet -->
+    @*@{ Html.RenderPartial("~/Views/Shared/Analytics/_Inspectlet.cshtml"); }*@
+
+    <!-- Scaffolding -->
+    @{ Html.RenderPartial("~/Views/Shared/Analytics/_Scaffold.cshtml"); }
+
+    @* ****** *@
+    @* Social *@
+    @* ****** *@
+    <!-- Facebook SDK -->
+    @{ Html.RenderPartial("~/Views/Shared/Social/_Facebook.cshtml"); }
+
+    <!-- Google+ API -->
+    @{ Html.RenderPartial("~/Views/Shared/Social/_GooglePlus.cshtml"); }
+
+    <!-- Twitter -->
+    @{ Html.RenderPartial("~/Views/Shared/Social/_Twitter.cshtml"); }
+
+    <!-- Pinterest -->
+    @{ Html.RenderPartial("~/Views/Shared/Social/_Pinterest.cshtml"); }
+
+    <!-- tumblr -->
+    @{ Html.RenderPartial("~/Views/Shared/Social/_Tumblr.cshtml"); }
+
+    @* ******** *@
+    @* Security *@
+    @* ******** *@
+    <!-- Anti-CSRF -->
+    @{ Html.RenderPartial("~/Views/Shared/Security/_AntiCSRF.cshtml"); }
+
+    @* ********** *@
+    @* Extensions *@
+    @* ********** *@
+    <!-- Google Fonts -->
+    @{ Html.RenderPartial("~/Views/Shared/Extensions/_GoogleFonts.cshtml"); }
+
+    <!-- SignalR -->
+    @{ Html.RenderPartial("~/Views/Shared/Extensions/_SignalR.cshtml"); }
+
+    <!-- Scroll to Top -->
+    @{ Html.RenderPartial("~/Views/Shared/Extensions/_ScrollToTop.cshtml"); }
+
+    <!-- Header Bar Scripts -->
+    <script type="text/javascript">
+        function doCheck(element) {
+            if ($(element).find('.fa').hasClass('fa-circle-o')) {
+                $(element).find('.fa').removeClass('fa-circle-o').addClass('fa-circle');
+                $(element).find('.roundCheckbox').prop('checked', true);
+                $(element).parent().addClass("selected");
+            }
+            else {
+                $(element).find('.fa').removeClass('fa-circle').addClass('fa-circle-o');
+                $(element).find('.roundCheckbox').prop('checked', false);
+                $(element).parent().removeClass("selected");
+            }
+        }
+
+        $(document).ready(function () {
+            function deleteNotification(notification) {
+                var id = $(notification).data("id");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/notifications/delete",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: id }),
+                    success: function (data, status, request) {
+                        if (data == true) {
+                            notification.remove(); // delete notification from DOM
+
+                            // update unread notification counter
+                            var count = $("#notifCount").text();
+                            count = count - 1;
+                            if (count == 0) {
+                                $("#notifCount").hide();
+                            }
+                            else {
+                                $("#notifCount").text(count);
+                            }
+                        }
+                    },
+                    error: function (data, status, request) { }
+                });
+            }
+
+            $(".del", ".notif").click(function () {
+                var notification = $(this).parents(".notif");
+                deleteNotification(notification);
+            });
+
+            $(".notif.unread").click(function () {
+                var notification = $(this);
+                var id = notification.data("id");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/notifications/markasread",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: id }),
+                    success: function (data, status, request) {
+                        if (data == true) {
+                            notification.removeClass("unread");
+                            notification.addClass("read");
+
+                            // update unread notification counter
+                            var count = $("#notifCount").text();
+                            count = count - 1;
+                            if (count == 0) {
+                                $("#notifCount").hide();
+                            }
+                            else {
+                                $("#notifCount").text(count);
+                            }
+                        }
+                    },
+                    error: function (data, status, request) { }
+                });
+            });
+
+            $(".friend_accept").click(function () {
+                var note = $(this).parents(".notif");
+                var link = $(this);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/friends/accept/" + $(this).data("id"),
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: null,
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", "You and " + link.data("name") + " are now friends.", "success");
+                            note.remove();
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            $(".friend_decline").click(function () {
+                var note = $(this).parents(".notif");
+                var link = $(this);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/friends/decline/" + $(this).data("id"),
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: null,
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", "You and " + link.data("name") + " are now friends.", "success");
+                            deleteNotification(note);
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            $(".friend_request").click(function () {
+                var note = $(this).parents(".notif");
+                var link = $(this);
+
+                $.ajax({
+                    type: "POST",
+                    url: $(this).data("url"),
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: null,
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", "Your friend request was sent.", "success");
+                            deleteNotification(note);
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                            deleteNotification(note);
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            $("#header_browse").on("click", function () {
+                $("#notificationMenu").slideUp();
+                $("#eventsMenu").slideUp();
+                $("#header_browse_panel").fadeToggle();
+            });
+
+            $("#header_query").keyup(function (e) {
+                if (e.keyCode == 13) {
+                    if ($("#header_query").val().length > 0) {
+                        location.href = "/search?query=" + $("#header_query").val();
+                    }
+                    else {
+                        $("#header_query").focus();
+                    }
+                }
+            });
+
+            $('html').on('click', function () {
+                $("#notificationMenu").slideUp();
+                $("#eventsMenu").slideUp();
+                $("#header_browse_panel").fadeOut();
+            });
+
+            $("#header_browse_container").on("click", function (e) {
+                e.stopPropagation();
+            });
+
+            $("#notifications_toggle").click(function (e) {
+                $("#notificationMenu").slideToggle();
+                $("#notifCount").remove();
+                $("#eventsMenu").slideUp();
+                $("#header_browse_panel").fadeOut();
+                e.stopPropagation();
+            });
+
+            $("#notificationMenu").click(function (e) {
+                e.stopPropagation();
+            });
+
+            $("#events_toggle").click(function (e) {
+                $("#eventsMenu").slideToggle();
+                $("#notificationMenu").slideUp();
+                $("#header_browse_panel").fadeOut();
+                e.stopPropagation();
+            });
+
+            $("#eventsMenu").click(function (e) {
+                e.stopPropagation();
+            });
+
+            $(".sweet-overlay").on("click", function (e) {
+                e.stopPropagation();
+            });
+        });
+    </script>
+
+    @* ****** *@
+    @* Layout *@
+    @* ****** *@
+    <!-- Notification Bars-->
+    @{ Html.RenderPartial("~/Views/Shared/Templates/_NotificationBars.cshtml"); }
+</head>
+
+<body>
+    <div id="fb-root"></div>
+    @*<div id="PageContainer" class="WishLuPage">*@
+
+    <!-- Anti-CSRF -->
+    @Html.AntiForgeryToken()
+
+    <!-- Information Pop-up -->
+    <div id="info_content" style="display:none;">
+        @try
+        {
+            @RenderSection("info", false)
+        }
+        catch
+        {
+            <span>No information available.</span>
+        }
+    </div>
+
+    <script>
+        function showInfo() {
+            swal("Information", $("#info_content").html(), "info");
+        }
+    </script>
+
+    <!-- Application Container -->
+    <div class="application_container">
+        <!-- Header Bar -->
+        @if (Request.IsAuthenticated)
+        {
+            Html.RenderPartial("~/Views/Shared/Templates/_HeaderLoggedIn.cshtml");
+        }
+        else
+        {
+            Html.RenderPartial("~/Views/Shared/Templates/_HeaderLanding.cshtml");
+        }
+
+        <!-- Main Content -->
+        <div class="WishLuMainSection" style="/*border: solid 2px dodgerblue;*/ /*padding-bottom: 50px; overflow-y: auto;*/">
+            <!-- Navigation Bar -->
+            <div class="WishLuNavigationBar masterWidth centerDiv clearfix" style="padding: 5px; text-transform: lowercase; z-index: 100;">
+                <div class="left">
+                    <div style="display: inline-block; margin: 5px; font-size: 1.5em; color: #a8a096">
+                        <span id="info_popup" style="position: relative; top: 2px; margin-right: 5px;" onclick="showInfo();">
+                            <i class="fa fa-info-circle sitelink" style="background-color: white; color: #706D69; border-radius: 15px; -webkit-text-stroke: #2f2f2f 1px;"></i>
+                        </span>
+                        <span>
+                            @RenderSection("title", true)
+                        </span>
+                    </div>
+                </div>
+                <div id="actionbar" class="omega right" style="margin-top: 10px;">
+                    @RenderSection("actions", false)
+                </div>
+            </div>
+
+            <div id="mainContent" class="masterWidth centerDiv clearfix" style="/*border: solid 2px pink;*/">
+                <!-- Verification -->
+                @if (currentUser != null && !currentUser.Verified)
+                {
+                    <div style="width: 100%;">
+                        <div id="NotVerified" class="notice warning">
+                            <i class="fa fa-warning fa-2x"></i>
+                            Please verify your email address. Check your email for a verification link.
+                        </div>
+                        <script type="text/javascript">
+                            $(document).ready(function () {
+                                $('#NotVerified').slideDown();
+                            });
+                        </script>
+                    </div>
+                }
+
+                <!-- Beta Bar -->
+                <div style="width: 100%;">
+                    <div id="BetaBar" class="notice nag center" style="line-height: 20px;">
+                        We are currently in beta. If you encounter any bugs, or have other feedback, please <a href="/contact">contact us</a>.
+                        <a href="#close" class="fa fa-times right"></a>
+                    </div>
+                    <script type="text/javascript">
+                        $(document).ready(function () {
+                            $('#BetaBar').slideDown();
+                        });
+                    </script>
+                </div>
+
+                @RenderSection("featured", required: false)
+                @RenderBody()
+            </div>
+        </div>
+
+        <!-- Footer -->
+        @{ Html.RenderPartial("~/Views/Shared/Templates/_Footer.cshtml"); }
+
+        <!-- OpenSearch -->
+        @{ Html.RenderPartial("~/Views/Shared/Extensions/_OpenSearch.cshtml"); }
+    </div>
+    @*</div>*@    
+</body>
+
+</html>

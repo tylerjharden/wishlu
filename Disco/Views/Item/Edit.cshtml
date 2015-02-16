@@ -1,0 +1,283 @@
+﻿@using Disco.Common
+@model Squid.Wishes.Wish
+@{
+	Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+			
+	Guid wisheslu = Model.GetAssignmentId();
+
+	string wishName = Model.Name;
+	string wishNotes = Model.Notes;
+	string wishModified = Model.LastModifiedOn.ToString("M.d.yy");
+	string wishCreated = Model.CreatedOn.ToString("M.d.yy");
+	string wishUrl = Model.WishUrl;
+	string wishAddress1 = Model.SourceAddress1;
+	string wishAddress2 = Model.SourceAddress2;
+	string wishCity = Model.SourceCity;
+	string wishState = Model.SourceStateOrProvince;
+	string wishZip = Model.SourceZipOrPostalCode;
+	string wishCountry = Model.SourceCountryId;
+	int wishRating = Model.Rating;
+	string wishPrice = "$" + @Model.Price.ToString();
+	string fulladdress = wishAddress1 + "\n" + wishAddress2 + "\n" + wishCity + ", " + wishState + " " + wishZip + "\n" + wishCountry;
+	fulladdress = fulladdress.Replace("\n\n", "\n").Replace("\n, ", "\n").Replace("  ", " ");
+	int wishQuantity = Model.Quantity;
+	wishQuantity = wishQuantity == 0 ? 1 : wishQuantity;
+}
+
+@functions {
+	public class Styles
+	{
+		public static IHtmlString Render(string cssfile)
+		{
+			return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
+		}
+	}
+
+	public class Scripts
+	{
+		public static IHtmlString Render(string jsfile)
+		{
+			return new HtmlString("<script src=\"" + jsfile + "\"></script>");
+		}
+	}
+}
+
+@section title {
+	<span style="padding-left: 5px;">
+		edit item
+	</span>
+}
+
+@section meta
+{
+	<meta name="description" content="Edit Item" />
+}
+
+@section styles {
+<link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/jquery.rating.css" />
+}
+
+@section scripts {
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery.rating.js"></script>
+
+<script type="text/javascript" src="//assets.wishlu.com/js/autoNumeric.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function () {		
+		$("#WishQuantity").spinner({
+			spin: function (event, ui) {
+				if (ui.value < 0) {
+					$(this).spinner("value", 0);
+					return false;
+				}
+			}
+		});
+
+		$("#WishPrice").autoNumeric('init');
+	});
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		var handleFileSelect = function (evt) {
+			var files = evt.target.files;
+			var file = files[0];
+			if (files && file) {
+				var reader = new FileReader();
+				reader.onload = function (readerEvt) {
+					var binaryString = readerEvt.target.result;
+					$('#base64image').val(btoa(binaryString));
+					$('#wishimage').css('background-image', 'url(data:image/jpg;base64,' + $('#base64image').val() + ")");
+				};
+				reader.readAsBinaryString(file);
+			}
+		};
+		if (window.File && window.FileReader && window.FileList && window.Blob) {
+			$('#filePicker').change(handleFileSelect);
+		} else {
+			alert('The File APIs are not fully supported in this browser.');
+		}
+	});
+</script>
+
+<script>
+	$(document).ready(function () {
+		$("#Wishlu").on("change", function (e) {
+			var opt = $(this).find("option:selected");
+			var val = opt.text();
+
+			if (val === "create a new wishlu") {
+				$("#_AddWishLuPartialLINK").click();
+			}
+		});
+	});
+
+	function onwishlucreated(result) {
+		if (result != null) {
+			$('option:selected', '#Wishlu').removeAttr('selected');
+			$("#Wishlu").append($("<option>").attr('value', result.Id).text(result.Name));
+			$('#Wishlu').find('option[value="' + result.Id + '"]').attr("selected", true);
+		}
+		else {
+			$('option:selected', '#Wishlu').removeAttr('selected');
+			$('#Wishlu').find('option:contains("just me")').attr("selected", true);
+		}
+	}
+
+	function onwishlufailed(result) {
+		$('option:selected', '#Wishlu').removeAttr('selected');
+		$('#Wishlu').find('option:contains("just me")').attr("selected", true);
+	}
+</script>	 
+}
+
+<!-- Hidden Inputs -->
+<input type="hidden" name="WishId" id="WishId" value="@Model.Id" />
+
+<!-- Global Edit Wish Screen -->
+<div class="grid" style="color: gray" id="editwish">
+	<!-- Item Container -->
+	<div class="col_12 nomargin">
+		<!-- Left Top-Half Container -->
+		<div class="col_6">
+			<!-- Wish Image Container -->
+			<div class="col_12 pop wishLuList tilelarge sitelink" style="padding: 5px; margin-top: 0;" onclick="$('#filePicker').trigger('click');">
+				<div id="wishimage" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@Model.ImageUrl'); width: 400px; height: 400px; text-align: center;">&nbsp;</div>
+			</div>
+
+			@if (Model.IsCustom)
+			{
+				<input type="file" id="filePicker" style="display: none;" />
+				<input type="hidden" id="base64image" name="base64image" />         
+			}                                                   
+		</div>
+
+		<!-- Right Container -->
+		<div class="col_6" style="border: 4px solid #D3EEF2; border-radius: 15px; background-color: white;">
+			<div class="col_12">
+				<!-- Wish Name Textbox -->
+				<div class="col_12" style="padding-bottom: 1px; margin-bottom: 1px; font-size: 14pt;">
+					@if (Model.IsCustom)
+					{
+						@Html.TextBox("WishName", Model.Name, new { @id = "WishName", @class = "required full lowercase large-input", @placeholder = "item name" })
+					}
+					else
+					{
+						@Model.Name
+					}
+				</div>
+				<!-- Wish URL Textbox -->
+				<div class="col_12">
+					@if (Model.IsCustom)
+					{
+						@Html.TextBox("WishUrl", Model.WishUrl, new { @id = "WishUrl", @class = "full input-like", @placeholder = "http:// or www." })
+					}
+					else
+					{
+						if (Model.WishUrl != null && !String.IsNullOrEmpty(Model.WishUrl))
+						{
+							if (Model.Shop != null && !String.IsNullOrWhiteSpace(Model.Shop) && !String.IsNullOrWhiteSpace(Model.Shop))
+							{
+								<a target="_blank" href="@wishUrl"><span style="float: left; width: 85%; overflow: hidden; color: #9a8b7d; font-weight: bold;">View on @(Model.Shop) @*@wishUrl.Replace("http://", "").Remove(wishUrl.Replace("http://", "").IndexOf("/"))*@</span></a>
+							}
+							else
+							{
+								try
+								{
+									Uri url = new Uri(wishUrl);
+
+									<a target="_blank" href="@wishUrl"><span style="float: left; width: 85%; overflow: hidden; color: #9a8b7d; font-weight: bold;">View on @(url.Host)</span></a>
+								}
+								catch
+								{ }
+							}
+						}
+					}
+				</div>
+				<!-- Wish Price Textbox -->
+				<div class="col_12">
+					<span class="col_4" style="margin: 0; font-weight: 300; padding-top: 5px;">price:</span>
+					<span class="col_8" style="margin: 0;">
+						@if (Model.IsCustom)
+						{
+							<input type="text" name="WishPrice" id="WishPrice" class="input-like" data-a-sign="$" data-a-dec="." data-a-sep="," value="@Model.Price" />
+						}
+						else
+						{
+							<span id="WishPrice" data-a-sign="$" data-a-dec="." data-a-sep=",">@Model.Price</span>
+						}
+					</span>
+				</div>
+				<!-- Wish Quantity Spinner -->
+				<div class="col_12">
+					<span class="col_4" style="margin: 0; font-weight: 300; padding-top: 5px;">quantity:</span>
+					<span class="col_8" style="margin: 0;">
+						<input class="input-like" name="WishQuantity" id="WishQuantity" size="5" value="@Model.Quantity" />
+					</span>
+				</div>
+				<!-- Wishlu Selection -->
+				<div class="col_12">
+					<span class="col_4" style="margin: 0; font-weight: 300; padding-top: 5px;">wishlu:</span>
+					<div class="col_8" style="margin: 0;">
+						<select name="Wishlu" id="Wishlu" class="input-like full" style="width: 100%; color: #cbc3bb;">
+							<option value="">create a new wishlu</option>							
+							@{
+								Guid lu = Model.GetAssignmentId();
+								Guid floatingId = Squid.Wishes.Wishlu.GetUsersJustMeWishLu(UserId).Id;
+							}                  
+							@if (lu == floatingId)
+							{
+								<option selected value="@floatingId">just me</option>
+							}
+							else
+							{
+								<option value="@floatingId">just me</option>
+							}																
+							@foreach (Squid.Wishes.Wishlu wishLu in Squid.Wishes.Wishlu.GetUsersWishLus(UserId))
+							{
+								if (wishLu.WishLuType == Squid.Wishes.WishluType.JustMe)
+								{
+									continue;
+								}
+								if (lu == wishLu.Id)
+								{
+									<option selected value="@wishLu.Id">
+										@wishLu.Name
+									</option>
+								}
+								else
+								{
+									<option value="@wishLu.Id">
+										@wishLu.Name
+									</option>
+								}                                    
+							}
+						</select>
+					</div>
+				</div>				
+			</div>
+			<!-- Added / Modified -->
+			<div class="col_12 center">
+				<div class="col_12">
+					added: @(wishCreated)
+				</div>
+				<div class="col_12" style="font-size: 10pt;">
+					(modified: @(wishModified))
+				</div>
+			</div>
+		</div>
+
+		<!-- Full Bottom-Half Container -->
+		<div class="col_12" style="margin: 0;">
+			<!-- Wish Bottom Tabs -->
+			<ul class="tabs left">                        
+				<li><a href="#notestab"><i class="fa fa-pencil fa-fw" style="padding-right: 10px;"></i>notes</a></li>                        
+			</ul>
+										
+			<!-- Notes Tab -->
+			<div id="notestab" class="tab-content">                        
+				<textarea id="WishNotes" name="WishNotes" style="width: 100%; height: 150px;">@Model.Notes</textarea>
+			</div>                                        
+		</div>
+	</div>
+</div>

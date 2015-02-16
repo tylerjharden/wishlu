@@ -1,0 +1,648 @@
+﻿@using Disco.Common
+@model Squid.Users.User
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+
+    Squid.Users.User currentUser = null;
+    var suggest_friends = new List<Squid.Users.User>();
+    var wishloops = new List<Squid.Wishes.Wishloop>();
+    var all_wishloops = new List<Squid.Wishes.Wishloop>();
+    if (UserId != null && UserId != Guid.Empty)
+    {
+        currentUser = Squid.Users.User.GetUserById(UserId);
+        suggest_friends = Squid.Users.User.GetUsersFriends(UserId);
+        wishloops = currentUser.GetWishloopsByMember(Model.Id);
+        all_wishloops = Squid.Wishes.Wishloop.GetUsersWishloops(UserId);
+    }
+
+    List<Squid.Users.User> friends = Squid.Users.User.GetUsersFriends(Model.Id);
+}
+
+@section page {
+    @if (currentUser != null && currentUser.Id == Model.Id)
+    {
+        this.Write("my profile - wishlu");
+    }
+    else
+    {
+        this.Write("wishlu - " + Model.FirstName.ToLower() + " " + Model.LastName.ToLower()[0] + ".'s profile");
+    }
+}
+
+@section title {    
+    @if (Request.IsAuthenticated)
+    {
+        if (UserId == Model.Id)
+        {
+            <span>my profile</span>
+        }
+        else if (Model.IsFriend(UserId)) // we're friends
+        {
+            <span id="headerlink"><a href="@Url.Action("index", "friends")" style="color: #DED9D3; text-decoration: none;">my friends</a></span>
+            <span class="fa fa-angle-right"></span>
+            <span>@Model.FirstName @Model.LastName[0].</span>
+        }
+        else // we're not friends
+        {
+            <span>@Model.FullName's profile</span>
+        }
+    }
+    else // anonymous user
+    {
+        <span>@Model.FullName's profile</span>
+    }    
+}
+
+@section actions {
+    @if (Request.IsAuthenticated)
+    {
+        if (UserId == Model.Id)
+        {
+            <a class="button pop" style="padding:10px;" href="/user/edit/@Model.Id"><i class="fa fa-edit" style="margin-right: 10px;"></i> edit profile</a>
+        }
+        else
+        {
+            <a class="button pop" style="padding:10px;" id="block_user"><i class="fa fa-minus-circle" style="margin-right: 10px;"></i> block</a>
+        }
+    }    
+}
+
+@section meta
+{
+    <!-- Google -->
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+
+    <meta name="author" content="wishlu" />
+    <meta name="copyright" content="&copy; 2014 wishlu." />
+    <meta name="application-name" content="wishlu" />
+
+    <!-- Facebook -->
+    <meta property="og:title" content="@Model.FullName's profile on wishlu." />
+    <meta property="og:type" content="profile" />
+    <meta property="og:image" content="@Model.ImageUrl" />
+    <meta property="og:url" content="http://www.wishlu.com/u/@Model.Id" />
+    <meta property="profile:first_name" content="@Model.FirstName" />
+    <meta property="profile:last_name" content="@Model.LastName" />
+    <meta property="profile:username" content="@Model.Handle" />
+    <meta property="profile:gender" content="@(Model.Gender == 'f' ? "female" : "male")" />
+    @if (Model.Gender == 'f')
+    {
+        <meta property="og:description" content="Take a look at the things @Model.FirstName may want you to get her for that next special ocassion, holiday, or birthday." />
+    }
+    else
+    {
+        <meta property="og:description" content="Take a look at the things @Model.FirstName may want you to get him for that next special ocassion, holiday, or birthday." />
+    }
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="@Model.FullName's profile on wishlu." />
+    <meta name="twitter:description" content="" />
+    <meta name="twitter:image" content="" />
+
+    <!-- Pinterest -->
+    <!-- Privacy -->
+    @if (!Model.AllowIndexing)
+    {
+        <meta name="robots" content="noindex" />
+    }
+}
+
+@section styles {
+    <link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/jquery.rating.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//assets.wishlu.com/css/bootstrap-select.css">
+
+    <style>
+        .large-tile {
+            width: 275px !important;
+            height: 275px !important;
+            background-color: white;
+            position: relative;
+        }
+    </style>
+}
+
+@section scripts {
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.unobtrusive-ajax.js"></script>
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.rating.js"></script>
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.autosize.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <script src="//assets.wishlu.com/js/bootstrap-select.js"></script>
+
+    @*<script type="text/javascript" src="//assets.wishlu.com/js/jquery.jeditable.js"></script>*@
+
+    @*script>
+            $(document).ready(function() {
+                $('.edit').editable('/user/ajaxedit', {
+                    indicator: '<i class="fa fa-spinner fa-spin"></i>',
+                    tooltip: 'Click to edit...',
+                    submit: "Save"
+                });
+            });
+        </script>*@
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $.get("/get/otherwishlus/@Model.Id", null, function (result) {
+                $("#wishlus_container").html(result);
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#block_user").click(function () {
+                var button = $(this);
+                button.html("<i class='fa fa-spinner fa-spin'></i>");
+                $.post("/user/blockid/" + encodeURIComponent("@Model.Id"), null, function (data) {
+                    button.html("block");
+                    if (data.result === true) {
+                        location.href = '/friends';
+                    }
+                    else {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                });
+            });
+
+            $("#suggest_friends").click(function () {
+                $("#suggest_friends_panel").slideToggle();
+            });
+
+            $("#suggest_friends_do").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/friends/suggest",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(getSuggestFriends()),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            $(".user:checked").parents(".user_container").remove();
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            function getSuggestFriends() {
+                var data = {}
+                data.Friends = $.map($(".user:checked"), function (element) { return $(element).val(); });
+                data.Id = "@Model.Id";
+                return data;
+            }
+
+            $(".wishloop_add").on("click", function () {
+                var button = $(this);
+                var id = button.data("id");
+                var name = button.text();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/wishloop/add",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: id, Members: "@Model.Id" }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            button.addClass("hide");
+                            var count = $("#wishloop_title").data("count");
+                            count++;
+                            $("#wishloop_title").text("wishloops (" + count + ")");
+                            $("#wishloop_title").data("count", count);
+                            $("#wishloop_list").append('<div class="col_12 wishloop_member nomargin" data-id="' + id + '"><div class="col_10"><a href="/o/' + id + '">' + name + '</a></div><div class="col_2 right"><a class="button pop wishloop_remove" data-id="' + id + '" style="padding:5px;"><i class="fa fa-times"></i></a></div></div>');
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            $("#wishloop_list").on("click", ".wishloop_remove", function () {
+                var button = $(this);
+                var loop = $(this).parents(".wishloop_member");
+                var id = loop.data("id");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/wishloop/remove",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: id, Members: "@Model.Id" }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            loop.remove();
+                            $(".wishloop_add[data-id='" + id + "']").removeClass("hide");
+                            var count = $("#wishloop_title").data("count");
+                            count--;
+                            $("#wishloop_title").data("count", count);
+                            $("#wishloop_title").text("wishloops (" + count + ")");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+        });
+    </script>
+}
+
+@section info {
+    @if (Request.IsAuthenticated && UserId == Model.Id)
+    {
+        <div class="col_12" style="text-align: left; height: 400px; overflow: auto;">
+            <span>
+                Click <b>edit profile</b> in the upper right hand corner to add and update your profile, which provides lots of useful information for your friends and family when it comes to buying you a gift.
+            </span>
+            <br />
+            <ul>
+                <li><b>A few of my favorite things</b> makes buying thoughtful gifts for you easy. Tell family & friends what you like: the flowers you love, the perfume or cologne you wear, the teams you follow, the restaurants you frequent, the wines you prefer, the authors you adore, the candy you crave…</li>
+                <li><b>Stores and brands I like.</b> Let family & friends know where they can’t go wrong. Click the link to manage stores and to follow stores.</li>
+                <li><b>Stats.</b> Make a note of helpful information for your family & friends when they are buying a gift for you, such as your shoe, dress, and shirt sizes.</li>
+                <li>Manage your wishloops.</li>
+                <li>Update your profile picture, add your shipping address, and access your friends’ profiles and wishlus.</li>
+            </ul>
+        </div>
+    }
+    else
+    {
+        <span>View lots of helpful details about buying your friend the perfect gift here:</span>
+        <ul style="text-align: left;">
+            <li>Your friend’s favorite things, which make for perfect presents for any reason.</li>
+            <li>Your friend’s favorite stores and brands.</li>
+            <li>Your friend’s sizes.</li>
+            <li>Your friend’s shipping address.</li>
+            <li>Your friend’s wishlus.</li>
+        </ul>
+        <span>You can follow your friend, suggest friends to your friend, or block a person here, too.</span>
+    }
+}
+
+@helper RenderStat(string label, string stat, string privacy, Squid.Users.User user)
+{
+    Guid assign = new Guid();
+    bool shouldRender = false;
+    if ((Request.IsAuthenticated && UserId == Model.Id) || privacy == "Everyone")
+    {
+        shouldRender = true;
+
+    }
+    else if (!Request.IsAuthenticated)
+    {
+        shouldRender = false;
+    }        
+    else
+    {
+        if (Guid.TryParse(privacy, out assign))
+        {
+            shouldRender = Squid.Wishes.Wishloop.HasMember(assign, user.Id);
+        }
+        else
+        {
+            switch (privacy)
+            {
+                case "FriendsOfFriends":
+                    shouldRender = user.IsFriendOfFriend(Model.Id);
+                    break;
+                case "Friends":
+                    shouldRender = user.IsFriend(Model.Id);
+                    break;
+            }
+        }
+    }
+    if (shouldRender)
+    {
+        <h5 style="font-weight: 300;">@label: @stat</h5>
+    }
+}
+
+@helper RenderAddress(string privacy, Squid.Users.User user)
+{
+    Guid assign = new Guid();
+    bool shouldRender = false;
+    if ((Request.IsAuthenticated && UserId == Model.Id) || privacy == "Everyone")
+    {
+        shouldRender = true;
+    }
+    else if (!Request.IsAuthenticated)
+    {
+        shouldRender = false;
+    }  
+    else
+    {
+        if (Guid.TryParse(privacy, out assign))
+        {
+            shouldRender = Squid.Wishes.Wishloop.HasMember(assign, user.Id);
+        }
+        else
+        {
+            switch (privacy)
+            {
+                case "FriendsOfFriends":
+                    shouldRender = user.IsFriendOfFriend(Model.Id);
+                    break;
+                case "Friends":
+                    shouldRender = user.IsFriend(Model.Id);
+                    break;
+            }
+        }
+    }
+    if (shouldRender)
+    {
+        <div class="col_12 wishLuList pop" style="color: #a8a096; background-color: white; border-color: gray;">
+            <div class="col_12">
+                <h5 style="margin-left: 10px; margin-top: 0; font-weight: 300;">shipping address:</h5>
+                @if (!String.IsNullOrWhiteSpace(Model.ShipAddress1))
+                {
+                    <div class="center">
+                        <h6 style="margin-left: 10px; font-weight: 300;">@Model.ShipAddress1</h6>
+                        <h6 style="margin-left: 10px; font-weight: 300;">@Model.ShipAddress2</h6>
+                        <h6 style="margin-left: 10px; font-weight: 300;">@Model.ShipCity, @Model.ShipStateOrProvince @Model.ShipZipOrPostalCode</h6>
+                    </div>
+                }
+                else
+                {
+                    <div class="center">
+                        <h6 style="margin-left: 10px; font-weight: 300;">none</h6>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+<div class="grid" style="position: relative; padding: 0;">
+    <div class="col_4">
+        <div class="col_12 wishLuList center pop" style="background-color: white; border-color: gray;">
+            <div class="col_12 circle pop" style="float: none; display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(Model.ImageUrl)?width=200&height=200'); background-color: white; width: 200px; height: 200px; /*width: 250px; height: 250px;*/">
+            </div>
+        </div>
+        <div class="col_12 wishLuList center pop" style="color: #a8a096; background-color: white; border-color: gray; padding-bottom: 5px;">
+            <h3 style="font-weight: 300;">@Model.FullName</h3>
+            @if ((Request.IsAuthenticated && UserId == Model.Id))
+            {
+                <h4 style="font-weight: 300;">birthday: @Model.DateOfBirthString</h4>
+            }
+            else
+            {
+                if (Model.HideAge)
+                {
+                    <h4 style="font-weight: 300;">birthday: @Model.DateOfBirth.ToString("MM/dd")</h4>
+                }
+                else
+                {
+                    <h4 style="font-weight: 300;">birthday: @Model.DateOfBirthString</h4>
+                }
+            }
+            @if (currentUser != null && currentUser.Id != Model.Id)
+            {
+                if (currentUser.IsFriend(Model.Id))
+                {
+                    <a class="button pop" href="/friends/delete/@Model.Id">unfriend</a>
+                }
+                else
+                {
+                    switch (Model.FriendRequestPermission)
+                    {
+                        case Squid.Users.UserPrivacy.Members:
+                            <a class="button pop" href="/friends/add/@Model.Id">add friend</a>
+                            break;
+
+                        case Squid.Users.UserPrivacy.FriendsOfFriends:
+                            if (currentUser.IsFriendOfFriend(Model.Id))
+                            {
+                                <a class="button pop" href="/friends/add/@Model.Id">add friend</a>
+                            }
+                            break;
+                    }
+
+                }
+
+                if (currentUser.IsFollowing(Model.Id))
+                {
+                    <a class="button pop" href="/user/unfollow/@Model.Id">unfollow</a>
+                }
+                else
+                {
+                    switch (Model.FollowPermission)
+                    {
+                        case Squid.Users.UserPrivacy.Everyone:
+                        case Squid.Users.UserPrivacy.Members:
+                            <a class="button pop" href="/user/follow/@Model.Id">follow</a>
+                            break;
+
+                        case Squid.Users.UserPrivacy.Friends:
+                            if (currentUser.IsFriend(Model.Id))
+                            {
+                                <a class="button pop" href="/user/follow/@Model.Id">follow</a>
+                            }
+                            break;
+
+                        case Squid.Users.UserPrivacy.FriendsOfFriends:
+                            if (currentUser.IsFriendOfFriend(Model.Id))
+                            {
+                                <a class="button pop" href="/user/follow/@Model.Id">follow</a>
+                            }
+                            break;
+                    }
+                }
+
+                if (currentUser.IsFriend(Model.Id))
+                {
+                    <a id="suggest_friends" class="button pop" href="#">suggest friends</a>
+                    <div id="suggest_friends_panel" class="col_12" style="display:none;">
+                        <div class="col_12" style="overflow-y:scroll; height: 150px;">
+                            @foreach (Squid.Users.User user in suggest_friends.OrderBy(x => x.FullName))
+                            {
+                                if (user.IsFriend(Model.Id) || user.FriendRequestExists(Model.Id) || user.Id == Model.Id) // don't allow suggesting users who already are friends or have friend requests
+                                {
+                                    continue;
+                                }
+
+                                <div class="user_container col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
+                                    <span style="float: left; padding-left: 10px; ">
+                                        @user.FullName
+                                    </span>
+                                    <span style="float: right; padding-right: 10px; ">
+                                        <input class="user" type="checkbox" value="@user.Id" />
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                        <a class="button pop center" id="suggest_friends_do">suggest</a>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+    <div class="col_4">
+        <div class="col_12 wishLuList pop" style="color: #a8a096; background-color: white; border-color: gray;">
+            <div class="col_12">
+                <h4 style="margin-left: 10px; margin-top: 0; font-weight: 300;">a few of my favorite things</h4>
+                <p style="margin-left: 10px; font-weight: 300; font-size: 10pt;">
+                    @Model.Favorites
+                </p>
+            </div>
+            <div class="col_12">
+                <div style="margin-left: 10px;">
+                    <h4 style="margin-top: 0; font-weight: 300;">stats</h4>
+                    <div class="col_6" style="font-size: 8pt;">
+                        @RenderStat("shirt", Model.Stats_Shirt, Model.Privacy_Shirt, currentUser)
+                        @if (Model.Gender == 'm')
+                        {
+                            @RenderStat("sport coat", Model.Stats_SportCoat, Model.Privacy_SportCoat, currentUser)
+                            @RenderStat("waist", Model.Stats_Waist, Model.Privacy_Pant, currentUser)
+                            @RenderStat("suit", Model.Stats_SuitChest + " " + Model.Stats_SuitLength, Model.Privacy_Suit, currentUser)
+                            @RenderStat("hat", Model.Stats_Hat, Model.Privacy_Hat, currentUser)
+                        }
+                        @if (Model.Gender == 'f')
+                        {
+                            @RenderStat("top", Model.Stats_Top, Model.Privacy_Top, currentUser)
+                            @RenderStat("skirt", Model.Stats_Skirt, Model.Privacy_Skirt, currentUser)
+                            @RenderStat("band", Model.Stats_BraBand, Model.Privacy_Bra, currentUser)
+                        }
+                        @RenderStat("ring", Model.Stats_Ring, Model.Privacy_Ring, currentUser)
+                    </div>
+                    <div class="col_6" style="font-size: 8pt;">
+                        @RenderStat("shoes", Model.Stats_Shoe, Model.Privacy_Shoe, currentUser)
+                        @RenderStat("outerwear", Model.Stats_Outerwear, Model.Privacy_Outerwear, currentUser)
+                        @if (Model.Gender == 'm')
+                        {
+                            @RenderStat("inseam", Model.Stats_Inseam, Model.Privacy_Pant, currentUser)
+                            @RenderStat("collar", Model.Stats_Collar, Model.Privacy_Suit, currentUser)
+                            @RenderStat("belt", Model.Stats_Belt, Model.Privacy_Belt, currentUser)
+                        }
+                        @if (Model.Gender == 'f')
+                        {
+                            @RenderStat("pants", Model.Stats_Waist, Model.Privacy_Pant, currentUser)
+                            @RenderStat("cup", Model.Stats_BraCup, Model.Privacy_Bra, currentUser)
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col_12">
+                <h4 style="margin-left: 10px; margin-top: 0; font-weight: 300;"><a href="/user/stores">stores and brands I like</a></h4>
+                <div class="col_12 left" style="width: 100%; margin: 0; padding: 0;">
+                    @foreach (Milkshake.Store s in Model.GetFavoriteStores())
+                    {
+
+                        <a href="/s/@s.Id">
+                            <div class="col_2" style="float: none; display: inline-block; background-repeat: no-repeat; background-size:contain; background-position: center; background-image: url('//assets.wishlu.com/images/stores/@s.Logo'); background-color: white; width: 50px; height: 50px;">
+
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col_4">
+        @RenderAddress(Model.Privacy_Address, currentUser)
+
+        @if (friends.Count > 1)
+        {
+            <div class="col_12 wishLuList pop" style="position:relative; color: #a8a096; background-color: white; border-color: gray;">
+                <div class="col_12">
+                    <a href="/user/friends/@Model.Id">
+                        <h4 style="margin-left: 10px; margin-top: 0; font-weight: 300;">
+                            friends (@friends.Count)<span style="color:blue;font-size:10pt;margin-left:5px;">(see all)</span>
+                        </h4>
+                    </a>
+                    @foreach (Squid.Users.User friend in friends.Where(x => x.Id != UserId).Take(6))
+                    {
+                        try
+                        {
+                            <a href="/u/@friend.Id">
+                                <div class="col_2 circle pop tooltip-top" title="@friend.FullName" style="float: none; display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.ImageUrl : "//assets.wishlu.com/images/GenericFriend.png")'); background-color: white; width: 100px; height: 100px;">
+                                    <div class="col_12" style="margin: 0; margin-top: 10px; opacity: 0.9;">
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                        catch { }
+                    }
+                    <a href="/user/friends/@Model.Id" class="button pop full center" style="padding: 5px;">see all</a>
+                </div>
+            </div>
+        }
+
+        @if ((Request.IsAuthenticated && UserId == Model.Id))
+        {
+            <div class="col_12 wishLuList pop center" style="position:relative; color: #a8a096; background-color: white; border-color: gray;">
+                <div class="col_12">
+                    <a href="/wishloop">
+                        <h4 style="margin-left: 10px; margin-top: 0; font-weight: 300;">
+                            wishloops<span style="color:blue;font-size:10pt;margin-left:5px;">(see all)</span>
+                        </h4>
+                    </a>
+                </div>
+            </div>
+        }
+        
+        @if (wishloops.Count > 0)
+        {
+            <div class="col_12 wishLuList pop" style="position:relative; color: #a8a096; background-color: white; border-color: gray;">
+                <div class="col_12" id="wishloop_list">
+                    <div class="col_6 nomargin">
+                        <h4 style="margin-left: 10px; margin-top: 0; font-weight: 300;" id="wishloop_title" data-count="@wishloops.Count">wishloops (@wishloops.Count)</h4>
+                    </div>
+                    <div class="col_6 nomargin right">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                add to wishloop <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                @foreach (Squid.Wishes.Wishloop wishloop in all_wishloops)
+                                {
+                                    if (wishloop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
+                                    {
+                                        <li class="wishloop_add @(wishloops.Count(x => x.Id == wishloop.Id) == 0 ? "" : "hide")" data-id="@wishloop.Id"><a href="#">@wishloop.Name.ToLower()</a></li>
+                                    }
+                                }
+                                @*<li class="divider"></li>
+                                    <li><a class="wishloop_remove_all" href="#">remove from all</a></li>*@
+                            </ul>
+                        </div>
+                    </div>
+                    @foreach (Squid.Wishes.Wishloop wishloop in wishloops)
+                    {
+                        <div class="col_12 wishloop_member nomargin" data-id="@wishloop.Id">
+                            <div class="col_10">
+                                <a href="/o/@wishloop.Id">@wishloop.Name</a>
+                            </div>
+                            @if (wishloop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
+                            {
+                                <div class="col_2 right">
+                                    <a class="button pop wishloop_remove" data-id="@wishloop.Id" style="padding:5px;"><i class="fa fa-times"></i></a>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Wishlus -->
+<div class="col_12 nomargin full">
+    <div class="col_12 wishLuList pop" style="color: #a8a096; background-color: white; border-color: gray;">
+        <h4 style="margin-left: 10px; font-weight: 300;"><a href="/wishlu/indexother/@Model.Id">wishlus<span style="color:blue;font-size:10pt;margin-left:5px;">(view all)</span></a></h4>
+        <div id="wishlus_container" class="center">
+            <i class="fa fa-spin fa-spinner fa-5x" style="margin-top: 20px; color:gray;"></i>
+        </div>
+    </div>
+</div>

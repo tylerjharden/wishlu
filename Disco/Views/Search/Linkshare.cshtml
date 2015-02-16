@@ -1,0 +1,19 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section title {
+    Rakuten Linkshare Search Test Page
+}
+<style media="screen" type="text/css">
+    form {
+        margin-left: 200px;
+    }
+</style>
+<form action="LinkshareSearch" method="post">
+    <div>
+        <label>Search (Gander Mountain)</label>
+        <input type="text" id="txtSearch" name="txtSearch" />
+        <input type="submit" value="Search" />
+    </div>
+</form>

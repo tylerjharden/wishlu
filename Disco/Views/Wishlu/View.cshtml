@@ -1,0 +1,790 @@
+﻿@model List<Squid.Wishes.Wish>
+@using Disco.Common
+@using System.Text.RegularExpressions
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+    
+    string wishLucolorLocal = "FFFFFF";
+
+    wishLucolorLocal = ViewBag.WishLu.DisplayColor.ToString("X6");
+
+    List<Squid.Wishes.Wishlu> wishlus = Squid.Wishes.Wishlu.GetUsersWishLus(UserId);
+}
+
+@section page {
+    @ViewBag.WishLu.Name wishlu - wishlu
+}
+
+@section title {
+    @Html.ActionLink("my wishlus", "index", "wishlu", null, new { @style = "text-decoration: none;" }) &nbsp;
+    <span class="fa fa-angle-right"></span>&nbsp;
+    <span id="title_name" style="color: #@(wishLucolorLocal)">@ViewBag.WishLu.Name</span>
+    @{
+        if (ViewBag.EventDate != "")
+        {
+            <span style="color: #DED9D3;">
+                |
+            </span>
+            <span id="title_date" style="color: #@(wishLucolorLocal); font-size: 0.9em;">
+                @ViewBag.EventDate
+            </span>
+        }
+    }
+    <span style="color: #DED9D3;">
+        |
+    </span>
+    <span id="title_count" style="color: #@(wishLucolorLocal); font-size: 0.9em;">
+        @ViewBag.WishCount
+    </span>
+}
+
+@section styles {
+    <link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/rateit.css" />
+
+    <style>
+        .splotch {
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+        }
+
+            .splotch.selected {
+                border: 2px solid gray;
+            }
+
+        button.disabled {
+            background: gray;
+            text-shadow: none;
+        }
+
+            button.disabled:hover {
+                background: gray;
+                text-shadow: none;
+            }
+
+            button.disabled:active {
+                background: gray;
+                text-shadow: none;
+            }
+    </style>
+}
+
+@section scripts {
+    <script type="text/javascript" src="//assets.wishlu.com/js/jquery.rateit.js"></script>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $("#wishlu_save").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/wishlu/name",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(getWishluName()),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            $("#title_name").text(data.name);
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            function getWishluName() {
+                var data = {}
+                data.Name = $("#wishlu_name").val();
+                data.Id = "@ViewBag.WishLu.Id";
+                return data;
+            }
+
+            $(".splotch").click(function () {
+                var cur = $(this);
+                var sel = $(".splotch.selected");
+
+                sel.removeClass("selected");
+                cur.addClass("selected");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/wishlu/color",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(getWishluColor()),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            $("#title_name").css("color", "#" + cur.data("color"));
+                            $("#title_count").css("color", "#" + cur.data("color"));
+                            $("#title_date").css("color", "#" + cur.data("color"));
+                        }
+                        else {
+                            cur.removeClass("selected");
+                            sel.addClass("selected");
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            function getWishluColor() {
+                var data = {}
+                data.Color = $(".splotch.selected").data("color");
+                data.Id = "@ViewBag.WishLu.Id";
+                return data;
+            }
+
+            $("#wishlu_date_save").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/wishlu/event",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(getWishluEvent()),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            function getWishluEvent() {
+                var data = {}
+                data.EventDate = $("#wishlu_date").val();
+                data.Id = "@ViewBag.WishLu.Id";
+                return data;
+            }
+
+            $("#wishlu_public").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/wishlu/visibility",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Visibility: "Public", Id: "@ViewBag.WishLu.Id" }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            $("#wishloops_panel").slideUp();
+                            $("#wishlu_shared").removeClass("disabled");
+                            $("#wishlu_private").removeClass("disabled");
+                            $("#wishlu_public").addClass("disabled");
+                            $(".loop:checked").prop("checked", false);
+                        }
+                        else {
+
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            $("#wishlu_shared").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/wishlu/visibility",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Visibility: "Friends", Id: "@ViewBag.WishLu.Id" }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            $("#wishloops_panel").slideDown();
+                            $("#wishlu_public").removeClass("disabled");
+                            $("#wishlu_private").removeClass("disabled");
+                            $("#wishlu_shared").addClass("disabled");
+                            $("#wishlu_assign").click();
+                        }
+                        else {
+
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            $("#wishlu_private").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/wishlu/visibility",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Visibility: "Private", Id: "@ViewBag.WishLu.Id" }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            $("#wishloops_panel").slideUp();
+                            $("#wishlu_public").removeClass("disabled");
+                            $("#wishlu_shared").removeClass("disabled");
+                            $("#wishlu_private").addClass("disabled");
+                            $(".loop:checked").prop("checked", false);
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            $("#wishlu_assign").click(function () {
+                $("#wishlu_friends_container").slideUp();
+                $("#wishlu_assign_container").slideDown();
+                $(this).addClass("disabled");
+                $("#wishlu_friends").removeClass("disabled");
+            });
+
+            $("#wishlu_assign_do").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/wishlu/assign",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(getAssignWishloops()),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            $(".friend:checked").prop("checked", false);
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            function getAssignWishloops() {
+                var data = {}
+                data.Wishloops = $.map($(".loop:checked"), function (element) { return $(element).val(); });
+                data.Id = "@ViewBag.WishLu.Id";
+                return data;
+            }
+
+            $("#wishlu_friends").click(function () {
+                $("#wishlu_friends_container").slideDown();
+                $("#wishlu_assign_container").slideUp();
+                $(this).addClass("disabled");
+                $("#wishlu_assign").removeClass("disabled");
+            });
+
+            $("#wishlu_friends_do").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/wishlu/friends",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(getAssignFriends()),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            $(".loop:checked").prop("checked", false);
+                            swal("Success!", data.message, "success");
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            });
+
+            function getAssignFriends() {
+                var data = {}
+                data.Friends = $.map($(".friend:checked"), function (element) { return $(element).val(); });
+                data.Id = "@ViewBag.WishLu.Id";
+                return data;
+            }
+
+            $("#wish_move").click(function () {
+                var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+                if (somethingChecked) {
+                    $("#wish_move_container").slideToggle();
+                    $("#wish_copy_container").slideUp();
+                }
+                else {
+                    swal("Oops...", "Please select one or more items to move them to a wishlu.", "warning");
+                }
+            });
+
+            $("#wish_move_do").click(function () {
+                var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+                if (somethingChecked) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/item/assign",
+                        dataType: 'json',
+                        contentType: 'application/json; charset=utf-8',
+                        traditional: true,
+                        data: JSON.stringify(getMoveWishes()),
+                        success: function (data, status, request) {
+                            if (data.result == true) {
+                                swal("Success!", data.message, "success");
+                                $(".wish.selected").remove();
+                                $("#wish_move_container").slideUp();
+                                $("#wish_copy_container").slideUp();
+                            }
+                            else {
+                                swal("Uh oh...", data.message, "error");
+                            }
+                        },
+                        error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                    });
+                }
+                else {
+                    swal("Oops...", "Please select one or more items to move them to a wishlu.", "warning");
+                }
+            });
+
+
+            function getMoveWishes() {
+                var data = {}
+                data.Wishes = $.map($(".wish.selected"), function (element) { return $(element).data("id"); });
+                data.Wishlu = $("#wish_move_wishlus").val();
+                return data;
+            }
+
+            $("#wish_copy").click(function () {
+                var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+                if (somethingChecked) {
+                    $("#wish_copy_container").slideToggle();
+                    $("#wish_move_container").slideUp();
+                }
+                else {
+                    swal("Oops...", "Please select one or more items to copy.", "warning");
+                }
+            });
+
+            $("#wish_copy_do").click(function () {
+                var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+                if (somethingChecked) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/item/copy",
+                        dataType: 'json',
+                        contentType: 'application/json; charset=utf-8',
+                        traditional: true,
+                        data: JSON.stringify(getCopyWishes()),
+                        success: function (data, status, request) {
+                            if (data.result == true) {
+                                swal("Success!", data.message, "success");
+                                $("#wish_copy_container").slideUp();
+                            }
+                            else {
+                                swal("Uh oh...", data.message, "error");
+                            }
+                        },
+                        error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                    });
+                }
+                else {
+                    swal("Oops...", "Please select one or more items to copy them to a wishlu.", "warning");
+                }
+            });
+
+            function getCopyWishes() {
+                var data = {}
+                data.Wishes = $.map($(".wish.selected"), function (element) { return $(element).data("id"); });
+                data.Wishlu = $("#wish_copy_wishlus").val();
+                return data;
+            }
+
+            $("#wish_delete").click(function () {
+                var somethingChecked = $(".roundCheckbox:checked").length > 0;
+
+                if (somethingChecked) {
+                    swal({
+                        title: "Are you sure?",
+                        text: "The selected wish(es) will be permanently deleted!",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes",
+                        cancelButtonText: "No, keep my wish(es).",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $("#wish_copy_container").slideUp();
+                            $("#wish_move_container").slideUp();
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/item/delete",
+                                dataType: 'json',
+                                contentType: 'application/json; charset=utf-8',
+                                traditional: true,
+                                data: JSON.stringify(getDeleteWishes()),
+                                success: function (data, status, request) {
+                                    if (data.result == true) {
+                                        swal("Success!", data.message, "success");
+                                        $(".wish.selected").remove();
+                                        $("#wish_assign_container").slideUp();
+                                        $("#wish_copy_container").slideUp();
+                                    }
+                                    else {
+                                        swal("Uh oh...", data.message, "error");
+                                    }
+                                },
+                                error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                            });
+                        }
+                        else {
+                            swal("Cancelled", "Your wish(es) are safe and sound.");
+                        }
+                    });
+                }
+                else {
+                    swal("Oops...", "Please select one or more items to delete.", "warning");
+                }
+            });
+
+            function getDeleteWishes() {
+                var data = {}
+                data.Wishes = $.map($(".wish.selected"), function (element) { return $(element).data("id"); });
+                return data;
+            }
+
+            $('option:selected', '#sort').removeAttr('selected');
+            $('#sort').find('option[value="' + @ViewBag.WishLu.Sort + '"]').attr("selected", true);
+            $("#sort").change(function () {
+                var url = $(this).val();
+                window.location = "/wishlu/view/@ViewBag.WishLu.Id?sort=" + url;
+            });
+
+            $(".splotch[data-color='@wishLucolorLocal']").addClass("selected");
+
+            // date picker
+            $("#wishlu_date").datepicker({ minDate: 0, maxDate: 365, altFormat: "mm/dd/yyyy" });
+        });
+    </script>
+
+    <script type="text/javascript">
+        function clickAll() {
+            $('.checkboxicon').removeClass('fa-circle-o').addClass('fa-circle');
+            $('.roundCheckbox').prop('checked', true);
+            $(".wish").addClass("selected");
+        }
+
+        function clickNone() {
+            $('.checkboxicon').removeClass('fa-circle').addClass('fa-circle-o');
+            $('.roundCheckbox').prop('checked', false);
+            $(".wish").removeClass("selected");
+
+            $("#wish_assign_container").slideUp();
+        }
+    </script>
+}
+
+@section info {
+<div class="col_12" style="text-align: left; height: 300px;">
+    <span>
+        Manage your wishlu from here. You can
+    </span>
+    <br />
+    <ul>
+        <li>Edit its name, color, and date.</li>
+        <li>Change its visibility—whether you want everyone to see it (public), selected wishloops or individual friends to see it (shared), or only you to see it (private).</li>
+        <li>Sort items in your wishlu alphabetically, by price, by rating, or by the date on which they were added.</li>
+        <li>Move and delete items in your wishlu.</li>
+        <li>Click <b>add a new item</b> to search for new gifts to add your wishlu.</li>
+        <li>Click on individual tiles to see and edit all of your gift item details.</li>
+    </ul>
+</div>
+}
+
+<div class="col_10 clearfix nomargin nopadding">
+    @{
+        int wishLuCounter = 0;
+        string wishName = "";
+    }
+    @foreach (Squid.Wishes.Wish wish in Model)
+    {
+        wishName = wish.Name.Trim();
+        wishName = HttpUtility.HtmlDecode(wishName);
+
+        wishName = wishName.Replace("&#60;", "<");
+        wishName = wishName.Replace("&#62;", ">");
+
+        wishName = Regex.Replace(wishName, @"<[^>]+>|&nbsp;", "").Trim();
+        wishName = Regex.Replace(wishName, @"\s{2,}", " ");
+
+        wishName = wishName.Replace("&nbsp;", " ");
+        wishName = wishName.Replace("&#160;", " ");
+        wishName = wishName.Replace("&#39;", "'");
+        wishName = wishName.Replace("&#34;", "\"");
+        wishName = wishName.Replace("&#47;", "/");
+
+        if (wishLuCounter == 1)
+        {
+            <div class="col_4 pop wish" style="position: relative; padding: 10px; height: 300px; background: white; border: 2px solid gray; border-radius: 15px;">
+                <div class="stylishcircle center" style="margin-left: 10px; width:275px;height:275px; ">
+                    <div class="col_12 lowercase" style="position: absolute; top: 40%;left:0; font-size: 24pt;">
+                        <a href="/item/hunt/?state=search&wishlu=@(ViewBag.WishLu.Id)">
+                            add a new item
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="col_4 pop wish" data-id="@wish.Id" style="position: relative; padding: 10px; height: 300px; border: 2px solid lightgray; border-radius: 15px; background: white;" onclick="doCheck($('#visible@(wish.Id.ToString())'));">
+            @if (wish.WishStatus == Squid.Wishes.WishStatus.Revealed)
+            {
+                <div class="rectangle" style="height:50px;">
+                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height:50px; text-transform: lowercase; ">gifted</span>
+                </div>
+            }
+            else if (wish.WishStatus == Squid.Wishes.WishStatus.Confirmed)
+            {
+                <div class="rectangle" style="height: 50px;">
+                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+                </div>
+            }
+            <span id="visible@(wish.Id)" class="sitelink" style="position:absolute;top:10px;right:10px;">
+                <i class="checkboxicon fa-circle-o fa" style="color: #C6BDB3"></i>
+                @Html.CheckBox("CB", false, new { @value = wish.Id.ToString(), @style = "display: none;", @class = "roundCheckbox", @id = "CB" + wish.Id.ToString() })
+            </span>
+            <div class="col_12 nomargin" style="font-size: 12pt;">
+                <span class="sitelink tooltip-top" data-delay="0" title="@wish.Name" style="color: #998B7D; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; width: 95%; display: block;">
+                    @wish.Name@*.TruncateAtWord(25)*@
+                </span>
+            </div>
+            <a href="@("/i/" + wish.Id.ToString())">
+                <div class="col_12 sitelink" style="text-align: center;">
+                    <div style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@(wish.ImageUrl)'); width: 175px; height: 175px; text-align: center;">&nbsp;</div>
+                </div>
+            </a>
+            <div class="col_12 right">
+                <span style="position: absolute; bottom: 15px; left: 15px; color: #998B7D; font-size: 12pt;">
+                    @String.Format("{0:C}", wish.Price)
+                </span>
+                <div class="rateit" data-rateit-readonly="true" data-rateit-value="@wish.Rating" style="position: absolute; bottom: 15px; right: 15px;">
+                </div>
+            </div>
+        </div>
+            wishLuCounter++;
+    }
+    @if (wishLuCounter < 2)
+    {
+        <div class="col_4 pop wish" style="position: relative; height: 300px; padding: 15px; background: white; border: 2px solid gray; border-radius: 15px;">
+            <div class="stylishcircle center" style="margin-left: 10px; width:275px;height:275px; ">
+                <div class="col_12 lowercase" style="position: absolute; top: 40%;left:0; font-size: 24pt;">
+                    <a href="/item/hunt/?state=search&wishlu=@(ViewBag.WishLu.Id)">
+                        add a new item
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="col_2 clearfix omega" style="float:right;position: relative;">
+    <!-- Edit -->
+    <div class="col_12 nomargin" style="color:#9a8b7d;"><b>edit:</b></div>
+    @if (ViewBag.WishLu.WishLuType != Squid.Wishes.WishluType.JustMe)
+    {
+        <!-- Wishlu Name -->
+        <div class="col_12">
+            <input id="wishlu_name" class="input-like lowercase" style="width:80%;" value="@ViewBag.WishLu.Name" />
+            <a id="wishlu_save" class="button pop right" style="padding:8px;"><i class="fa fa-save"></i></a>
+        </div>
+    }
+    <!-- Wishlu Color -->
+    <div class="col_12 center">
+        <div class="sitelink splotch" style="display:inline-block; background-color: #95D5E1;" data-color="95D5E1"></div>
+        <div class="sitelink splotch" style="display:inline-block; background-color: #D0D543;" data-color="D0D543"></div>
+        <div class="sitelink splotch" style="display:inline-block; background-color: #DD838F;" data-color="DD838F"></div>
+        <div class="sitelink splotch" style="display:inline-block; background-color: #F2B244;" data-color="F2B244"></div>
+        <div class="sitelink splotch" style="display:inline-block; background-color: #DE3F15;" data-color="DE3F15"></div>
+        <div class="sitelink splotch" style="display:inline-block; background-color: #C5ACCA;" data-color="C5ACCA"></div>
+        <div class="sitelink splotch" style="display:inline-block; background-color: #FDF39C;" data-color="FDF39C"></div>
+        <div class="sitelink splotch" style="display:inline-block; background-color: #A49689;" data-color="A49689"></div>
+        <div class="sitelink splotch" style="display:inline-block; background-color: #B3CEE1;" data-color="B3CEE1"></div>
+        <div class="sitelink splotch" style="display:inline-block; background-color: #CBEBC4;" data-color="CBEBC4"></div>
+    </div>
+    @if (ViewBag.WishLu.WishLuType != Squid.Wishes.WishluType.JustMe)
+    {
+        <!-- Wishlu Date -->
+        <div class="col_12 nomargin" style="color:#9a8b7d;"><b>date:</b></div>
+        <div class="col_12">
+            @if (ViewBag.WishLu.EventDateTime != null)
+            {
+                <input class="input-like" style="width: 80%;" type="text" name="wishlu_date" id="wishlu_date" value="@(ViewBag.WishLu.EventDateTime.ToString("MM/dd/yyyy"))" />
+            }
+            else
+            {
+                <input class="input-like" style="width: 80%;" type="text" name="wishlu_date" id="wishlu_date" />
+            }
+            <a id="wishlu_date_save" class="button pop right" style="padding:8px;"><i class="fa fa-save"></i></a>
+        </div>
+    }
+
+    <hr class="alt1 mg-sm" />
+
+    @if (ViewBag.WishLu.WishLuType != Squid.Wishes.WishluType.JustMe)
+    {
+        <!-- Visibility -->
+        <div class="col_12 nomargin" style="color:#9a8b7d;"><b>visibility:</b></div>
+        <div class="col_12 center">
+            @switch (((Squid.Wishes.Wishlu)ViewBag.WishLu).Visibility)
+            {
+                default:
+                case Squid.Wishes.WishluVisibility.Friends:
+                    <button id="wishlu_public" class="button pop tooltip" title="This wishlu will be visible to all wishlu users, based on your privacy settings." data-delay="0" data-value="Public" style="padding:5px;font-size:10pt;">public</button>
+                    <button id="wishlu_shared" class="button pop disabled tooltip" title="This wishlu will be visible to members of its assigned wishloops or you can share it with individual friends." data-value="Friends" data-delay="0" style="padding:5px;font-size:10pt;">shared</button>
+                    <button id="wishlu_private" class="button pop tooltip" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:5px;font-size:10pt;">private</button>
+                    break;
+
+                case Squid.Wishes.WishluVisibility.Private:
+                <button id="wishlu_public" class="button pop tooltip" title="This wishlu will be visible to all wishlu users, based on your privacy settings." data-delay="0" data-value="Public" style="padding:5px;font-size:10pt;">public</button>
+                <button id="wishlu_shared" class="button pop tooltip" title="This wishlu will be visible to members of its assigned wishloops or you can share it with individual friends." data-value="Friends" data-delay="0" style="padding:5px;font-size:10pt;">shared</button>
+                <button id="wishlu_private" class="button pop tooltip disabled" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:5px;font-size:10pt;">private</button>
+                    break;
+
+                case Squid.Wishes.WishluVisibility.Public:
+                <button id="wishlu_public" class="button pop tooltip disabled" title="This wishlu will be visible to all wishlu users, based on your privacy settings." data-delay="0" data-value="Public" style="padding:5px;font-size:10pt;">public</button>
+                <button id="wishlu_shared" class="button pop tooltip" title="This wishlu will be visible to members of its assigned wishloops or you can share it with individual friends." data-value="Friends" data-delay="0" style="padding:5px;font-size:10pt;">shared</button>
+                <button id="wishlu_private" class="button pop tooltip" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:5px;font-size:10pt;">private</button>
+                    break;
+            }
+        </div>
+
+        <hr class="alt1 mg-sm" />
+    }
+
+    <!-- Wishloops -->
+    <div class="center" id="wishloops_panel" style="display: @(ViewBag.WishLu.Visibility == Squid.Wishes.WishluVisibility.Friends ? "block" : "none");">
+        <div class="col_12" style="margin-top:0; color:#9a8b7d;"><b>who can see this wishlu?</b></div>
+        <button class="button pop center" id="wishlu_assign" style="padding:5px;font-size:10pt;">wishloops</button>
+        <button class="button pop center" id="wishlu_friends" style="padding:5px;font-size:10pt;">friends</button>
+        <div class="col_12 center full" id="wishlu_assign_container" style="display:none;">
+            <div class="col_12 full nomargin nopadding" style="overflow-y:auto; min-height: 75px; max-height: 100px;">
+                @{List<Guid> wishloops = ViewBag.WishLu.GetWishloopIds();}
+                @foreach (Squid.Wishes.Wishloop wishloop in Squid.Wishes.Wishloop.GetUsersWishloops(UserId).OrderBy(x => x.Name))
+                {
+                    <div class="col_12 lowercase nomargin center" style="min-height: 25px; color: #9A8B7D;">
+                        <span style="float:left;font-size:10pt;">
+                            @wishloop.Name.TruncateAtWord(25)
+                        </span>
+                        <span style="float:right;">
+                            @if (wishloops.Contains(wishloop.Id))
+                            {
+                                <input class="loop" type="checkbox" name="@wishloop.Id" id="@wishloop.Id" value="@wishloop.Id" checked />
+                            }
+                            else
+                            {
+                                <input class="loop" type="checkbox" name="@wishloop.Id" id="@wishloop.Id" value="@wishloop.Id" />
+                            }
+                        </span>
+                    </div>
+                }
+            </div>
+            <a class="button pop center" id="wishlu_assign_do" style="padding: 5px;">assign</a>
+        </div>
+        <div class="col_12 center full" id="wishlu_friends_container" style="display:none;">
+            <div class="col_12 full nomargin nopadding" style="overflow-y:auto; min-height: 75px; max-height: 100px;">
+                @{Squid.Wishes.Wishloop private_loop = Squid.Wishes.Wishlu.GetPrivateWishloop(ViewBag.WishLu.Id);}
+                @foreach (Squid.Users.User user in Squid.Users.User.GetUsersFriends(UserId).OrderBy(x => x.FullName))
+                {
+                    <div class="col_12 lowercase nomargin center" style="min-height: 25px; color: #9A8B7D;">
+                        <span style="float:left;font-size:10pt;">
+                            @user.FullName
+                        </span>
+                        <span style="float:right;">
+                            @if (private_loop != null && private_loop.HasMember(user.Id))
+                            {
+                                <input class="friend" type="checkbox" name="@user.Id" id="@user.Id" value="@user.Id" checked />
+                            }
+                            else
+                            {
+                                <input class="friend" type="checkbox" name="@user.Id" id="@user.Id" value="@user.Id" />
+                            }
+                        </span>
+                    </div>
+                }
+            </div>
+            <div class="col_12 full nomargin nopadding">
+                <a class="button pop center" id="wishlu_friends_do" style="padding: 5px;">assign</a>
+            </div>
+        </div>
+        <hr class="alt1 mg-sm" />
+    </div>
+    <!-- Sort -->
+    <div class="col_12 nomargin" style="color:#9a8b7d;">
+        <b>sort:</b>
+    </div>
+    <div class="col_12">
+        <select id="sort" class="full input-like lowercase">
+            <option value="1">a - z</option>
+            <option value="2">z - a</option>
+            <option value="3">price: high to low</option>
+            <option value="4">price: low to high</option>
+            <option value="5">rating: highest first</option>
+            <option value="6">rating: lowest first</option>
+            <option selected value="7">date added: newest first</option>
+            <option value="8">date added: newest last</option>
+        </select>
+    </div>
+
+    <hr class="alt1 mg-sm" />
+    <!-- Select Items -->
+    <div class="col_6 headerfooterFont" style="color: #9a8b7d;"><b>select items:</b></div>
+    <div class="col_6 right">
+        <button class="button pop" style="padding:5px;font-size:10pt;" onclick="clickAll();">all</button>
+        <button class="button pop" style="padding:5px;font-size:10pt;" onclick="clickNone();">none</button>
+    </div>
+
+    <hr class="alt1 mg-sm" />
+    <!-- Actions -->
+    <div class="col_12 headerfooterFont" style="color: #9a8b7d;"><b>actions:</b></div>
+    <a class="button pop full center" id="wish_move">move items</a>
+    <div class="col_12 center" id="wish_move_container" style="display:none;">
+        <select class="full input-like lowercase" id="wish_move_wishlus">
+            @foreach (Squid.Wishes.Wishlu wishlu in wishlus)
+            {
+                if (wishlu.Id == ViewBag.WishLu.Id)
+                {
+                    continue;
+                }
+
+                <option value="@wishlu.Id">@wishlu.Name.TruncateAtWord(25)</option>
+            }
+        </select>
+        <a class="button pop center" id="wish_move_do" style="padding:5px;font-size:10pt;">move</a>
+    </div>
+
+    @*<a class="button pop full center" id="wish_copy">copy items</a>
+        <div class="col_12 center" id="wish_copy_container" style="display:none;">
+            <select class="full input-like lowercase" id="wish_copy_wishlus">
+                @foreach (Squid.Wishes.Wishlu wishlu in wishlus)
+                {
+                    if (wishlu.Id == ViewBag.WishLu.Id)
+                    {
+                        continue;
+                    }
+
+                    <option value="@wishlu.Id">@wishlu.Name</option>
+                }
+            </select>
+            <a class="button pop center" id="wish_copy_do" style="padding: 8px;">copy</a>
+        </div>*@
+
+    <a class="button pop full center" id="wish_delete">delete items</a>
+</div>

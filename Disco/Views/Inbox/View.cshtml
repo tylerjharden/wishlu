@@ -1,0 +1,28 @@
+﻿@using Disco.Common
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+}
+
+@section page {
+    wishlu - my inbox
+}
+
+@section title {
+    my inbox
+}
+
+<div class="linkStyle" style="padding-left: 0; padding-right: 0; position: relative; overflow: auto; height: 100%;">
+    <div class="col_12" style="position: relative; overflow: auto; height: 630px; padding: 0;">        
+        @try
+        { 
+            <p>From:</p><p>@Model.Sender.FullName</p>
+            <br />
+        }
+        catch { }
+        <p>Subject:</p><p>@Model.Subject</p>
+        <br />
+        <p>Body:</p><p>@Model.Body</p>
+        <br />
+        <p>Sent:</p><p>@Model.SendTime</p>
+    </div>
+</div>

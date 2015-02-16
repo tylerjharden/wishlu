@@ -1,0 +1,872 @@
+﻿@using Disco.Common
+@model TwoTap.API.Models.AddToCartStatusResponse
+@{
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";
+
+    var currentUser = Squid.Users.User.GetUserById(UserId);
+
+    List<Squid.Users.User> friends = Squid.Users.User.GetUsersFriends(UserId);
+
+    bool siteExists = false;
+    bool productExists = false;
+    bool failed = false;
+
+    TwoTap.API.Models.StatusResponseData.SitesData site = null;
+    TwoTap.API.Models.StatusResponseData.SitesData.ProductData product = null;
+
+    string site_id = "";
+    string product_id = "";
+
+    if (Model == null || !Model.IsSuccess || Model.Data.Message == "has_failures")
+    {
+        failed = true;
+    }
+
+    try
+    {
+        site = Model.Data.Sites.Values.FirstOrDefault();
+        product = site.AddToCart.Values.FirstOrDefault();
+
+        site_id = Model.Data.Sites.Keys.FirstOrDefault();
+        product_id = site.AddToCart.Keys.FirstOrDefault();
+    }
+    catch
+    {
+        failed = true;
+    }
+
+    string friendly_site = "";
+
+    try
+    {
+        if (Model.Data.UnknownUrls != null && Model.Data.UnknownUrls.Count == 1) // The URL was unknown to TwoTap
+        {
+            friendly_site = Model.Data.UnknownUrls.FirstOrDefault();
+        }
+        else if (site != null) // we have a site
+        {
+            if (site.Info != null) // we have site info (it is a TwoTap supported store)
+            {
+                friendly_site = site.Info.Url; // default to the store's URL
+            }
+
+            if (site.AddToCart != null) // we have a cart
+            {
+                if (!string.IsNullOrEmpty(site.AddToCart.Values.FirstOrDefault().Url))
+                {
+                    friendly_site = site.AddToCart.Values.FirstOrDefault().Url; // try the TwoTap URL
+                }
+                if (!string.IsNullOrEmpty(site.AddToCart.Values.FirstOrDefault().OriginalUrl))
+                {
+                    friendly_site = site.AddToCart.Values.FirstOrDefault().OriginalUrl; // since this is for failing, try our original URL (so we get affiliate impressions)
+                }
+            }
+
+            if (site.FailedToAddToCart != null) // we have a product that failed (TwoTap does not support, or it is out of stock)
+            {
+                if (!string.IsNullOrEmpty(site.FailedToAddToCart.Values.FirstOrDefault().Url))
+                {
+                    friendly_site = site.FailedToAddToCart.Values.FirstOrDefault().Url; // try what would have been the TwoTap URL
+                }
+                if (!string.IsNullOrEmpty(site.FailedToAddToCart.Values.FirstOrDefault().OriginalUrl))
+                {
+                    friendly_site = site.FailedToAddToCart.Values.FirstOrDefault().OriginalUrl; // we're failing, so do this too
+                }
+            }
+        }
+    }
+    catch { }
+}
+
+@section page {
+    wishlu - cart
+}
+
+@section styles {
+    <link rel="stylesheet" href="http://assets.wishlu.com/css/twotap/animate.css" />
+    <link rel="stylesheet" href="http://assets.wishlu.com/css/twotap/twotap.css" />
+
+    <style>
+        .paymentInput.identified {
+            border-color: #2ecc71;
+        }
+
+            .paymentInput.identified:focus {
+                border-color: #2ecc71;
+                box-shadow: 0 0 .1875em #2ecc71;
+            }
+
+        .cc-num__wrap {
+            position: relative;
+        }
+
+        .card {
+            position: absolute;
+            display: block;
+            right: .375em;
+            top: 50%;
+            margin-top: -10px;
+            width: 28px;
+            height: 19px;
+            background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjEwMHB4IiBoZWlnaHQ9IjEwMHB4IiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTAwIDEwMCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxnPgoJPGc+CgkJPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0zLjExMSw3Ni4yOTZjMCwyLjg0NCwyLjMwNSw1LjE0OCw1LjE0Nyw1LjE0OGg4MS44OTEgICAgYzIuODQxLDAsNS4xNDctMi4zMDUsNS4xNDctNS4xNDh2LTMyLjg5SDMuMTExVjc2LjI5NnogTTY5LjY3OSw1NS42OTdoMTUuOTE0djE1LjkxNEg2OS42NzlWNTUuNjk3eiBNOTAuMTQ5LDE3LjUwM0g4LjI1OCAgICBjLTIuODQyLDAtNS4xNDcsMi4zMDUtNS4xNDcsNS4xNDd2Ny42OTNoOTIuMTg2VjIyLjY1Qzk1LjI5NywxOS44MDgsOTIuOTksMTcuNTAzLDkwLjE0OSwxNy41MDN6Ii8+Cgk8L2c+CjwvZz4KPC9zdmc+) no-repeat center center;
+            background-size: 100%;
+        }
+
+        .cardInfo__cc-exp,
+        .cardInfo__cc-cvc {
+            float: left;
+            max-width: 4.875em;
+        }
+
+        .cardInfo__cc-exp {
+            margin-right: .75em;
+        }
+
+        .cc-num.visa + .card {
+            background: url('//assets.wishlu.com/images/cc/visa.png') no-repeat center center;
+            background-size: contain;
+        }
+
+        .cc-num.amex + .card {
+            background: url('//assets.wishlu.com/images/cc/amex.png') no-repeat center center;
+            background-size: contain;
+        }
+
+        .cc-num.mastercard + .card {
+            background: url('//assets.wishlu.com/images/cc/mastercard.png') no-repeat center center;
+            background-size: contain;
+        }
+
+        /*.cc-num.diners + .card{
+          background:url('//assets.wishlu.com/images/cc/diners.png') no-repeat center center;
+        }*/
+
+        .cc-num.discover + .card {
+            background: url('//assets.wishlu.com/images/cc/discover.png') no-repeat center center;
+            background-size: contain;
+        }
+    </style>
+
+    <style>
+        .friend_address {
+            -webkit-transition: all 0.25s ease;
+            -moz-transition: all 0.25s ease;
+            -o-transition: all 0.25s ease;
+            transition: all 0.25s ease;
+        }
+
+            .friend_address:hover {
+                -webkit-transform: scale(1.2);
+                -moz-transform: scale(1.2);
+                -o-transform: scale(1.2);
+                -ms-transform: scale(1.2);
+                transform: scale(1.2);
+            }
+
+            .friend_address:hover {
+                -webkit-transform: scale(1.2);
+                -moz-transform: scale(1.2);
+                -o-transform: scale(1.2);
+                -ms-transform: scale(1.2);
+                transform: scale(1.2);
+            }
+    </style>
+}
+
+@section scripts {
+    <script src="//assets.wishlu.com/js/jquery.payment.js"></script>
+
+    @*<script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
+        <script>
+            var liveaddress = $.LiveAddress({
+                key: "2766617950832428578",
+                debug: true,
+                addresses: [{
+                    id: "shipping",
+                    street: '#ship_address',
+                    city: '#ship_city',
+                    state: '#ship_state',
+                    zipcode: '#ship_zip'
+                },
+                {
+                    id: "billing",
+                    street: "#billing_address",
+                    city: "#billing_city",
+                    state: "#billing_state",
+                    zipcode: "#billing_zip"
+                }]
+            });
+        </script>*@
+
+    <script type="text/javascript">
+        function pad(str, max) {
+            str = str.toString();
+            return str.length < max ? pad("0" + str, max) : str;
+        }
+
+        $(document).ready(function () {
+            $('input.cc-num').payment('formatCardNumber');
+            $('input.cc-cvc').payment('formatCardCVC');
+            $('input.cc-exp').payment('formatCardExpiry');
+
+            var validateDetails = function () {
+                // set variables for the expiry date validation, cvc validation and expiry date 'splitter'
+                var validateNum = $.payment.validateCardNumber($('.cc-num').val());
+                var cardType = $.payment.cardType($('.cc-num').val());
+                $("#tt-card_type").val(cardType);
+                var expiry = $('.cc-exp').payment('cardExpiryVal');
+                var validateExpiry = $.payment.validateCardExpiry(expiry["month"], expiry["year"]);
+                var validateCVC = $.payment.validateCardCVC($('.cc-cvc').val());
+                // if statement on whether the card’s expiry is valid or not
+                if (validateExpiry) {
+                    // if the expiry is valid add the identified class
+                    $('.cc-exp').addClass('identified');
+
+                    // copy valid expiry to TwoTap (month must be padded to two digits e.g. "04" or "11"
+                    expiry["month"] = pad(expiry["month"], 2);
+                    $("#tt-expiry_date_month").val(expiry["month"]);
+                    $("#tt-expiry_date_year").val(expiry["year"]);
+                } else {
+                    // remove again if the expiry becomes invalid
+                    $('.cc-exp').removeClass('identified');
+
+                    // remove invalid expiry from TwoTap
+                    $("#tt-expiry_date_month").val('');
+                    $("#tt-expiry_date_year").val('');
+                }
+                // if statement on whether the card’s cvc is valid or not
+                if (validateCVC) {
+                    // if the cvc is valid add the identified class
+                    $('.cc-cvc').addClass('identified');
+                } else {
+                    // remove again if the cvc becomes invalid
+                    $('.cc-cvc').removeClass('identified');
+                }
+            }
+            // this runs the above function every time stuff is entered into the card inputs
+            $('.paymentInput').bind('change paste keyup', function () {
+                validateDetails();
+            });
+
+        });
+    </script>
+
+    @if (Model.Data.Message == "still_processing")
+    {
+        <script type="text/javascript">
+            $(document).ready(function () {
+                setTimeout(function () { location.reload(); }, 5000);
+            });
+        </script>
+    }
+
+@if (!failed)
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // user indicated they are purchasing to ship to theirself
+            $("#receive_myself").click(function () {
+                $("#cart_first").removeClass("rollIn").addClass("slideOutLeft").on('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+                    $("#cart_first").hide();
+
+                    // load user's address
+                    $("#shipping_first_name").val("@currentUser.FirstName");
+                    $("#shipping_last_name").val("@currentUser.LastName");
+                    $("#shipping_address").val("@currentUser.ShipAddress1");
+                    $("#shipping_city").val("@currentUser.ShipCity");
+                    $("#shipping_state").val("@currentUser.ShipStateOrProvince");
+                    $("#shipping_zip").val("@currentUser.ShipZipOrPostalCode");
+
+                    updateCartHeader("shipping information");
+                    $("#cart_shipping").show().addClass("slideInRight");
+                });
+            });
+
+
+            // user indicated they are purchasing to ship to a friend on wishlu
+            $("#receive_wishlu").click(function () {
+                $("#cart_first").removeClass("rollIn").addClass("slideOutLeft").on('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+                    $("#cart_first").hide();
+
+                    updateCartHeader("select a recipient");
+                    $("#cart_friends").show().addClass("slideInRight");
+                });
+            });
+
+            // user indicated they are purchasing to ship to a person without a wishlu account (manually enter shipping address)
+            $("#receive_other").click(function () {
+                $("#cart_first").removeClass("rollIn").addClass("slideOutLeft").on('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+                    $("#cart_first").hide();
+
+                    // make shipping fields blank
+                    $("#shipping_first_name").val("");
+                    $("#shipping_last_name").val("");
+                    $("#shipping_address").val("");
+                    $("#shipping_city").val("");
+                    $("#shipping_state").val("");
+                    $("#shipping_zip").val("");
+
+                    $("#cart_shipping").show().addClass("slideInRight");
+                    updateCartHeader("shipping information");
+                });
+            });
+
+            // user has finished selecting the friend they wish to ship the item to
+            $(".friend_address").on("click", function () {
+                var user = $(this);
+
+                $("#cart_friends").removeClass("slideInRight").addClass("slideOutLeft").on('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+                    $("#cart_friends").hide();
+
+                    // populate shipping fields
+                    $("#shipping_first_name").val(user.data("firstname"));
+                    $("#shipping_last_name").val(user.data("lastname"));
+                    $("#shipping_address").val(user.data("address"));
+                    $("#shipping_city").val(user.data("city"));
+                    $("#shipping_state").val(user.data("state"));
+                    $("#shipping_zip").val(user.data("zip"));
+
+                    $("#cart_shipping").show().addClass("slideInRight");
+                    updateCartHeader("shipping information");
+                });
+            });
+
+            // continue to billing
+            $("#shipping_next").click(function () {
+                // validate shipping address
+                var flat_fields_input = {
+                    "shipping_first_name": $("#shipping_first_name").val(),
+                    "shipping_last_name": $("#shipping_last_name").val(),
+                    "shipping_address": $("#shipping_address").val(),
+                    "shipping_city": $("#shipping_city").val(),
+                    "shipping_state": $("#shipping_state").val(),
+                    "shipping_zip": $("#shipping_zip").val(),
+                    "shipping_telephone": $("#shipping_telephone").val()
+                };
+
+                // validate the shipping information
+                $.post("https://api.twotap.com/v1.0/fields_input_validate", { "flat_fields_input": flat_fields_input }, function (data, status, xhr) {
+                    if (data.message == "done") // address was valid
+                    {
+                        $.post("/purchase/validateshipping", { "FirstName": $("#shipping_first_name").val(), "LastName": $("#shipping_last_name").val(), "Address": $("#shipping_address").val(), "City": $("#shipping_city").val(), "State": $("#shipping_state").val(), "ZIP": $("#shipping_zip").val(), "Telephone": $("#shipping_telephone").val() }, function (data, status, xhr) {
+                            if (data.result == true) { // valid address
+                                $("#cart_shipping").removeClass("slideInRight").addClass("slideOutLeft").on('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+                                    $("#cart_shipping").hide();
+
+                                    // prepopulate with user's info
+
+                                    $("#cart_billing").show().addClass("slideInRight");
+                                    updateCartHeader("billing information");
+                                });
+                            }
+                            else {
+                                swal("Uh oh...", data.message, "error");
+                            }
+                        }, "json");
+                    }
+                    else {
+                        swal("Uh oh...", "Some of your shipping information was missing or invalid.", "error");
+                    }
+                }, "json");
+            });
+
+            // continue to checkout / estimates
+            $("#billing_next").click(function () {
+                // process purchase estimate
+                var fields_input = {
+                    "@site_id": {
+                        "addToCart": {
+                            "@site.AddToCart.Keys.FirstOrDefault()": {
+                                "quantity": 1,
+                                "size": $("#size").val(),
+                                "color": $("#color").val()
+                            }
+                        },
+                        "noauthCheckout": {
+                            "billing_country": "United States of America",
+                            "billing_address": $("#billing_address").val(),
+                            "billing_city": $("#billing_city").val(),
+                            "billing_first_name": $("#billing_first_name").val(),
+                            "billing_last_name": $("#billing_last_name").val(),
+                            "billing_state": $("#billing_state").val(),
+                            "billing_telephone": $("#billing_telephone").val(),
+                            "billing_zip": $("#billing_zip").val(),
+                            "card_name": $("#card_name").val(),
+                            "card_type": $("#tt-card_type").val().replace("visa", "Visa").replace("mastercard", "Mastercard").replace("amex", "American Express").replace("discover", "Discover"),
+                            "card_number": $("#cc-num").val(),
+                            "cvv": $("#cc-cvc").val(),
+                            "email": $("#tt-email").val(),
+                            "expiry_date_month": $("#tt-expiry_date_month").val(),
+                            "expiry_date_year": $("#tt-expiry_date_year").val(),
+                            "shipping_first_name": $("#shipping_first_name").val(),
+                            "shipping_last_name": $("#shipping_last_name").val(),
+                            "shipping_zip": $("#shipping_zip").val(),
+                            "shipping_city": $("#shipping_city").val(),
+                            "shipping_state": $("#shipping_state").val(),
+                            "shipping_address": $("#shipping_address").val(),
+                            "shipping_telephone": $("#shipping_telephone").val(),
+                            "shipping_country": "United States of America"
+                        }
+                    }
+                };
+
+                var vb = {
+                    "FirstName": $("#billing_first_name").val(),
+                    "LastName": $("#billing_last_name").val(),
+                    "Address": $("#billing_address").val(),
+                    "City": $("#billing_city").val(),
+                    "State": $("#billing_state").val(),
+                    "ZIP": $("#billing_zip").val(),
+                    "Telephone": $("#billing_telephone").val(),
+                    "CardName": $("#card_name").val(),
+                    "CardType": $("#tt-card_type").val().replace("visa", "Visa").replace("mastercard", "Mastercard").replace("amex", "American Express").replace("discover", "Discover"),
+                    "CardNumber": $("#cc-num").val(),
+                    "CVV": $("#cc-cvc").val(),
+                    "ExpiryMonth": $("#tt-expiry_date_month").val(),
+                    "ExpiryYear": $("#tt-expiry_date_year").val()
+                }
+
+                // validate the shipping information
+                $.post("https://api.twotap.com/v1.0/fields_input_validate", { "flat_fields_input": fields_input }, function (data, status, xhr) {
+                    if (data.message == "done") // address was valid
+                    {
+                        $.post("/purchase/validatebilling", vb, function (data, status, xhr) {
+                            if (data.result == true) { // valid address
+                                $("#cart_billing").removeClass("slideInRight").addClass("slideOutLeft").on('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+                                    $("#cart_billing").hide();
+                                    $("#cart_checkout").show().addClass("slideInRight");
+                                    updateCartHeader("checkout");
+
+                                    // call server checkout
+                                    var cb = {
+                                        "ShippingFirstName": $("#shipping_first_name").val(),
+                                        "ShippingLastName": $("#shipping_last_name").val(),
+                                        "ShippingZIP": $("#shipping_zip").val(),
+                                        "ShippingCity": $("#shipping_city").val(),
+                                        "ShippingState": $("#shipping_state").val(),
+                                        "ShippingAddress": $("#shipping_address").val(),
+                                        "ShippingTelephone": $("#shipping_telephone").val(),
+                                        "BillingFirstName": $("#billing_first_name").val(),
+                                        "BillingLastName": $("#billing_last_name").val(),
+                                        "BillingAddress": $("#billing_address").val(),
+                                        "BillingCity": $("#billing_city").val(),
+                                        "BillingState": $("#billing_state").val(),
+                                        "BillingZIP": $("#billing_zip").val(),
+                                        "BillingTelephone": $("#billing_telephone").val(),
+                                        "CardName": $("#card_name").val(),
+                                        "CardType": $("#tt-card_type").val().replace("visa", "Visa").replace("mastercard", "Mastercard").replace("amex", "American Express").replace("discover", "Discover"),
+                                        "CardNumber": $("#cc-num").val().replace(" ", ""),
+                                        "CVV": $("#cc-cvc").val(),
+                                        "ExpiryMonth": $("#tt-expiry_date_month").val(),
+                                        "ExpiryYear": $("#tt-expiry_date_year").val(),
+                                        "Email": $("#tt-email").val(),
+                                        "Quantity": 1,
+                                        "Size": $("#size").val(),
+                                        "Color": $("#color").val(),
+                                        "SiteId": "@site_id",
+                                        "ProductId": "@site.AddToCart.Keys.FirstOrDefault()",
+                                        "CartId": "@Model.Data.CartId",
+                                        "ProductUrl": "@product.Url",
+                                        "Title": "@product.Title",
+                                        "Image": "@product.Image",
+                                        "Price": "@product.Price"
+                                    }
+
+                                    $.post("/purchase/checkout", cb, function (data, status, xhr) {
+                                        $("#cart_checkout_container").html(data);
+                                        //swal("info", JSON.stringify(data));
+                                    });
+                                });
+                            }
+                            else {
+                                swal("Uh oh...", data.message, "error");
+                            }
+                        }, "json");
+                    }
+                    else {
+                        swal("Uh oh...", "Some of your billing / payment information was missing or invalid.", "error");
+                    }
+                }, "json");
+
+
+                // initiate a purchase
+                //$.post("https://api.twotap.com/v1.0/purchase_info?public_token=147b1eed7550448a6d435c98975322", { "cart_id": $("#tt-cart_id").val(), "fields_input": fields_input }, function (data, status, xhr) {
+                //    swal("info", JSON.stringify(data));
+                //}, "json");
+            });
+        });
+
+        function updateCartHeader(text) {
+            $("#cart_header_text").text(text);
+        }
+    </script>
+}
+}
+
+@if (!failed)
+{
+    <!-- TwoTap Hidden Fields -->
+    <input type="hidden" id="tt-cart_id" value="@Model.Data.CartId" />
+
+    <!-- TwoTap Shipping Fields -->
+    <input type="hidden" id="tt-shipping_zip" value="" />
+    <input type="hidden" id="tt-shipping_state" value="" />
+    <input type="hidden" id="tt-shipping_city" value="" />
+    <input type="hidden" id="tt-shipping_address" value="" />
+    <input type="hidden" id="tt-shipping_last_name" value="" />
+    <input type="hidden" id="tt-shipping_first_name" value="" />
+    <input type="hidden" id="tt-shipping_country" value="United States of America" />
+
+    <!-- TwoTap Billing Fields -->
+    <input type="hidden" id="tt-cvv" value="" />
+    <input type="hidden" id="tt-expiry_date_year" value="" />
+    <input type="hidden" id="tt-expiry_date_month" value="" />
+    <input type="hidden" id="tt-card_number" value="" />
+    <input type="hidden" id="tt-card_name" value="" />
+    <input type="hidden" id="tt-card_type" value="" />
+    <input type="hidden" id="tt-billing_telephone" value="" />
+    <input type="hidden" id="tt-billing_zip" value="" />
+    <input type="hidden" id="tt-billing_state" value="" />
+    <input type="hidden" id="tt-billing_city" value="" />
+    <input type="hidden" id="tt-billing_address" value="" />
+    <input type="hidden" id="tt-billing_last_name" value="" />
+    <input type="hidden" id="tt-billing_first_name" value="" />
+    <input type="hidden" id="tt-billing_country" value="United States of America" />
+
+    <input type="hidden" id="tt-site_id" value="@site.Info.Id" />
+}
+
+<!-- Cart Header-->
+<div class="full" id="cart_header" style="height:40px; background:#aec03b; color:white; text-align: center; padding-top:2px;">
+    <a id="cart_back" style="position:absolute; top:3px;left:0;color:white;display:none;">
+        <i class="fa fa-fw fa-long-arrow-left fa-2x"></i>
+    </a>
+    <h5 id="cart_header_text" class="animated nomargin">shopping cart</h5>
+    <a id="cart_close" style="position:absolute; top:3px;right:0;color:white;">
+        <i class="fa fa-fw fa-times fa-2x"></i>
+    </a>
+</div>
+
+@if (failed)
+{
+    <div class="animated" id="cart_failed">
+        <div class="col_12 container center" style="border: 2px solid salmon; border-radius: 15px; background:white; padding: 10px;">
+            <h5 class="center">We're sorry!</h5>
+            <h6 class="center"> This product is not available.</h6>
+            @{
+    Uri puri = new Uri(friendly_site);
+            }
+            <span>Check <a href="@puri.AbsoluteUri" target="_blank">@puri.Authority</a> for more information and to purchase.</span>
+        </div>
+    </div>
+}
+else if (Model.Data.Message == "still_processing")
+{
+    <div class="animated" id="cart_first">
+        <div class="col_12 container">
+            <div class='center' style='color:gray;'>
+                <h4>Checking product availability...</h4>
+                <i class='fa fa-fw fa-spin fa-spinner fa-5x'></i>
+            </div>
+        </div>
+    </div>
+}
+else if (Model.Data.Message == "done")
+{
+    <!-- Cart First Page-->
+    <div class="animated rollIn" id="cart_first">
+        <div class="col_12 container">
+            <div class="site_line col_12 center" style="border: 2px solid lightblue; border-radius: 15px; background:white; padding: 10px;">
+                <img src="@site.Info.Logo" />
+                <fieldset class="col_12">
+                    <legend>Items</legend>
+                    <div class="product_line col_12" style="text-align: left;">
+                        <div class="col_4">
+                            <img style="width: 100%;" src="@product.Image" />
+                        </div>
+                        <div class="col_8">
+                            <div class="col_12">
+                                <span style="font-size:10pt;">@product.Title</span>
+                            </div>
+                            @if (product.RequiredFieldNames.Contains("quantity")) // quantity can be user specified
+                            {
+                                <div class="col_5">
+                                    <span style="font-size:10pt;">Quantity:</span>
+                                </div>
+                                <div class="col_2">
+                                    <input class="input-like input-small full" type="text" placeholder="@product.RequiredFieldNames.FirstOrDefault()" value="1" />
+                                </div>
+                                <div class="col_5" style="text-align: right;">
+                                    <span><b>@product.Price</b></span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col_12" style="text-align: right;">
+                                    <span><b>@product.Price</b></span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </fieldset>
+
+                @if (product.RequiredFieldNames != null && product.RequiredFieldValues != null)
+                {
+                    if (product.RequiredFieldNames.Contains("color") && product.RequiredFieldValues.ContainsKey("color")) // color is a configurable attribute
+                    {
+                        <fieldset class="col_12">
+                            <legend>Color</legend>
+                            <select id="color" class="input-like full">
+                                @foreach (var color in product.RequiredFieldValues["color"])
+                                {
+                                    <option value="@color.Value">@color.Text</option>
+                                }
+                            </select>
+                        </fieldset>
+                    }
+
+                    if (product.RequiredFieldNames.Contains("size")) // size is a configurable attribute
+                    {
+                        <fieldset class="col_12">
+                            <legend>Size</legend>
+                            <select id="size" class="input-like full">
+                                @if (product.RequiredFieldNames.Contains("color") && product.RequiredFieldValues.ContainsKey("color")) // size is a subset dependency of color
+                                {
+                                    foreach (var size in product.RequiredFieldValues["color"].FirstOrDefault().Dep["size"])
+                                    {
+                                        <option value="@size.Value">@size.Text</option>
+                                    }
+                                }
+                                else // size is a root attribute
+                                {
+                                    foreach (var size in product.RequiredFieldValues["size"])
+                                    {
+                                        <option value="@size.Value">@size.Text</option>
+                                    }
+                                }
+                            </select>
+                        </fieldset>
+                    }
+                }
+
+                <!-- Email -->
+                <div class="col_12">
+                    <fieldset>
+                        <legend>Email</legend>
+                        <input id="tt-email" class="input-like input-small full" placeholder="email" value="@currentUser.LoginId" disabled="disabled" />
+                    </fieldset>
+                </div>
+
+                <div class="col_12" style="text-align: left;">
+                    <fieldset>
+                        <legend>I am purchasing for...</legend>
+                        <div class="center">
+                            <button class="button" id="receive_myself" href="#" style="padding:5px;">Myself</button>
+                            <button class="button" id="receive_wishlu" href="#" style="padding:5px;">Someone on wishlu</button>
+                            <button class="button" id="receive_other" href="#" style="padding:5px;">Someone else</button>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Select a Friend (Someone on wishlu) Page -->
+    <div class="animated" id="cart_friends" style="display:none;">
+        <div class="col_12 container center">
+            @foreach (var friend in friends.Where(x => !String.IsNullOrEmpty(x.ShipAddress1)).OrderBy(x => x.FullName))
+            {
+                try
+                {
+                    <a class="col_4 friend_address center" data-id="@friend.Id" data-email="@friend.LoginId" data-firstname="@friend.FirstName" data-lastname="@friend.LastName" data-address="@friend.ShipAddress1" data-city="@friend.ShipCity" data-state="@friend.ShipStateOrProvince" data-zip="@friend.ShipZipOrPostalCode" href="#" style="position:relative;">
+                        <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-position: center; background-image: url('@friend.ImageUrl'); width: 75px; height: 75px;">
+                        </div>
+                        <div class="col_12 nomargin" style="font-size: 8pt;">
+                            <b>@friend.FullName</b>
+                        </div>
+                    </a>
+                }
+                catch { }
+            }
+        </div>
+    </div>
+
+    <!-- Shipping Information Page -->
+    <div class="animated" id="cart_shipping" style="display:none;">
+        <div class="col_12 container">
+            <div class="col_12 cart_user_information" style="text-align: left;">
+                <!-- Shipping -->
+                <div class="col_12">
+                    <form id="shipping_form" accept-charset="UTF-8" class="shippingAddressInfo" autocomplete="on">
+                        <fieldset>
+                            <legend>Shipping Information</legend>
+                            <div class="col_6 form-row ">
+                                <label for="shipping_first_name"><abbr title="required">*</abbr><span>First Name</span></label>
+                                <input id="shipping_first_name" type="text" class="full" autocompletetype="shipping_first_name" required="required">
+                            </div>
+                            <div class="col_6 form-row ">
+                                <label for="shipping_last_name"><abbr title="required">*</abbr><span>Last Name</span></label>
+                                <input id="shipping_last_name" type="text" class="full" autocompletetype="shipping_last_name" required="required">
+                            </div>
+                            <div class="col_12 form-row ">
+                                <label for="shipping_address"><abbr title="required">*</abbr><span>Address</span></label>
+                                <input id="shipping_address" type="text" class="full" autocompletetype="shipping_address" required="required">
+                            </div>
+                            <div class="col_4 form-row ">
+                                <label for="shipping_city"><abbr title="required">*</abbr><span>City</span></label>
+                                <input id="shipping_city" type="text" class="full" autocompletetype="shipping_city" required="required">
+                            </div>
+                            <div class="col_4 form-row">
+                                <label for="shipping_state"><abbr title="required">*</abbr><span>State</span></label>
+                                <select id="shipping_state" class="input-like full" autocomplete="on" autocompletetype="shipping_state" required="required">
+                                    @foreach (var state in site.RequiredFields.NoauthCheckout["shipping_state"].Data[0].InputValues)
+                                    {
+                                        <option value="@state.Value">@state.Text</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col_4 form-row">
+                                <label for="shipping_zip"><abbr title="required">*</abbr><span>ZIP Code</span></label>
+                                <input id="shipping_zip" type="text" class="full" autocompletetype="shipping_zip" required="required">
+                            </div>
+                            <div class="col_12 form-row ">
+                                <label for="shipping_telephone"><abbr title="required">*</abbr><span>Telephone</span></label>
+                                <input id="shipping_telephone" type="text" class="full" autocompletetype="shipping_telephone" required="required">
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="col_12">
+                    <button id="shipping_next" class="button pop full">
+                        Continue to Billing Information
+                    </button>
+                </div>
+
+                @*foreach (var field in site.RequiredFields.NoauthCheckout)
+                    {
+                        <div class="col_6">
+                            @field.Key
+                        </div>
+                        <div class="col_6">
+                            @if (field.Value.Data[0].InputName == "INPUT")
+                            {
+                                <input class="input-like input-small full @field.Value.Data[0].FieldType" type="@field.Value.Data[0].InputType" />
+                            }
+                            else if (field.Value.Data[0].InputName == "SELECT")
+                            {
+                                <select class="input-like input-small full">
+                                    @foreach (var vals in field.Value.Data[0].InputValues)
+                                    {
+                                        <option value="@vals.Value">@vals.Text</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+                    }*@
+            </div>
+        </div>
+    </div>
+
+    <!-- Billing Information Page -->
+    <div class="animated" id="cart_billing" style="display:none;">
+        <div class="col_12 container">
+            <!-- Billing Address -->
+            <form id="billing_form" accept-charset="UTF-8" class="billingAddressInfo" autocomplete="on">
+                <fieldset>
+                    <legend>Billing Information</legend>
+                    <div class="col_6 form-row ">
+                        <label for="billing_first_name"><abbr title="required">*</abbr><span>First Name</span></label>
+                        <input id="billing_first_name" type="text" class="full" autocompletetype="billing_first_name" required="required">
+                    </div>
+                    <div class="col_6 form-row ">
+                        <label for="billing_last_name"><abbr title="required">*</abbr><span>Last Name</span></label>
+                        <input id="billing_last_name" type="text" class="full" autocompletetype="billing_last_name" required="required">
+                    </div>
+                    <div class="col_12 form-row ">
+                        <label for="billing_address"><abbr title="required">*</abbr><span>Address</span></label>
+                        <input id="billing_address" type="text" class="full" autocompletetype="billing_address" required="required">
+                    </div>
+                    <div class="col_4 form-row ">
+                        <label for="billing_city"><abbr title="required">*</abbr><span>City</span></label>
+                        <input id="billing_city" type="text" class="full" autocompletetype="billing_city" required="required">
+                    </div>
+                    <div class="col_4 form-row">
+                        <label for="billing_state"><abbr title="required">*</abbr><span>State</span></label>
+                        <select id="billing_state" class="input-like full" autocomplete="on" autocompletetype="billing_state" required="required">
+                            @foreach (var state in site.RequiredFields.NoauthCheckout["shipping_state"].Data[0].InputValues)
+                            {
+                                <option value="@state.Value">@state.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col_4">
+                        <label for="billing_zip"><abbr title="required">*</abbr><span>ZIP Code</span></label>
+                        <input id="billing_zip" type="text" class="full" autocompletetype="billing_zip" required="required">
+                    </div>
+                    <div class="col_12 form-row ">
+                        <label for="billing_telephone"><abbr title="required">*</abbr><span>Telephone</span></label>
+                        <input id="billing_telephone" type="text" class="full" autocompletetype="billing_telephone" required="required">
+                    </div>
+                </fieldset>
+            </form>
+
+            <!-- Payment Information -->
+            <form accept-charset="UTF-8" class="cardInfo" autocomplete="on">
+                <fieldset class="cardInfo__cardDetails">
+                    <legend>Payment</legend>
+
+                    <!-- Pretty, Validated Payment Form -->
+                    <div class="col_12 form-row ">
+                        <label for="card_name"><abbr title="required">*</abbr><span>Card Name</span></label>
+                        <input id="card_name" type="text" class="full" autocompletetype="card_name" required="required">
+                    </div>
+                    <div class="col_12 form-row cardInfo__cc-num">
+                        <label for="cc-num"><abbr title="required">*</abbr><span>Card Number</span></label>
+                        <div class="cc-num__wrap">
+                            <!-- using type="tel" because type="number" doesn’t pass HTML5 form validation with jQuery.payment formatting -->
+                            <input id="cc-num" type="tel" class="paymentInput cc-num full" placeholder="•••• •••• •••• ••••" autocompletetype="cc-number" required="required">
+                            <span class="card" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    <div class="col_4 form-row cardInfo__cc-exp">
+                        <label for="cc-exp"><abbr title="required">*</abbr><span>Expires</span></label>
+                        <input id="cc-exp" type="tel" class="paymentInput cc-exp full" placeholder="MM / YY" autocompletetype="cc-exp" required="required">
+                    </div>
+                    <div class="col_2 form-row cardInfo__cc-cvc">
+                        <label for="cc-cvc"><abbr title="required">*</abbr><span>CVC</span></label>
+                        <input id="cc-cvc" type="tel" class="paymentInput cc-cvc full" placeholder="CVC" autocomplete="off" autocompletetype="cc-cvc" required="required">
+                    </div>
+                    @*<div class="col_6 cardInfo__submission center" style="padding-top:15px;padding-left: 10px; margin-right:0; float:right;">
+                            <input class="button pop full" name="commit" type="submit" value="Make Payment">
+                            <a class="cancel-link" href="/">Cancel</a>
+                        </div>*@
+                </fieldset>
+            </form>
+
+            <div class="col_12">
+                <button id="billing_next" class="button pop full">
+                    Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Page -->
+    <div class="animated" id="cart_checkout" style="display:none;">
+        <div class="col_12 container center" id="cart_checkout_container">
+            <div class='center' style='color:gray;'>
+                <h4>Calculating total...</h4>
+                <i class='fa fa-fw fa-spin fa-spinner fa-5x'></i>
+            </div>
+        </div>
+    </div>
+}
+
+    @*
+        <div>CartId: @Model.Data.CartId</div>
+        <div>Message: @Model.Data.Message</div>
+        <div>Description: @Model.Data.Description</div>
+        <br />
+        <div>JSON:</div>
+        <div>@Newtonsoft.Json.JsonConvert.SerializeObject(@Model.Data)</div>
+    *@

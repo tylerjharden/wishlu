@@ -1,0 +1,198 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";    
+}
+
+@functions {
+    public class Styles
+    {
+        public static IHtmlString Render(string cssfile)
+        {
+            return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
+        }
+    }
+
+    public class Scripts
+    {
+        public static IHtmlString Render(string jsfile)
+        {
+            return new HtmlString("<script src=\"" + jsfile + "\"></script>");
+        }
+    }
+}
+
+@section page {
+    tutorial (step 1) - wishlu
+}
+
+@section styles {
+@Styles.Render("//assets.wishlu.com/css/themes/base/all.css")
+
+<style>
+#DoPopup
+{
+    position: relative;
+    z-index: 200;
+    line-height: normal;    
+    height: auto;
+    min-height: 320px;
+    width: 100%;
+    min-width: 320px;    
+    max-width: 1240px;
+    display: none;
+    margin: 100px auto;
+    padding: 10px;
+    color: #918b7d;
+    font-family: Lato, Helvetica, Arial, Sans-Serif;
+    background: white;    
+    border: 5px solid #D3EEF2;    
+    border-radius: 15px;    
+    overflow: visible;
+}
+</style>
+
+<style>
+    .splotch {
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+    }
+
+        .splotch.selected {
+            border: 4px solid gray;
+        }
+</style>
+}
+
+@section scripts {
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery-ui.min-1.11.1.js"></script>
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery.validate.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {        
+        $("#DoPopup").waitForImages(function () {                                    
+            $(this).fadeIn();
+        });
+                
+        $("#tutorial_continue").click(function () {            
+            $.ajax({
+                type: "POST",
+                url: "/wishlu/create",
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                traditional: true,
+                data: JSON.stringify(getCreateWishlu()),
+                success: function (data, status, request) {
+                    if (data.result == true) {
+                        swal({
+                            title: "Success!", 
+                            text: "You've created you first wishlu. Click ok to continue the tutorial.",
+                            type: "success",
+                            showCancelButton: false
+                        },
+                        function () {
+                            location.href = "/tutorial/wish";
+                        });
+                    }
+                    else {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                },
+                error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+            });                      
+        });
+
+        function getCreateWishlu() {
+            var data = {}
+
+            data.Name = $("#wishlu_name").val();
+            data.Color = $(".splotch.selected").data("color");            
+            data.Visibility = $(".disabled").data("value");
+            if ($("#wishlu_date").val() != 'select a date' && $("#wishlu_date").val() != "") {
+                data.EventDate = $("#wishlu_date").val();
+            }
+            
+            return data;
+        }
+
+        $(".splotch").click(function () {
+            $(".splotch.selected").removeClass("selected");
+            $(this).addClass("selected");
+        });
+
+        $("#wishlu_public").click(function () {
+            $("#wishlu_friends").removeClass("disabled");
+            $("#wishlu_private").removeClass("disabled");
+            $(this).addClass("disabled");
+        });
+
+        $("#wishlu_friends").click(function () {
+            $("#wishlu_public").removeClass("disabled");
+            $("#wishlu_private").removeClass("disabled");
+            $(this).addClass("disabled");
+        });
+
+        $("#wishlu_private").click(function () {
+            $("#wishlu_public").removeClass("disabled");
+            $("#wishlu_friends").removeClass("disabled");
+            $(this).addClass("disabled");
+        });
+
+        // date picker
+        $("#wishlu_date").datepicker({ minDate: 0, maxDate: 365, altFormat: "mm/dd/yyyy" });        
+    });        
+</script>
+}
+
+<div id="DoPopup" class="pop inset clearfix">
+    <h5 id="titleHeader">step 1: create a wishlu</h5>
+    <a class="right" style="position: absolute; top: 10px; right: 15px;" href="@Url.Action("skip","tutorial")">
+        skip
+    </a>
+
+    <p>To start off, we provide you with 2 wishlus:</p>
+
+    <div class="col_12">
+        <div class="col_6 center pop tooltip sitelink" style="padding: 25px; border: 2px solid lightblue; border-radius: 15px; background: white;" data-delay="0" title="This is a private wishlu that is not shared with any friends and can only be viewed by you. When you quick save, steal, or copy items, they are saved here.">
+            <b>just me</b>
+        </div>
+        @*<div class="col_4 center pop tooltip sitelink" style="padding: 25px; border: 2px solid lightblue; border-radius: 15px; background: white;" data-delay="0" title="Completely opposite of just me, your public wishlu is always visible to everyone on wishlu, as well as anonymous visitors.">
+            <b>public</b>
+        </div>*@
+        <div class="col_6 center pop tooltip sitelink" style="padding: 25px; border: 2px solid lightblue; border-radius: 15px; background: white;" data-delay="0" title="This wishlu is shared with all of your friends by default; however, you can assign it to different groups of friends and family–called wishloops–if you like.">
+            <b>birthday</b>
+        </div>
+    </div>
+    
+    <p>From there, we leave things up to you. You can create wishlus for holidays, life events, other occasions, or simply just because.</p>
+    <p>Creating a new wishlu is as simple as providing a memorable name, choosing a color, and setting its visibility. You can optionally associate an upcoming date with your wishlu.</p>
+    
+    <h5>create your first wishlu:</h5>
+    <div class="col_4" style="float: none; margin: 0 auto;">
+        <div class="col_12 center">
+            <input type="text" class="full input-like small-input tooltip" data-delay="0" title="Enter a memorable name for your first wishlu. This can be as broad or specific as you would like. Longer names may be shortened where necessary, so keep it resonable." id="wishlu_name" value="" placeholder="enter wishlu name" />
+        </div>
+        <div class="col_12 center">
+            <div class="sitelink splotch selected" style="display:inline-block; background-color: #95D5E1;" data-color="95D5E1"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #D0D543;" data-color="D0D543"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #DD838F;" data-color="DD838F"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #F2B244;" data-color="F2B244"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #DE3F15;" data-color="DE3F15"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #C5ACCA;" data-color="C5ACCA"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #FDF39C;" data-color="FDF39C"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #A49689;" data-color="A49689"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #B3CEE1;" data-color="B3CEE1"></div>
+            <div class="sitelink splotch" style="display:inline-block; background-color: #CBEBC4;" data-color="CBEBC4"></div>
+        </div>
+        <div class="col_12 center">
+            <button id="wishlu_public" class="button pop disabled tooltip" title="This wishlu will be visible to all wishlu users, based on your privacy settings" data-delay="0" data-value="Public" style="padding:8px;">public</button>
+            <button id="wishlu_friends" class="button pop tooltip" title="This wishlu will be visible to members of its assigned wishloops." data-value="Friends" data-delay="0" style="padding:8px;">shared</button>
+            <button id="wishlu_private" class="button pop tooltip" title="This wishlu will only be visible to you" data-delay="0" data-value="Private" style="padding:8px;">private</button>
+        </div>
+        <div class="col_12 center">            
+            <input class="input-like input-small tooltip" data-delay="0" title="Associate this wishlu with an upcoming date." type="text" name="wishlu_date" id="wishlu_date" value="select a date" />            
+        </div>        
+    </div>
+    <div class="col_12 right">
+        <a id="tutorial_continue" class="button pop">create wishlu & continue</a>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+﻿<!-- SignalR Scripts -->
+<script src="//assets.wishlu.com/js/jquery.signalR-2.1.2.min.js"></script>
+<script src="~/signalr/hubs"></script>
+
+<!-- SignalR Hub Hook -->
+<script>
+        $(function () {
+            var wishluHub = $.connection.wishluHub;
+
+            wishluHub.client.userConnected = function (name) {
+                //$.sticky(name + " signed on!");
+            };
+
+            wishluHub.client.userDisconnected = function (name) {
+                //$.sticky(name + " signed off.");
+            };
+
+            wishluHub.client.pushNotification = function (note) {
+                alert(note);
+            };
+
+            $.connection.hub.logging = false; // true to print to browser console
+            $.connection.hub.start().done(function () {
+                // Wire up client -> server hub interactions here
+            });
+        });
+</script>

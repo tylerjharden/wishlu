@@ -1,0 +1,30 @@
+﻿@model List<Squid.Products.Amazon.AmazonSearchResult>
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+}    
+
+@section title {
+      Amazon Search Test Page
+}
+
+<div>
+    <table>
+        <tr>
+            <th>Image</th>
+            <th>Price</th>
+            <th>UPC</th>
+            <th>Title</th>
+            <th>link</th>
+        </tr>
+        @foreach (var item in Model) 
+        { 
+            <tr>
+                <td><img src="@item.ImageUrl"/></td>
+                <td>@item.Price</td>
+                <td>@item.UPC</td>
+                <td>@item.Title</td>
+                <td><a href="@item.Url" target="_blank">Link</a></td>
+            </tr>
+        }
+    </table>    
+</div>
