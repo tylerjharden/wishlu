@@ -402,7 +402,7 @@
 			@if (Request.IsAuthenticated)
 			{
 				List<Squid.Users.User> likes = Model.GetLikes();
-				
+
 				<div class="col_12" id="wish_like">
 					@if (Model.UserLikes(UserId))
 					{
@@ -425,13 +425,19 @@
 								}
 								else
 								{
-									@(likes.First().FullName + " likes this item.")
+									<span>@likes.First().FullName likes this item.</span>
 								}
-
 							}
 							else if (likes.Count == 2)
 							{
-								@(likes.First().FullName + " and " + likes.ElementAt(1).FullName + " like this item.")
+								if (likes.Contains(current))
+								{
+									<span>You and @likes.First(x => x.Id != current.Id).FullName like this item.</span>
+								}
+								else
+								{
+									<span>@likes.First().FullName and @likes.ElementAt(1).FullName like this item.</span>
+								}                                
 							}
 							else if (likes.Count == 3)
 							{
@@ -450,7 +456,7 @@
 									list = list + u.FullName + "<br />";
 								}
 
-								@(Html.Raw(firstname + ", " + secondname + ", and " + "<span class=\"tooltip\" title=\"" + list + "\">" + likescount + " other people like this item.</span>"))
+								@Html.Raw(firstname + ", " + secondname + ", and " + "<span class=\"tooltip\" title=\"" + list + "\">" + likescount + " other people like this item.</span>")
 							}
 							else
 							{

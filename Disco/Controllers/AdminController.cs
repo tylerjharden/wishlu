@@ -5,10 +5,8 @@ using System.Web.Mvc;
 namespace Disco.Controllers
 {
     [Authorize]
-    public
-    class AdminController : BaseController
+    public class AdminController : BaseController
     {        
-        [Authorize]
         public ActionResult Index()
         {
             ValidateAdmin();
@@ -16,7 +14,6 @@ namespace Disco.Controllers
             return View();
         }
 
-        [Authorize]
         public ActionResult email()
         {
             ValidateAdmin();
@@ -26,7 +23,6 @@ namespace Disco.Controllers
             return RedirectToAction("index", "dash");
         }
 
-        [Authorize]
         public ActionResult nue(int day)
         {
             ValidateAdmin();
@@ -37,7 +33,6 @@ namespace Disco.Controllers
             return RedirectToAction("index", "dash");
         }
 
-        [Authorize]
         public ActionResult StoreManager()
         {
             ValidateAdmin();
@@ -52,7 +47,6 @@ namespace Disco.Controllers
             return View("StoreWizard");
         }
 
-        [Authorize]
         public ActionResult AddStore(FormCollection formCollection)
         {
             string name = formCollection["shopname"];
@@ -137,7 +131,6 @@ namespace Disco.Controllers
             return View("Index");
         }
 
-        [Authorize]
         public ActionResult Store(Guid id)
         {
             ValidateAdmin();
@@ -147,7 +140,6 @@ namespace Disco.Controllers
             return View("Store", model);
         }
 
-        [Authorize]
         public ActionResult AddAlt(Guid id, string name)
         {
             ValidateAdmin();
@@ -166,7 +158,6 @@ namespace Disco.Controllers
             }
         }
 
-        [Authorize]
         public ActionResult RemoveAlt(Guid id, string name)
         {
             ValidateAdmin();

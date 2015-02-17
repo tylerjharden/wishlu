@@ -9,11 +9,9 @@ using System.Web.Mvc;
 
 namespace Disco.Controllers
 {
-    //================================================================================================//
-    public
-    class InviteController : BaseController
+    public class InviteController : BaseController
     {
-        [AllowAnonymous]
+        [Authorize]
         public ActionResult Index()
         {
             List<Squid.Users.User> here = new List<Squid.Users.User>();
