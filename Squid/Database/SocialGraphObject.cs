@@ -33,7 +33,7 @@ namespace Squid.Database
                 Graph.Instance.Cypher
                 .Match("(user:User)-[r:LIKES]->(n:" + Type.Name + ")")
                 .Where((User user) => user.Id == userId)
-                .Where((GraphObject n) => ((GraphObject)n).Id == this.Id)
+                .AndWhere((GraphObject n) => ((GraphObject)n).Id == this.Id)
                 .Delete("r")
                 .ExecuteWithoutResults();
             }

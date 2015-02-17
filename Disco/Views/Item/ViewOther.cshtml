@@ -257,6 +257,53 @@
 				});
 			});
 
+			$("wish_likes").on("click", ".like_wish, .unlike_wish", function (e) {
+			    var link = $(this);
+
+			    if (link.hasClass('like_wish')) {
+			        $.ajax({
+			            type: "POST",
+			            url: "/item/like",
+			            dataType: 'json',
+			            contentType: 'application/json; charset=utf-8',
+			            traditional: true,
+			            data: JSON.stringify({ Id: link.data("id"), UserId: "@UserId" }),
+			            success: function (data, status, request) {
+			                if (data.result == true) {
+			                    link.removeClass("like_wish").addClass("unlike_wish");			                    
+			                    link.text('Unlike');
+			                }
+			                else {
+			                    swal("Uh oh...", data.message, "error");
+			                }
+			            },
+			            error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+			        });
+			    }
+			    else if (thumb.hasClass('unlike_wish')) {
+			        $.ajax({
+			            type: "POST",
+			            url: "/item/unlike",
+			            dataType: 'json',
+			            contentType: 'application/json; charset=utf-8',
+			            traditional: true,
+			            data: JSON.stringify({ Id: thumb.data("id"), UserId: "@UserId" }),
+			            success: function (data, status, request) {
+			                if (data.result == true) {
+			                    thumb.removeClass("thumbs_down").addClass("thumbs_up");
+			                    thumb.css("color", "#c1dd5c");
+			                    thumb.text('Like');
+			                }
+			                else {
+			                    swal("Uh oh...", data.message, "error");
+			                }
+			            },
+			            error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+			        });
+			    }
+			    return false;
+			});
+
 			$("#wish_reveal").datepicker({ minDate: 0, maxDate: 180, altFormat: "mm/dd/yy" });
 		});
 	</script>
@@ -331,7 +378,7 @@
 			
 			<!-- Likes / Comments -->
 			@{ List<Squid.Users.User> likes = Model.GetLikes(); }
-			<div class="col_12">
+			<div class="col_12" id="wish_like">
 				@if (Model.UserLikes(UserId))
 				{
 					<a class="unlike_wish" data-id="@(Model.Id)" href="#">Unlike</a>
