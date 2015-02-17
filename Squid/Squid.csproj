@@ -154,6 +154,7 @@
     <Compile Include="Messages\Comment.cs" />
     <Compile Include="Messages\Inbox.cs" />
     <Compile Include="Messages\Notification.cs" />
+    <Compile Include="Messages\WishHub.cs" />
     <Compile Include="Products\Amazon\AmazonHeader.cs" />
     <Compile Include="Products\Amazon\AmazonProvider.cs" />
     <Compile Include="Products\Amazon\AmazonSearchResult.cs" />

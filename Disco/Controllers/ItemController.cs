@@ -433,7 +433,7 @@ namespace Disco.Controllers
 
                 wish.Unlike(model.UserId);
 
-                return JsonResponse(true, "The item has been liked successfully.");
+                return JsonResponse(true, "The item has been unliked successfully.");
             }
             catch
             {
