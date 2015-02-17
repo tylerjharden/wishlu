@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Web.Mvc;
 
-
 namespace Disco.Controllers
 {    
     public class WishloopController : BaseController

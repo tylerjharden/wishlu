@@ -318,7 +318,7 @@
     <Compile Include="Controllers\GoogleController.cs" />
     <Compile Include="Controllers\ValidateController.cs" />
     <Compile Include="Controllers\PasswordController.cs" />
-    <Compile Include="Controllers\PromiseController.cs" />
+    <Compile Include="Controllers\GiftController.cs" />
     <Compile Include="Controllers\DashController.cs" />
     <Compile Include="Controllers\CalendarController.cs" />
     <Compile Include="Controllers\TumblrController.cs" />

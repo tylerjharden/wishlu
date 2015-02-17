@@ -43,14 +43,12 @@ namespace Disco.Controllers
             }
         }
 
-        //---------------------------------------------------------------------------------------------//
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             AddSigninCookieData();
             base.OnActionExecuting(filterContext);
         }
 
-        //---------------------------------------------------------------------------------------------//
         [AllowAnonymous]
         public ActionResult UnderConstruction()
         {

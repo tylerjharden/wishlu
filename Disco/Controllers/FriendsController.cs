@@ -7,6 +7,7 @@ using System.Web.Mvc;
 
 namespace Disco.Controllers
 {
+    [Authorize]
     public class FriendsController : BaseController
     {        
         [Authorize]

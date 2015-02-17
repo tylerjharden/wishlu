@@ -8,14 +8,14 @@ using System.Xml;
 
 namespace Disco.Controllers
 {    
+    [AllowAnonymous]
     public class SitemapController : BaseController
     {
-        [AllowAnonymous]
         public ActionResult Index()
         {            
             return View("Index");
         }
-
+        
         public ActionResult Members()
         {
             return View("Members");

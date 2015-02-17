@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace Disco.Controllers
 {
+    [Authorize]
     public class TutorialController : BaseController
     {        
         [Authorize]

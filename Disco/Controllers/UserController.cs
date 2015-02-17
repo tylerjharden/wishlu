@@ -12,9 +12,7 @@ using System.Web.Mvc;
 
 namespace Disco.Controllers
 {
-    //================================================================================================//
-    public
-    class UserController : BaseController
+    public class UserController : BaseController
     {
         //////////////////////
         // General Settings //

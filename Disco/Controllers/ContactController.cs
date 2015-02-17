@@ -18,6 +18,7 @@ namespace Disco.Controllers
             return View("Index");
         }
 
+        [AllowAnonymous]
         public ActionResult Send(ContactModel model)
         {
             if (ModelState.IsValid)

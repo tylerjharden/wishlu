@@ -143,7 +143,7 @@ namespace Disco.Controllers
                 else
                 {
                     model = Squid.Wishes.Wishlu.GetUsersPublicWishlusWishes(id);
-                }                
+                }
             }
 
             model = model.OrderBy(x => x.Wishlu.CreatedOn);

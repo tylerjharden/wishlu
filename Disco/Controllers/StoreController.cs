@@ -5,9 +5,7 @@ using System.Web.Mvc;
 
 namespace Disco.Controllers
 {
-    //================================================================================================//
-    public
-    class StoreController : BaseController
+    public class StoreController : BaseController
     {
         [AllowAnonymous]
         public ActionResult Index()
@@ -57,7 +55,6 @@ namespace Disco.Controllers
             }
         }
 
-        //---------------------------------------------------------------------------------------------//
         [AllowAnonymous]
         public
          ActionResult
@@ -68,5 +65,4 @@ namespace Disco.Controllers
             return View("Products", s);
         }
     }
-    //================================================================================================//
 }

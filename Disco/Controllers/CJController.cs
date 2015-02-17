@@ -8,9 +8,7 @@ using System.Xml;
 
 namespace Disco.Controllers
 {
-    //================================================================================================//
-    public
-    class CJController : BaseController
+    public class CJController : BaseController
     {
         public static byte[] ReadAllBytes(Stream input)
         {
@@ -26,9 +24,8 @@ namespace Disco.Controllers
             }
         }
 
-        //---------------------------------------------------------------------------------------------//                        
         [AllowAnonymous]
-        [HttpPost]        
+        [HttpPost]
         public ActionResult Index()
         {
             if (Request.ContentLength > 0)
@@ -37,7 +34,7 @@ namespace Disco.Controllers
 
                 Request.InputStream.Position = 0;
                 GZipStream zipStream = new GZipStream(Request.InputStream, CompressionMode.Decompress);
-                
+
                 XmlDocument xml = new XmlDocument();
                 xml.Load(zipStream);
 
@@ -55,5 +52,4 @@ namespace Disco.Controllers
             return (file != null && file.ContentLength > 0) ? true : false;
         }
     }
-    //================================================================================================//
 }
