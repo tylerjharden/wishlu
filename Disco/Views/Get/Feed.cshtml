@@ -9,8 +9,52 @@
 </style>
 <script>
     $(document).ready(function () {
-        $(".thumbs_up").click(function () {
+        $(".thumbs").on("click", ".thumbs_up, .thumbs_down", function (e) {            
+            var thumb = $(this);
 
+            if (thumb.hasClass('thumbs_up')) {
+                $.ajax({
+                    type: "POST",
+                    url: "/item/like",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: thumb.data("id"), UserId: "@UserId" }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            thumb.removeClass("thumbs_up").addClass("thumbs_down");
+                            thumb.css("color", "#f2cec5");
+                            thumb.html('<i class="fa fa-fw fa-thumbs-down"></i>');
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            }
+            else if (thumb.hasClass('thumbs_down')) {
+                $.ajax({
+                    type: "POST",
+                    url: "/item/unlike",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify({ Id: thumb.data("id"), UserId: "@UserId" }),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            thumb.removeClass("thumbs_down").addClass("thumbs_up");
+                            thumb.css("color", "#c1dd5c");
+                            thumb.html('<i class="fa fa-fw fa-thumbs-up"></i>');
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });
+            }
+            return false;
         });
     });
 </script>
@@ -25,12 +69,21 @@
                     <span style="font-size: 8pt;">@item.Wish.Price.ToString("C")</span>
                 </div>
                 <div class="info thumbs left" style="position: absolute; bottom: 60px;left: 5px; right: 5px;">
-                    <button class="button pop thumbs_up" style="padding:5px; color:#c1dd5c" data-id="@item.Wish.Id">
+                    @if (item.Wish.UserLikes(UserId))
+                    {
+                        <button class="button pop thumbs_down" style="padding:5px; color:#f2cec5" data-id="@item.Wish.Id">
+                            <i class="fa fa-fw fa-thumbs-down"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="button pop thumbs_up" style="padding:5px; color:#c1dd5c" data-id="@item.Wish.Id">
                             <i class="fa fa-fw fa-thumbs-up"></i>
                         </button>
+                    }                   
                     @*<button class="button pop thumbs_down" style="padding:5px; color:#f2cec5" data-id="@item.Wish.Id">
-                        <i class="fa fa-fw fa-thumbs-down"></i>
-                    </button>*@
+                            <i class="fa fa-fw fa-thumbs-down"></i>
+                        </button>*@
                     @*<button class="button pop share right" style="padding:5px; color:gray">
                             <i class="fa fa-fw fa-share-alt"></i>
                         </button>*@

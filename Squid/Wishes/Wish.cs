@@ -37,7 +37,7 @@ namespace Squid.Wishes
         Custom
     }
 
-    public class Wish : GraphObject
+    public class Wish : SocialGraphObject
     {
         [JsonProperty("Name")]
         public String Name { get; set; }

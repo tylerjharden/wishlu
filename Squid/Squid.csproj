@@ -137,6 +137,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\SocialGraphObject.cs" />
     <Compile Include="Events\CalendarDate.cs" />
     <Compile Include="Database\Cache.cs" />
     <Compile Include="Database\Graph.cs" />

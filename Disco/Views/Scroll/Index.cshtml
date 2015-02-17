@@ -294,7 +294,7 @@
                         Posted @(scribe.CreatedOn)
                     </div>
                     <div class="col_12">
-                        @if (scribe.UserLikesScribe(UserId)
+                        @if (scribe.UserLikesScribe(UserId))
                         {
                             <a class="unlike_scribe" data-id="@(scribe.Id)" href="#">Unlike</a>
                         }

@@ -394,7 +394,53 @@ namespace Disco.Controllers
                 return Json(new { result = false, message = "The server received an invalid model." });
             }
         }
-                        
+           
+        [Authorize]
+        [HttpPost]
+       public ActionResult Like(WishLikeModel model)
+        {
+            if (model.Id == null || model.Id == Guid.Empty)
+                return JsonResponse(false, "Please provide an item to like.");
+
+            Squid.Wishes.Wish wish = null;
+
+            try
+            {
+                wish = Squid.Wishes.Wish.GetWishById(model.Id);
+
+                wish.Like(model.UserId);
+
+                return JsonResponse(true, "The item has been liked successfully.");
+            }
+            catch
+            {
+                return JsonResponse(false,"The item you selected does not exist.");
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult Unlike(WishLikeModel model)
+        {
+            if (model.Id == null || model.Id == Guid.Empty)
+                return JsonResponse(false, "Please provide an item to like.");
+
+            Squid.Wishes.Wish wish = null;
+
+            try
+            {
+                wish = Squid.Wishes.Wish.GetWishById(model.Id);
+
+                wish.Unlike(model.UserId);
+
+                return JsonResponse(true, "The item has been liked successfully.");
+            }
+            catch
+            {
+                return JsonResponse(false, "The item you selected does not exist.");
+            }
+        }
+
         [Authorize]
         [HttpPost]
         public ActionResult Promise(PromiseWishModel model)
@@ -1410,6 +1456,13 @@ namespace Disco.Controllers
     {
         public Guid Id { get; set; }
         public string Image { get; set; }
+    }
+
+    [Serializable]
+    public class WishLikeModel
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
     }
 
     [Serializable]

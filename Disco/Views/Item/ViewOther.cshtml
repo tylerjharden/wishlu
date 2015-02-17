@@ -19,7 +19,7 @@
 	}
 
 	Squid.Wishes.Wishlu wishlu = Squid.Wishes.Wishlu.GetWishLuById(Model.GetAssignmentId());
-
+	
 	string wishlucolor = (((int)wishlu.DisplayColor).ToString("X6"));
 }
 @section page {
@@ -316,7 +316,7 @@
 				}
 			</div>
 
-			@if (wishlu.Visibility == Squid.Wishes.WishluVisibility.Public)
+			@if (wishlu.Visibility != Squid.Wishes.WishluVisibility.Private)
 			{
 				<!-- Facebook / Twitter Share -->
 				<div class="col_12 center" style="display: inline !important; position: relative; zoom: 1; vertical-align: top !important; padding: 5px; background: white; border: 2px solid lightblue; border-radius: 15px;">
@@ -328,6 +328,99 @@
 					<a href="http://www.tumblr.com/share/photo?source=@Url.Encode(Model.ImageUrl)&caption=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)&clickthru=http://www.wishlu.com/i/@(Model.Id))" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url('http://platform.tumblr.com/v1/share_2.png') top left no-repeat transparent;">Share on Tumblr</a>
 				</div>
 			}
+			
+			<!-- Likes / Comments -->
+			@{ List<Squid.Users.User> likes = Model.GetLikes(); }
+			<div class="col_12">
+				@if (Model.UserLikes(UserId))
+				{
+					<a class="unlike_wish" data-id="@(Model.Id)" href="#">Unlike</a>
+				}
+				else
+				{
+					<a class="like_wish" data-id="@(Model.Id)" href="#">Like</a>
+				}                						
+			</div>
+			<div class="col_12" style="background-color:rgba(190, 190, 190, .2);">
+				<div id="wish_likes" class="col_12">
+					@if (likes.Count == 1)
+					{
+						if (likes.First().Id == UserId)
+						{
+							@("You like this item.")
+						}
+						else
+						{
+							@(likes.First().FullName + " likes this item.")
+						}
+
+					}
+					else if (likes.Count == 2)
+					{
+						@(likes.First().FullName + " and " + likes.ElementAt(1).FullName + " like this item.")
+					}
+					else if (likes.Count == 3)
+					{
+						@(likes.First().FullName + ", " + likes.ElementAt(1).FullName + ", and " + likes.ElementAt(2).FullName + " like this item.")
+					}
+					else if (likes.Count > 3)
+					{
+						string list = "";
+						int likescount = likes.Count - 2;
+						string firstname = likes.First().FullName;
+						string secondname = likes.ElementAt(1).FullName;
+
+						likes.RemoveRange(0, 2);
+						foreach (Squid.Users.User u in likes)
+						{
+							list = list + u.FullName + "<br />";
+						}
+
+						@(Html.Raw(firstname + ", " + secondname + ", and " + "<span class=\"tooltip\" title=\"" + list + "\">" + likescount + " other people like this item.</span>"))
+					}
+					else
+					{
+						@("No one currently likes this item.")
+					}
+				</div>
+
+				<div id="wish_comments" class="col_12">
+					@foreach (Squid.Messages.Comment comment in Model.GetComments())
+					{
+						Squid.Users.User author = Squid.Users.User.GetUserById(comment.AuthorId);
+
+						<div class="col_12" id="scribe_comment">
+							<div class="col_2">
+								<img src="@author.ImageUrl" width="50" height="50" style="display: inline-block;" />
+							</div>
+							<div class="col_10">
+								<span>
+									@comment.Body
+								</span>
+							</div>
+						</div>
+					}
+
+					<div id="wish_newcomment" class="col_12">
+						<div class="col_2">
+							<a href="/u/@current.Id">
+								<img src="@current.ImageUrl" width="50" height="50" style="display: inline-block;" />
+							</a>
+						</div>
+						<div class="col_10">
+							<div class="commentWrap" style="padding: 3px;overflow:hidden;zoom:1;background:#fff;border:1px solid lightgray;position:relative;cursor:default;">
+								<textarea class="newcomment_body" data-id="@Model.Id" type="text" title="Add a comment..." placeholder="Add a comment..." style="border-width:0;padding:0;margin:0;-webkit-box-shadow:none;background-color:transparent;width:100%;outline:0;font-size:12px;resize:none;overflow:hidden;max-width:100%;border-radius:0;-webkit-appearance:none;white-space:pre-wrap;word-wrap:break-word;height:30px;"></textarea>
+							</div>
+							<div class="post right">
+								<button class="button pop" style="padding:5px;">
+									comment
+								</button>
+							</div>                            
+						</div>
+					</div>
+				</div>
+			</div>
+
 
 			<!-- Facebook Comments -->
 			<div class="col_12">
@@ -354,7 +447,7 @@
 							<a target="_blank" href="@wishUrl"><span style="float: left; width: 85%; overflow: hidden; color: #9a8b7d; font-weight: bold;">View on @(host)</span></a>
 						}
 						catch
-						{ }						
+						{ }
 					}
 				</div>
 				<!-- Item Price -->
@@ -453,33 +546,33 @@
 					{
 						<li class="tooltip-top" data-delay="0" title="Check to see whether another user has gifted this item. If you have gifted this item, see if it has been confirmed."><a href="#promises"><i class="fa fa-gift" style="margin-right: 10px;"></i>gift status</a></li>
 					}
-				</ul>
+					</ul>
 
-				<!-- Item Description -->
-				@if (!String.IsNullOrEmpty(Model.Description))
+					<!-- Item Description -->
+					@if (!String.IsNullOrEmpty(Model.Description))
 				{
 					<!-- Description Tab -->
-					<div id="description" class="tab-content" style="overflow: hidden;">
-						@Html.Raw(Model.Description)
-					</div>
+						<div id="description" class="tab-content" style="overflow: hidden;">
+							@Html.Raw(Model.Description)
+						</div>
 				}
 
-				<!-- Item Notes -->
-				@if (!String.IsNullOrEmpty(wishNotes))
+					<!-- Item Notes -->
+					@if (!String.IsNullOrEmpty(wishNotes))
 				{
 					<!-- Notes Tab -->
-					<div id="notes" class="tab-content">
-						@wishNotes
-					</div>
+						<div id="notes" class="tab-content">
+							@wishNotes
+						</div>
 				}
 
-				@if (Request.IsAuthenticated) // only show gift status to logged in users
+					@if (Request.IsAuthenticated) // only show gift status to logged in users
 				{
 				<!-- Promises -->
-					<div id="promises" class="tab-content">
-						<div class="col_12 center" style="margin: 0; padding: 0;">
-							@{var promises = Model.GetAllPromises();}
-							@if (promises.Count == 0)
+						<div id="promises" class="tab-content">
+							<div class="col_12 center" style="margin: 0; padding: 0;">
+								@{var promises = Model.GetAllPromises();}
+								@if (promises.Count == 0)
 							{
 								if (Model.WishStatus == Squid.Wishes.WishStatus.Confirmed)
 								{
@@ -490,16 +583,16 @@
 									<span><b>No one has gifted this item yet.</b></span>
 								}
 							}
-							@foreach (Squid.Wishes.Promise p in promises)
+								@foreach (Squid.Wishes.Promise p in promises)
 							{
-								<div class="col_12 center" style="border: 1px solid gray; background: white; border-radius: 15px;">
-									@{var promiser = p.GetPromiser();}
-									<div class="col_3">
-										<a href="/u/@promiser.Id">
-											<div class="circlefriend pop" style="background-image: url('@(promiser.ImageUrl)'); border: 1px solid gray; width: 50px; height: 50px"></div>
-										</a>
-									</div>
-									@switch (p.PromiseStatus)
+									<div class="col_12 center" style="border: 1px solid gray; background: white; border-radius: 15px;">
+										@{var promiser = p.GetPromiser();}
+										<div class="col_3">
+											<a href="/u/@promiser.Id">
+												<div class="circlefriend pop" style="background-image: url('@(promiser.ImageUrl)'); border: 1px solid gray; width: 50px; height: 50px"></div>
+											</a>
+										</div>
+										@switch (p.PromiseStatus)
 									{
 										case Squid.Wishes.PromiseStatus.Canceled:
 											<div class="col_6 center">
@@ -512,27 +605,27 @@
 											break;
 
 										case Squid.Wishes.PromiseStatus.Confirmed:
-										<div class="col_6 center">
-											<span class="col_12 full center nomargin"><b>Gifted by @promiser.FullName (confirmed)</b></span>
-											<span class="col_12 full center" style="font-size: 10pt;">Gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
-										</div>
-										<div class="col_3 center">
-											<i class="fa fa-3x fa-gift tooltip" data-delay="50" title="This item has been confirmed as received." style="color: #79e0c3;"></i>
-										</div>
+											<div class="col_6 center">
+												<span class="col_12 full center nomargin"><b>Gifted by @promiser.FullName (confirmed)</b></span>
+												<span class="col_12 full center" style="font-size: 10pt;">Gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+											</div>
+											<div class="col_3 center">
+												<i class="fa fa-3x fa-gift tooltip" data-delay="50" title="This item has been confirmed as received." style="color: #79e0c3;"></i>
+											</div>
 											break;
 
 										case Squid.Wishes.PromiseStatus.Promised:
-										<div class="col_6">
-											<span class="col_12 full center nomargin"><b>Gifted by @promiser.FullName</b></span>
-										</div>
-										<div class="col_3">
-											<i class="fa fa-3x fa-refresh tooltip" data-delay="50" title="Promised" style="color: #79cae0;"></i>
-										</div>
+											<div class="col_6">
+												<span class="col_12 full center nomargin"><b>Gifted by @promiser.FullName</b></span>
+											</div>
+											<div class="col_3">
+												<i class="fa fa-3x fa-refresh tooltip" data-delay="50" title="Promised" style="color: #79cae0;"></i>
+											</div>
 											break;
 
 
 											case Squid.Wishes.PromiseStatus.Revealed:
-										<div class="col_6">
+											<div class="col_6">
 												<span class="col_12 full center nomargin"><b>Gifted by @promiser.FullName</b></span>
 												<span class="col_12 full center">
 													Revealed: @p.RevealDate.ToString("M/dd/yy")
@@ -543,12 +636,12 @@
 											</div>
 											break;
 									}
-								</div>
+									</div>
 							}
+							</div>
 						</div>
-					</div>
 				}
-			</div>
+				</div>
 		</div>
 	</div>
 </div>

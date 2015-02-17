@@ -1,64 +1,54 @@
-﻿// DEPRECATED AND SAVED
-using Newtonsoft.Json;
-using Squid.Database;
-using Squid.Messages;
+﻿using Squid.Messages;
 using Squid.Users;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Squid.Scroll
+namespace Squid.Database
 {
-    public class Scribe : GraphObject
+    public class SocialGraphObject : GraphObject
     {
-        [JsonProperty("UserId")]
-        public Guid UserId { get; set; }
-
-        [JsonProperty("Content")]
-        public string Content { get; set; }
-
-        [JsonProperty("ScribeType")]
-        public string ScribeType { get; set; }
-
-        public static Scribe GetScribeById(Guid id)
-        {
-            return Graph.Instance.Cypher
-            .Match("(sc:Scribe)")
-            .Where((Scribe sc) => sc.Id == id)
-            .Return(sc => sc.As<Scribe>())
-            .Results.First();
-        }
-
+        // Social Likes
         public void Like(Guid userId)
         {
-            Graph.Instance.Cypher
-            .Match("(user:User)")
-            .Where((User user) => user.Id == userId)
-            .Match("(sc:Scribe)")
-            .Where((Scribe sc) => sc.Id == this.Id)
-            .CreateUnique("(user)-[:LIKES]->(sc)")            
-            .ExecuteWithoutResults();
+            try
+            {
+                Graph.Instance.Cypher
+                .Match("(user:User)")
+                .Where((User user) => user.Id == userId)
+                .Match("(n:" + Type.Name + ")")
+                .Where((GraphObject n) => ((GraphObject)n).Id == this.Id)
+                .Merge("(user)-[:LIKES]->(n)")
+                .ExecuteWithoutResults();
+            }
+            catch { }
         }
 
         public void Unlike(Guid userId)
         {
-            Graph.Instance.Cypher
-            .Match("(user:User)-[r:LIKES]->(sc:Scribe)")
-            .Where((User user) => user.Id == userId)            
-            .AndWhere((Scribe sc) => sc.Id == this.Id)
-            .Delete("r")
-            .ExecuteWithoutResults();
+            try
+            {
+                Graph.Instance.Cypher
+                .Match("(user:User)-[r:LIKES]->(n:" + Type.Name + ")")
+                .Where((User user) => user.Id == userId)
+                .Where((GraphObject n) => ((GraphObject)n).Id == this.Id)
+                .Delete("r")
+                .ExecuteWithoutResults();
+            }
+            catch { }
         }
 
         public List<User> GetLikes()
-        {            
+        {
             try
             {
                 return Graph.Instance.Cypher
-                     .Match("(user:User)-[:LIKES]->(sc:Scribe)")
-                    .Where((Scribe sc) => sc.Id == this.Id)
+                    .Match("(user:User)-[:LIKES]->(n:" + Type.Name + ")")
+                    .Where((GraphObject n) => ((GraphObject)n).Id == this.Id)
                     .Return(user => user.As<User>())
-                     .Results.ToList();
+                    .Results.ToList();
             }
             catch
             {
@@ -71,21 +61,22 @@ namespace Squid.Scroll
             try
             {
                 return (int)Graph.Instance.Cypher
-                .Match("(user:User)-[:LIKES]->(sc:Scribe)")
-                .Where((Scribe sc) => sc.Id == this.Id)
+                .Match("(user:User)-[:LIKES]->(n:" + Type.Name + ")")
+                .Where((GraphObject n) => ((GraphObject)n).Id == this.Id)
                 .Return(user => user.Count())
                 .Results.First();
             }
             catch { return 0; }
         }
 
+        // Social Comments
         public void AddComment(Guid userId, string comment)
         {
             Comment com = new Comment();
             com.AuthorId = userId;
             com.Body = comment;
             com.Id = Guid.NewGuid();
-            
+
             com.Create();
 
             Guid comid = com.Id;
@@ -99,8 +90,8 @@ namespace Squid.Scroll
                 .ExecuteWithoutResults();
 
             Graph.Instance.Cypher
-                .Match("(sc:Scribe)")
-                .Where((Scribe sc) => sc.Id == this.Id)
+                .Match("(n:" + Type.Name + ")")
+                .Where((GraphObject n) => ((GraphObject)n).Id == this.Id)
                 .Match("(comm:Comment)")
                 .Where((Comment comm) => comm.Id == comid)
                 .CreateUnique("(sc)-[:HAS_COMMENT]->(comm)")
@@ -108,14 +99,14 @@ namespace Squid.Scroll
         }
 
         public List<Comment> GetComments()
-        {            
+        {
             try
             {
                 return Graph.Instance.Cypher
-                     .Match("(sc:Scribe)-[:HAS_COMMENT]->(com:Comment)")
-                    .Where((Scribe sc) => sc.Id == this.Id)
+                    .Match("(n:" + Type.Name + ")-[:HAS_COMMENT]->(com:Comment)")
+                    .Where((GraphObject n) => ((GraphObject)n).Id == this.Id)
                     .Return(com => com.As<Comment>())
-                     .Results.ToList();
+                    .Results.ToList();
             }
             catch
             {
@@ -123,13 +114,13 @@ namespace Squid.Scroll
             }
         }
 
-        public bool UserLikesScribe(Guid id)
+        public bool UserLikes(Guid id)
         {
             try
             {
                 return Graph.Instance.Cypher
-                    .Match("(user:User)-[:LIKES]->(sc:Scribe)")
-                    .Where((Scribe sc) => sc.Id == this.Id)
+                    .Match("(user:User)-[:LIKES]->(n:" + Type.Name + ")")
+                    .Where((GraphObject n) => ((GraphObject)n).Id == this.Id)
                     .AndWhere((User user) => user.Id == id)
                     .Return(user => user.Count())
                     .Results.First() > 0;

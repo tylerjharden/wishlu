@@ -158,6 +158,7 @@
     <Content Include="css\fonts\fontawesome\fonts\fontawesome-webfont.ttf" />
     <Content Include="css\fonts\fontawesome\fonts\fontawesome-webfont.woff" />
     <Content Include="css\fonts\fontawesome\fonts\FontAwesome.otf" />
+    <Content Include="css\kickstart-menus.css" />
     <Content Include="css\rateit.css" />
     <Content Include="css\sweet-alert.css" />
     <Content Include="css\twotap\animate.css" />

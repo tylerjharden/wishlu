@@ -38,7 +38,7 @@ namespace Squid.Database
                 .WithParam("p", this)
                 .ExecuteWithoutResults();
 
-            Logger.Log("GraphObject:Create() succeeded for " + this.Id);
+            //Logger.Log("GraphObject:Create() succeeded for " + this.Id);
 
             //Cache.Add(this.Id.ToString(), this);
         }
@@ -48,6 +48,10 @@ namespace Squid.Database
         {
             this.CreatedOn = DateTimeOffset.Now;
             this.LastModifiedOn = DateTimeOffset.Now;
+
+            // do not allow empty Guid
+            if (Id == Guid.Empty)
+                Id = Guid.NewGuid();
 
             Graph.Instance.Cypher
                 .Merge("(n:" + Type.Name + " { Id: {id} })")
@@ -60,6 +64,32 @@ namespace Squid.Database
             //Logger.Log("GraphObject:CreateUnique() succeeded for " + this.Id);
 
             //Cache.Add(this.Id.ToString(), this);
+        }
+
+        public virtual GraphObject GetById(Guid id)
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                    .Match("(n:" + Type.Name + ")")
+                    .Where((GraphObject n) => ((GraphObject)n).Id == id)
+                    .Return(n => n.As<GraphObject>())
+                    .Results.First();
+            }
+            catch { return null; }
+        }
+
+        public static T GetById<T>(Guid id) where T : GraphObject
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                    .Match("(n:" + typeof(T).Name + ")")
+                    .Where((T n) => n.Id == id)
+                    .Return(n => n.As<T>())
+                    .Results.First();
+            }
+            catch { return null; }
         }
 
         // Populate this object with information contained in the respective graph node

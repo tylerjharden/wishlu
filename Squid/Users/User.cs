@@ -1113,10 +1113,15 @@ namespace Squid.Users
             User user = GetUserById(userId);
             user.ResetPassword(resetPasswordId, plainTextPassword1, plainTextPassword2, DateTime.Now);
         }
+
+        public new static User GetById(Guid id)
+        {
+            return GraphObject.GetById<User>(id);
+        }
                 
         // Returns the user with the given ID, else returns null
         public static User SearchForUserByUserId(Guid id)
-        {            
+        {                
             try
             {
                 return Graph.Instance.Cypher
@@ -1143,7 +1148,7 @@ namespace Squid.Users
 
         // Helper Function //
         // Guarantees a login ID (or other similar identifier) is cleaned up, cast to lowercase, and trimmed of excess whitespace.
-        internal static String CleanUpLoginId(String loginId)
+        internal static string CleanUpLoginId(String loginId)
         {
             if (String.IsNullOrEmpty(loginId))
                 return ""; // Protects against null strings
@@ -1178,7 +1183,7 @@ namespace Squid.Users
         // Get's the user that exists with the given '@' handle / username from neo4j. If none exists, returns null.
         public static User GetUserByHandle(string handle)
         {
-            handle = handle.ToLower();
+            handle = handle.ToLower().Replace("@",""); // remove @ incase it gets passed in
 
             try
             {
@@ -2339,7 +2344,7 @@ namespace Squid.Users
             }
         }
 
-        // Retrurns the formatted full name of the given user
+        // Returns the formatted full name of the given user
         public static string GetUserFullName(Guid id)
         {
             try
