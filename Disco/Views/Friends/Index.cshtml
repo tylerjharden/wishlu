@@ -149,7 +149,7 @@
                 <a href="/u/@friend.Id">
                     <div class="col_2 square center" style="background: white; border-radius: 15px; border: 2px solid gray;">
                         <div class="col_12 full">
-                            <div class="col_10 square circle" style="float:none;display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.ImageUrl : "//assets.wishlu.com/images/GenericFriend.png")?width=200&height=200'); background-color: white;">
+                            <div class="col_10 square circle" style="float:none;display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.ImageUrl : "//assets.wishlu.com/images/GenericFriend.png")?width=200&height=200'); background-color: white; width: 85%;">
                             </div>
                             <h6 class="lowercase" style="font-size:100%;">
                                 @(friend.FullName)
@@ -175,7 +175,7 @@
                     <div class="col_2 square center" style="background: white; border-radius: 15px; border: 2px solid gray;">
                         <div class="col_12 full">
                             <a href="@Url.Action("view", "user", routeValues: new { @id = friend.Id })">
-                                <div class="col_10 square circle" style="float:none;display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.ImageUrl : "//assets.wishlu.com/images/GenericFriend.png")?width=200&height=200'); background-color: white;">
+                                <div class="col_10 square circle" style="float:none;display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.ImageUrl : "//assets.wishlu.com/images/GenericFriend.png")?width=200&height=200'); background-color: white; width: 85%;">
                                 </div>
                                 <h6 class="lowercase" style="font-size:100%;">
                                     @(friend.FullName)
