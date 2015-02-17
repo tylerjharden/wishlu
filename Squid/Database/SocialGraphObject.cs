@@ -72,6 +72,9 @@ namespace Squid.Database
         // Social Comments
         public void AddComment(Guid userId, string comment)
         {
+            if (string.IsNullOrEmpty(comment))
+                return;
+
             Comment com = new Comment();
             com.AuthorId = userId;
             com.Body = comment;
@@ -82,19 +85,12 @@ namespace Squid.Database
             Guid comid = com.Id;
 
             Graph.Instance.Cypher
-                .Match("(user:User)")
-                .Where((User user) => user.Id == userId)
-                .Match("(comm:Comment)")
-                .Where((Comment comm) => comm.Id == comid)
-                .CreateUnique("(user)-[:AUTHORED]->(comm)")
-                .ExecuteWithoutResults();
-
-            Graph.Instance.Cypher
-                .Match("(n:" + Type.Name + ")")
-                .Where((GraphObject n) => ((GraphObject)n).Id == this.Id)
-                .Match("(comm:Comment)")
-                .Where((Comment comm) => comm.Id == comid)
-                .CreateUnique("(sc)-[:HAS_COMMENT]->(comm)")
+                .Match("(user:User)", "(comm:Comment)", "(n:" + Type.Name + ")")
+                .Where((User user) => user.Id == userId)                
+                .AndWhere((Comment comm) => comm.Id == comid)
+                .AndWhere((GraphObject n) => ((GraphObject)n).Id == this.Id)
+                .Merge("(user)-[:AUTHORED]->(comm)")
+                .Merge("(n)-[:HAS_COMMENT]->(comm)")
                 .ExecuteWithoutResults();
         }
 

@@ -61,7 +61,7 @@ namespace Squid.Messages
 
             Clients.AllExcept(Context.ConnectionId).onLike(li);
 
-            li.Like = "f";
+            li.Like = "t";
             li.LikeString = CalculateLikeString(wish, userId);
             
             Clients.Client(Context.ConnectionId).onLike(li);           

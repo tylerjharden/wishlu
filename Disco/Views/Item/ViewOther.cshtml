@@ -256,133 +256,85 @@
 					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
 				});
 			});
-
-			$("#wish_like").on("click", ".like_wish, .unlike_wish", function (e) {
-				var link = $(this);
-
-				if (link.hasClass('like_wish')) {
-					$.ajax({
-						type: "POST",
-						url: "/item/like",
-						dataType: 'json',
-						contentType: 'application/json; charset=utf-8',
-						traditional: true,
-						data: JSON.stringify({ Id: link.data("id"), UserId: "@UserId" }),
-						success: function (data, status, request) {
-							if (data.result == true) {
-								link.removeClass("like_wish").addClass("unlike_wish");			                    
-								link.text('Unlike');
-							}
-							else {
-								swal("Uh oh...", data.message, "error");
-							}
-						},
-						error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-					});
-				}
-				else if (link.hasClass('unlike_wish')) {
-					$.ajax({
-						type: "POST",
-						url: "/item/unlike",
-						dataType: 'json',
-						contentType: 'application/json; charset=utf-8',
-						traditional: true,
-						data: JSON.stringify({ Id: link.data("id"), UserId: "@UserId" }),
-						success: function (data, status, request) {
-							if (data.result == true) {
-								link.removeClass("unlike_wish").addClass("like_wish");			                    
-								link.text('Like');
-							}
-							else {
-								swal("Uh oh...", data.message, "error");
-							}
-						},
-						error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-					});
-				}
-				return false;
-			});
-
+            			
 			$("#wish_reveal").datepicker({ minDate: 0, maxDate: 180, altFormat: "mm/dd/yy" });
 		});
 	</script>
 
 <script>
-    $(function () {
-        var wishHub = $.connection.wishHub;
-                
-        wishHub.client.onLike = function (li) {
-            // Update the like string
-            $("#wish_likes").html(li.LikeString);
+	$(function () {
+		var wishHub = $.connection.wishHub;
+				
+		wishHub.client.onLike = function (li) {
+			// Update the like string
+			$("#wish_likes").html(li.LikeString);
 
-            // Update toooltips
-            $('#wish_likes > .tooltip').each(function () {
-                // variables
-                var content = $(this).attr('title');
+			// Update toooltips
+			$('#wish_likes > .tooltip').each(function () {
+				// variables
+				var content = $(this).attr('title');
 
-                // tooltip
-                $(this).attr('title', '')
-                .tipTip({ defaultPosition: 'top', content: content, keepAlive: false, activation: 'hover', delay: 1000 });
-            });
+				// tooltip
+				$(this).attr('title', '')
+				.tipTip({ defaultPosition: 'top', content: content, keepAlive: false, activation: 'hover', delay: 1000 });
+			});
 
-            // Change unlike to like link
-            if (li.Like == "t") {
-                var link = $(".like_wish");
-                link.addClass("unlike_wish");
-                link.removeClass("like_wish");
-                link.html("Unlike");
-                link.unbind("click");
-                link.click(function (e) {
-                    wishHub.server.unlike($(this).data("id"));
-                    e.preventDefault();
-                });
-                return;
-            }
+			// Change unlike to like link
+			if (li.Like == "t") {
+			    var link = $(".like_wish");
 
-            // If we are only receiving a like/unlike, do not change the link
-            if (li.Like == "o") {
-                return;
-            }
-                // otherwise...change like to unlike link
-            else {
-                var link = scribe.find(".unlike_wish");
-                link.addClass("like_wish");
-                link.removeClass("unlike_wish");
-                link.html("Like");
-                link.unbind("click");
-                link.click(function (e) {
-                    wishHub.server.likeScribe($(this).data("id"));
-                    e.preventDefault();
-                });
-                return;
-            }
-        };
-                
-        $.connection.hub.start().done(function () {
-            // Wire up adding comment
-            $(".newcomment_body").each(
-                function () {
-                    $(this).keypress(function (event) {
-                        var keycode = (event.keyCode ? event.keyCode : event.which);
-                        if (keycode == '13') {
-                            wishHub.server.newComment($(this).data("id"), $(this).val());
-                            $(this).val('');
-                        }
-                        event.stopPropagation();
-                    });
-                });
+			    if (link.length) {
+			        link.addClass("unlike_wish");
+			        link.removeClass("like_wish");
+			        link.html("Unlike");
+			        link.unbind("click");
+			        link.click(function (e) {
+			            wishHub.server.unlike($(this).data("id"));
+			            e.preventDefault();
+			        });
+			        return;
+			    }
+			    else {			        
+				    link = $(".unlike_wish");
+			        link.addClass("like_wish");
+			        link.removeClass("unlike_wish");
+			        link.html("Like");
+			        link.unbind("click");
+			        link.click(function (e) {
+			            wishHub.server.like($(this).data("id"));
+			            e.preventDefault();
+			        });
+			        return;
+			    }			    
+			}
+		
+		};
+				
+		$.connection.hub.start().done(function () {
+			// Wire up adding comment
+			$(".newcomment_body").each(
+				function () {
+					$(this).keypress(function (event) {
+						var keycode = (event.keyCode ? event.keyCode : event.which);
+						if (keycode == '13') {
+							wishHub.server.newComment($(this).data("id"), $(this).val());
+							$(this).val('');
+						}
+						event.stopPropagation();
+					});
+				});
 
-            $('.like_wish').click(function (e) {
-                wishHub.server.like($(this).data("id"));
-                e.preventDefault();
-            });
+			$('.like_wish').click(function (e) {
+				wishHub.server.like($(this).data("id"));
+				e.preventDefault();
+			});
 
-            $('.unlike_wish').click(function (e) {
-                wishHub.server.unlike($(this).data("id"));
-                e.preventDefault();
-            });
-        });
-    });
+			$('.unlike_wish').click(function (e) {
+				wishHub.server.unlike($(this).data("id"));
+				e.preventDefault();
+			});
+		});
+	});
 </script>
 }
 
