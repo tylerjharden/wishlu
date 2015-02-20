@@ -116,11 +116,11 @@
     @* Styles *@
     @* ****** *@
     <!-- Project Stylesheets -->
+    @Styles.Render("//assets.wishlu.com/css/WishLuStyles.css")
     @Styles.Render("//assets.wishlu.com/css/easing.css")
     @Styles.Render("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css")
-    @Styles.Render("//assets.wishlu.com/css/kickstart.css")    
-    @Styles.Render("//assets.wishlu.com/css/WishLuStyles.css")
-    @Styles.Render("//assets.wishlu.com/css/sweet-alert.css")    
+    @Styles.Render("//assets.wishlu.com/css/kickstart.css")
+    @Styles.Render("//assets.wishlu.com/css/sweet-alert.css")
        
     <!-- Page Stylesheets -->
     @RenderSection("styles", false)
@@ -507,8 +507,11 @@
             </div>
         </div>
 
-        <!-- Footer -->
-        @{ Html.RenderPartial("~/Views/Shared/Templates/_Footer.cshtml"); }
+        @if (ViewContext.Controller.GetType() == typeof(Disco.Controllers.HomeController))
+        { 
+            <!-- Footer -->
+            Html.RenderPartial("~/Views/Shared/Templates/_Footer.cshtml");
+        }
 
         <!-- OpenSearch -->
         @{ Html.RenderPartial("~/Views/Shared/Extensions/_OpenSearch.cshtml"); }

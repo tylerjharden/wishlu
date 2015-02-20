@@ -1,7 +1,7 @@
 ﻿@model Squid.Users.User
 @using Disco.Common
 @{
-    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";    
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
 }
 
 @section page {
@@ -36,7 +36,7 @@
             <h6>what you get notified about</h6>
         </div>
         <div class="col_3">
-            <h6>how you get notifications</h6>            
+            <h6>how you get notifications</h6>
         </div>
         <div class="col_12">
             <div class="col_6">
@@ -57,7 +57,7 @@
                 </div>
             }
         </div>
-        
+
         <div class="col_12" style="background: white; border: 2px solid lightblue; border-radius: 15px;">
             <span class="col_6"><i class="fa fa-fw fa-2x fa-user" style="color:#CFDF51"></i><b>activity involving you</b></span>
             <span class="col_2 center">
@@ -153,9 +153,13 @@
                 </span>
             }
         </div>
-        
+
         <div class="col_12" style="background: white; border: 2px solid lightblue; border-radius: 15px;">
-            <span class="col_6"><i class="fa fa-fw fa-2x fa-rss" style="color:darkorange;"></i><b>wishlu news and updates</b></span>
+            <span class="col_6" style="line-height: 50px;">
+                @*<i class="fa fa-fw fa-2x fa-rss" style="color:darkorange;"></i>*@
+                <img src="//assets.wishlu.com/images/headerLogo.png" style="width:50px;height:50px;" />
+                <b>wishlu news and updates</b>
+            </span>
             <span class="col_2 center">
                 <input type="checkbox" />
             </span>

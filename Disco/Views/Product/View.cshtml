@@ -2,7 +2,7 @@
 @model dynamic
 @{
 	Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
-    
+	
 	Milkshake.Product p = Model.Product;
 	//TwoTap.API.Models.PurchaseEstimatesResponse estimates = Model.Estimates;
 
@@ -30,7 +30,7 @@
 
 @section meta
 {
-<link rel="canonical" href="//www.wishlu.com/p/@p.Id" />
+	<link rel="canonical" href="//www.wishlu.com/p/@p.Id" />
 
 	<!-- Google -->
 	<meta name="description" content="@p.Description" />
@@ -38,8 +38,7 @@
 
 	<meta name="author" content="" />
 	<meta name="copyright" content="" />
-	<meta name="application-name" content="" />
-
+	
 	<!-- Facebook / Pinterest (Rich Pin - Product) -->
 	<meta property="og:type" content="og:product" />
 	<meta property="og:site_name" content="wishlu" />
@@ -85,8 +84,8 @@
 
 	<!-- Twitter -->
 	<meta name="twitter:card" content="product" />
-	<meta name="twitter:site" content="@("@wishlu1")">
-	<meta name="twitter:creator" content="@("@wishlu1")">
+	<meta name="twitter:site" content="@("@wishluofficial")">
+	<meta name="twitter:creator" content="@("@wishluofficial")">
 	<meta name="twitter:title" content="@p.Name" />
 	<meta name="twitter:description" content="@p.Description" />
 	<meta name="twitter:image:src" content="@p.Image" />
@@ -95,8 +94,6 @@
 	<meta name="twitter:data2" content="Available at @Offers[0].Store" />
 	<meta name="twitter:label2" content="SHOP" />
 	<meta name="twitter:domain" content="wishlu.com" />
-
-	<!-- Pinterest -->
 }
 
 @section styles {
