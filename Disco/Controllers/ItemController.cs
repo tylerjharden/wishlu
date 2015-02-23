@@ -37,12 +37,12 @@ namespace Disco.Controllers
                     model = model.OrderBy(x => x.Price).ToList();
                     break;
 
-                case 5:                    
-                    model = model.OrderByDescending(x => x.Rating).ToList();                    
+                case 5:
+                    model = model.OrderByDescending(x => x.Rating).ToList();
                     break;
 
                 case 6:
-                    model = model.OrderBy(x => x.Rating).ToList();                    
+                    model = model.OrderBy(x => x.Rating).ToList();
                     break;
 
                 case 7:
@@ -57,24 +57,24 @@ namespace Disco.Controllers
 
             return View("Index", model);
         }
-        
+
         [Authorize]
         public ActionResult Hunt()
         {
             return base.View("Add");
         }
-        
+
         [Authorize]
         public ActionResult JustJot(string name = "")
-        {            
+        {
             ViewBag.ItemName = WebUtility.HtmlDecode(name);
 
             return base.View("JustJot");
         }
-        
+
         [AllowAnonymous]
         public ActionResult ViewOther(Guid id)
-        {            
+        {
             Squid.Wishes.Wish wish = Squid.Wishes.Wish.GetWishById(id);
 
             if (Request.IsAuthenticated)
@@ -87,14 +87,14 @@ namespace Disco.Controllers
             else
                 return View("ViewOther", wish);
         }
-        
+
         [AllowAnonymous]
         public ActionResult View(Guid id)
         {
             Squid.Wishes.Wish wish = Squid.Wishes.Wish.GetWishById(id);
-                                   
+
             if (Request.IsAuthenticated)
-            {                
+            {
                 if (wish.UserId == GetCurrentUserId())
                     return View("View", wish);
                 else
@@ -105,10 +105,10 @@ namespace Disco.Controllers
                 return View("ViewOther", wish);
             }
         }
-        
+
         [Authorize]
         public ActionResult Button(string url)
-        {            
+        {
             if (!Site.SiteExists(new Uri(url)))
             {
                 TempData["ErrorMessage"] = "The site you have attempted to add from is not yet supported by wishlu, but we have taken notice and will add it to our platform.";
@@ -143,7 +143,7 @@ namespace Disco.Controllers
             addWish.Description = pn.Description;
 
             addWish.WishStatus = Squid.Wishes.WishStatus.Requested;
-                        
+
             if (Decimal.TryParse(pn.Price.Replace("$", "").Replace(",", ""), out price))
             {
                 addWish.Price = price;
@@ -157,11 +157,11 @@ namespace Disco.Controllers
         }
 
         [Authorize]
-        [HttpPost]        
+        [HttpPost]
         public JsonResult Add(AddWishModel model)
         {
             if (ModelState.IsValid)
-            {                
+            {
                 // universal attributes                
                 if (model.Quantity <= 0)
                     model.Quantity = 1; // prevent null or less than zero quantity
@@ -207,7 +207,7 @@ namespace Disco.Controllers
                 {
                     if (model.Id == null || model.Id == Guid.Empty)
                         return Json(new { result = false, message = "The given product ID is either invalid or the associated product no longer exists." });
-                    
+
                     try
                     {
                         Squid.Wishes.Wish wish = new Squid.Wishes.Wish();
@@ -222,9 +222,9 @@ namespace Disco.Controllers
 
                         o = p.GetLowestOffer();
 
-                        if (!String.IsNullOrEmpty(model.Notes))                        
-                            wish.Notes = model.Notes;                            
-                        
+                        if (!String.IsNullOrEmpty(model.Notes))
+                            wish.Notes = model.Notes;
+
                         wish.CreateFromMilkshake(p, o, GetCurrentUserId(), model.Wishlu, model.Quantity);
 
                         Milkshake.Search.ProductSave(p.Id);
@@ -248,7 +248,7 @@ namespace Disco.Controllers
 
                     if (ap == null || ap.ASIN != model.ASIN)
                         return Json(new { result = false, message = "This product either no longer exists, or the product ASIN provided was invalid." });
-                                        
+
                     if (!String.IsNullOrEmpty(model.Notes))
                         wish.Notes = model.Notes;
 
@@ -266,9 +266,9 @@ namespace Disco.Controllers
                     wish.IsAmazon = true;
 
                     wish.Create();
-                                        
+
                     wish.SetImage(new Uri(ap.Image));
-                    
+
                     if (model.Wishlu != null && model.Wishlu != Guid.Empty)
                         wish.AssignToWishlu(model.Wishlu);
 
@@ -284,7 +284,7 @@ namespace Disco.Controllers
 
                     if (bp == null || bp.SKU != model.SKU)
                         return Json(new { result = false, message = "This product either no longer exists, or the product SKU provided was invalid." });
-                    
+
                     if (!String.IsNullOrEmpty(model.Notes))
                         wish.Notes = model.Notes;
 
@@ -327,7 +327,7 @@ namespace Disco.Controllers
 
                     //if (String.IsNullOrEmpty(model.Image))
                     //    return Json(new { result = false, message = "Please upload an image to identify your new item." });
-                                        
+
                     try
                     {
                         Squid.Wishes.Wish wish = new Squid.Wishes.Wish();
@@ -344,7 +344,7 @@ namespace Disco.Controllers
 
                             wish.WishUrl = model.Url;
                         }
-                        
+
                         wish.Quantity = model.Quantity;
 
                         if (!String.IsNullOrEmpty(model.Description))
@@ -367,7 +367,7 @@ namespace Disco.Controllers
 
                             wish.SetImage(new Uri(model.Image));
                         }
-                        
+
                         if (model.Wishlu != null && model.Wishlu != Guid.Empty)
                             wish.AssignToWishlu(model.Wishlu);
 
@@ -394,10 +394,10 @@ namespace Disco.Controllers
                 return Json(new { result = false, message = "The server received an invalid model." });
             }
         }
-           
+
         [Authorize]
         [HttpPost]
-       public ActionResult Like(WishLikeModel model)
+        public ActionResult Like(WishLikeModel model)
         {
             if (model.Id == null || model.Id == Guid.Empty)
                 return JsonResponse(false, "Please provide an item to like.");
@@ -414,7 +414,7 @@ namespace Disco.Controllers
             }
             catch
             {
-                return JsonResponse(false,"The item you selected does not exist.");
+                return JsonResponse(false, "The item you selected does not exist.");
             }
         }
 
@@ -443,12 +443,12 @@ namespace Disco.Controllers
 
         [Authorize]
         [HttpPost]
-        public ActionResult Promise(PromiseWishModel model)
+        public ActionResult Gift(GiftWishModel model)
         {
             if (ModelState.IsValid)
             {
                 if (model.Id == null || model.Id == Guid.Empty)
-                    return Json(new { result = false, message = "Please provide an item to promise / give." });
+                    return Json(new { result = false, message = "Please provide an item to gift." });
 
                 Squid.Wishes.Wish wish = null;
 
@@ -461,7 +461,15 @@ namespace Disco.Controllers
                     return Json(new { result = false, message = "The item you selected does not exist." });
                 }
 
-                if (wish.WishStatus == Squid.Wishes.WishStatus.Revealed && wish.GetRevealedPromises().Count >= wish.Quantity)
+                if (CurrentUser.HasGifted(wish))
+                    return JsonResponse(false, "You have already gifted this item.");
+
+                if (!wish.IsGiftable)
+                {
+                    return JsonResponse(false, "This item has already been confirmed as gifted.");
+                }
+
+                /*if (wish.WishStatus == Squid.Wishes.WishStatus.Revealed && wish.GetRevealedPromises().Count >= wish.Quantity)
                 {
                     return Json(new { result = false, message = "This item has already been promised and revealed by another user." });
                 }
@@ -469,49 +477,35 @@ namespace Disco.Controllers
                 if (wish.WishStatus == Squid.Wishes.WishStatus.Confirmed && wish.GetConfirmedPromises().Count >= wish.Quantity)
                 {
                     return Json(new { result = false, message = "This item has already been fulfilled and confirmed." });
-                }
+                }*/
 
                 try
                 {
-                    DateTimeOffset date = DateTimeOffset.Now;
-                    try
-                    {
-                        date = DateTimeOffset.Parse(model.Date);
-                    }
-                    catch
-                    {
-                        return Json(new { result = false, message = "The date provided was not in a proper format or was not a valid date." });
-                    }
-                    
-                    Squid.Wishes.Promise promise = wish.Promise(GetCurrentUserId(), date);
-                    string name = Squid.Users.User.GetUserFullName(wish.UserId).Split(' ')[0];
+                    Squid.Wishes.Gift gift = wish.Gift(GetCurrentUserId(), DateTimeOffset.MinValue);
 
-                    // reveal
-                    if (date.Date <= DateTimeOffset.Now.Date)
+                    if (model.Purchased)
                     {
-                        wish.Reveal(promise);
-                        
-                        return Json(new { result = true, message = name + " has been notified of your gift." });
+                        gift.Purchase();
+                        return JsonResponse(true, "Your gift has been recorded as purchased.");
                     }
 
-                    return Json(new { result = true, message = name + " will be notified of your gift on " + model.Date + "." });
+                    return JsonResponse(true, "Your gift has been recorded as reserved. Remember to mark your gift as purchased once you have bought it. We won't notify the user of your gift until it has been marked as purchased.");
                 }
                 catch (Exception e)
                 {
                     Logger.Error(e);
-                    return Json(new { result = false, message = "There was an error promising this item." });
-                }                         
+                    return Json(new { result = false, message = "There was an error gifting this item." });
+                }
             }
             else
             {
                 return Json(new { result = false, message = "The server received an invalid model." });
-            }             
+            }
         }
-
+                
         [Authorize]
         [HttpPost]
-        public
-        ActionResult Cancel(CancelPromiseModel model)
+        public ActionResult Cancel(CancelPromiseModel model)
         {
             if (ModelState.IsValid)
             {
@@ -523,101 +517,62 @@ namespace Disco.Controllers
                     return Json(new { result = false, message = "The specified item does not exist." });
                 }
 
-                Squid.Wishes.Promise promise = null;
+                if (wish.UserId == GetCurrentUserId())
+                    return JsonResponse(false, "You cannot gift / cancel gifts on your own items.");
+
+                Squid.Wishes.Gift gift = null;
                 try
                 {
-                    promise = wish.GetPromise(GetCurrentUserId());
+                    gift = wish.GetGift(GetCurrentUserId());
+
+                    try
+                    {
+                        gift.Cancel();
+
+                        return Json(new { result = true, message = "Your gift for this item has been canceled." });
+                    }
+                    catch
+                    {
+                        return Json(new { result = false, message = "There was an error canceling your gift." });
+                    }
                 }
                 catch
                 {
-                    return Json(new { result = false, message = "You have not promised to give this item." });
+                    return Json(new { result = false, message = "You have not gifted this item." });
                 }
-
-
-                try
-                {
-                    wish.Cancel(promise);
-
-                    return Json(new { result = true, message = "Your promise to gift this item has been canceled." });
-                }
-                catch
-                {
-                    return Json(new { result = false, message = "There was an error canceling your promise." });
-                }                
             }
             else
             {
                 return Json(new { result = false, message = "The server received an invalid model." });
             }
         }
-                
+
         // Individual gifting confirm button is clicked
-        [Authorize]        
+        [Authorize]
         public ActionResult Confirm(Guid id)
         {
-            Squid.Wishes.Promise p = Squid.Wishes.Promise.GetPromiseById(id);
+            Squid.Wishes.Gift g = null;
+            try
+            {
+                g = Squid.Wishes.Gift.GetGiftById(id);
+            }
+            catch (ItemNotFoundException)
+            {
+                return JsonResponse(false, "The specified gift does not exist.");
+            }
 
-            Squid.Wishes.Wish wish = p.GetWish();
+            Squid.Wishes.Wish wish = g.GetWish();
 
             if (wish.UserId != GetCurrentUserId())
                 return Json(new { result = false, message = "You can only mark your own items as received." });
 
-            wish.Confirm(p);
+            g.Confirm();
 
             TempData["SuccessMessage"] = "You have successfully confirmed receipt of this gift.";
 
             return RedirectToAction("view", new { @id = wish.Id });
         }
-
-        // Item's "confirm as received" is clicked
-        [Authorize]
-        [HttpPost]
-        public ActionResult Mark(Guid id)
-        {
-            try
-            {
-                if (id == null || id == Guid.Empty)
-                    return JsonResponse(false, "Please provide an item to confirm receipt of a gift.");
-
-                Squid.Wishes.Wish wish;
-
-                try
-                {
-                    wish = Squid.Wishes.Wish.GetWishById(id);
-                }
-                catch (ItemNotFoundException)
-                {
-                    return JsonResponse(false, "The specified item could not be found.");
-                }
                 
-                if (wish.UserId != GetCurrentUserId())
-                    return JsonResponse(false, "You can only mark your own items as received.");
-                                
-                List<Squid.Wishes.Promise> all = wish.GetAllPromises();
-
-                if (wish.Purchased >= wish.Quantity && wish.WishStatus == Squid.Wishes.WishStatus.Confirmed)
-                    return JsonResponse(false, "You already confirmed this item. The number of confirmed gifts matches the item's desired quantity.");
-                
-                List<Squid.Wishes.Promise> gifted = all.Where(x => (x.PromiseStatus == Squid.Wishes.PromiseStatus.Promised || x.PromiseStatus == Squid.Wishes.PromiseStatus.Revealed)).ToList();
-                
-                // There is only 1 gift that is not yet confirmed
-                if (gifted.Count >= 1)
-                {
-                    // confirm the item's only gift
-                    wish.Confirm(gifted.First());
-
-                    return JsonResponse(true, "You have successfully confirmed receipt of this gift. If more than one person has gifted this item, please confirm their gift as well.");
-                }
-                                
-                return JsonResponse(false, "The item you provided cannot be confirmed.");
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                return JsonResponse(false, "An unexpected error occurred while attempting to confirm receipt of your item.");
-            }
-        }
-        
         [Authorize]
         [HttpPost]
         public ActionResult Delete(DeleteWishesModel model)
@@ -629,7 +584,7 @@ namespace Disco.Controllers
 
                 if (model.Wishes.Count < 1)
                     return Json(new { result = false, message = "Please select one or more items to delete." });
-                                
+
                 foreach (Guid wid in model.Wishes)
                 {
                     Squid.Wishes.Wish wish = Squid.Wishes.Wish.GetWishById(wid);
@@ -637,7 +592,7 @@ namespace Disco.Controllers
                     if (wish.UserId != GetCurrentUserId())
                         return Json(new { result = false, message = "You may not delete an item that does not belong to you." });
 
-                    wish.DeleteWish();
+                    wish.Delete();
                 }
 
                 return Json(new { result = true, message = model.Wishes.Count + " item(s) successfully deleted." });
@@ -650,7 +605,7 @@ namespace Disco.Controllers
         }
 
         [Authorize]
-        [HttpPost]     
+        [HttpPost]
         public ActionResult Name(WishNameModel model)
         {
             if (ModelState.IsValid)
@@ -705,7 +660,7 @@ namespace Disco.Controllers
                 {
                     if (!model.Url.StartsWith("http://") && !model.Url.StartsWith("https://"))
                         model.Url = "http://" + model.Url;
-                                        
+
                     if (!Uri.IsWellFormedUriString(model.Url, UriKind.Absolute))
                         return JsonResponse(false, "The URL you provided is not in a valid format.");
 
@@ -749,7 +704,7 @@ namespace Disco.Controllers
         }
 
         [Authorize]
-        [HttpPost]     
+        [HttpPost]
         public ActionResult Quantity(WishQuantityModel model)
         {
             if (ModelState.IsValid)
@@ -759,7 +714,7 @@ namespace Disco.Controllers
 
                 if (model.Quantity <= 0)
                     model.Quantity = 1;
-                    
+
                 try
                 {
                     var wish = Squid.Wishes.Wish.GetWishById(model.Id);
@@ -814,7 +769,7 @@ namespace Disco.Controllers
                         wish.WishStatus = Squid.Wishes.WishStatus.Confirmed;
 
                     wish.Update();
-                                        
+
                     return JsonResponse(true, "This item's total purchased count has been updated successfully.");
                 }
                 catch (ItemNotFoundException)
@@ -834,14 +789,14 @@ namespace Disco.Controllers
         }
 
         [Authorize]
-        [HttpPost]     
+        [HttpPost]
         public ActionResult Price(WishPriceModel model)
         {
             if (ModelState.IsValid)
             {
                 if (model.Id == null || model.Id == Guid.Empty)
                     return JsonResponse(false, "Please select an item to update.");
-                                
+
                 try
                 {
                     var wish = Squid.Wishes.Wish.GetWishById(model.Id);
@@ -871,14 +826,14 @@ namespace Disco.Controllers
         }
 
         [Authorize]
-        [HttpPost]     
+        [HttpPost]
         public ActionResult Description(WishDescriptionModel model)
         {
             if (ModelState.IsValid)
             {
                 if (model.Id == null || model.Id == Guid.Empty)
                     return JsonResponse(false, "Please select an item to update.");
-                               
+
                 try
                 {
                     var wish = Squid.Wishes.Wish.GetWishById(model.Id);
@@ -908,7 +863,7 @@ namespace Disco.Controllers
         }
 
         [Authorize]
-        [HttpPost]     
+        [HttpPost]
         public ActionResult Notes(WishNotesModel model)
         {
             if (ModelState.IsValid)
@@ -945,7 +900,7 @@ namespace Disco.Controllers
         }
 
         [Authorize]
-        [HttpPost]     
+        [HttpPost]
         public ActionResult Image(WishImageModel model)
         {
             if (ModelState.IsValid)
@@ -971,7 +926,7 @@ namespace Disco.Controllers
                     {
                         wish.SetImage(model.Image);
                     }
-                    
+
                     return JsonResponse(true, "Your item's image has been updated successfully.");
                 }
                 catch (ItemNotFoundException)
@@ -1014,7 +969,7 @@ namespace Disco.Controllers
                 //if (wish.RatingCount > 0)
                 //    wish.Rating = (wish.Rating + model.Rating) / 2; // average
                 //else
-                    wish.Rating = model.Rating;
+                wish.Rating = model.Rating;
 
                 wish.RatingCount++;
 
@@ -1029,7 +984,7 @@ namespace Disco.Controllers
         }
 
         [Authorize]
-        [HttpPost]  
+        [HttpPost]
         public ActionResult Wishlu(AssignWishModel model)
         {
             try
@@ -1055,7 +1010,7 @@ namespace Disco.Controllers
                     {
                         if (String.IsNullOrEmpty(model.WishluName))
                             return JsonResponse(false, "Empty names are not permitted for new wishlus.");
-                        
+
                         Squid.Wishes.Wishlu wishlu = new Squid.Wishes.Wishlu();
                         wishlu.Name = model.WishluName;
                         wishlu.UserId = GetCurrentUserId();
@@ -1072,9 +1027,9 @@ namespace Disco.Controllers
                         return Json(new { result = false, message = "A new wishlu was unable to be created for this item." });
                     }
                 }
-                                
+
                 wish.AssignToWishlu(model.Wishlu);
-                
+
                 return Json(new { result = true, message = "Your item was successfully assigned." });
             }
             catch (Exception ex)
@@ -1085,7 +1040,7 @@ namespace Disco.Controllers
         }
 
         [Authorize]
-        [HttpPost]        
+        [HttpPost]
         public ActionResult Assign(AssignWishesModel model)
         {
             try
@@ -1094,12 +1049,12 @@ namespace Disco.Controllers
                     return Json(new { result = false, message = "The server has received an invalid model." });
 
                 if (model.Wishes.Count < 1)
-                    return Json(new {result=false,message="Please select one or more items to assign to a wishlu."});
+                    return Json(new { result = false, message = "Please select one or more items to assign to a wishlu." });
 
                 if (model.Wishlu == null || model.Wishlu == Guid.Empty)
-                    return Json(new {result=false,message="Please select a valid wishlu to assign the select item(s) to." });
-                                
-                if (String.IsNullOrEmpty(model.WishluName) && (model.Wishlu == null || model.Wishlu == Guid.Empty))                    
+                    return Json(new { result = false, message = "Please select a valid wishlu to assign the select item(s) to." });
+
+                if (String.IsNullOrEmpty(model.WishluName) && (model.Wishlu == null || model.Wishlu == Guid.Empty))
                     return Json(new { result = false, message = "Please make sure you selected an existing wishlu or provided a name to create a new one. The specified wishlu ID was invalid." });
                 else if (model.Wishlu == null || model.Wishlu == Guid.Empty)
                 {
@@ -1129,7 +1084,7 @@ namespace Disco.Controllers
                     Squid.Wishes.Wish wish = Squid.Wishes.Wish.GetWishById(wid);
 
                     if (wish.UserId != GetCurrentUserId())
-                        return Json(new {result=false,message="You may not assign an item that does not belong to you." });
+                        return Json(new { result = false, message = "You may not assign an item that does not belong to you." });
 
                     wish.AssignToWishlu(model.Wishlu);
                 }
@@ -1196,11 +1151,11 @@ namespace Disco.Controllers
                 return Json(new { result = false, message = "An unexpected server error has occurred. We have been notified of the error and are working to fix it." });
             }
         }
-        
+
         [Authorize]
         [HttpPost]
         public ActionResult Steal(Guid id)
-        {            
+        {
             Squid.Wishes.Wish wish = Squid.Wishes.Wish.GetWishById(id);
 
             if (wish.UserId == GetCurrentUserId())
@@ -1218,13 +1173,13 @@ namespace Disco.Controllers
                 return Json(new { result = false, message = "An error occurred while attempting to steal this item." });
             }
         }
-        
+
         [Authorize]
         [HttpPost]
         public ActionResult Grab(Guid id)
-        {            
+        {
             Squid.Wishes.Wish wish = Squid.Wishes.Wish.GetWishById(id);
-                        
+
             if (wish.UserId == GetCurrentUserId())
             {
                 return Json(new { result = false, message = "You can't grab your own item." });
@@ -1237,8 +1192,8 @@ namespace Disco.Controllers
             }
             catch
             {
-                return Json(new{result=false,message="An error occurred while attempting to copy this item."});
-            }                        
+                return Json(new { result = false, message = "An error occurred while attempting to copy this item." });
+            }
         }
 
         [Authorize]
@@ -1247,7 +1202,7 @@ namespace Disco.Controllers
         {
             Squid.Wishes.Wish wish = Squid.Wishes.Wish.GetWishById(id);
             string name = Squid.Users.User.GetUserFullName(wish.UserId);
-                        
+
             User current = GetCurrentUser();
 
             try
@@ -1255,14 +1210,14 @@ namespace Disco.Controllers
                 if (String.IsNullOrEmpty(current.PhoneNumber))
                 {
                     TempData["ErrorMessage"] = "You must first add and verify a mobile number to send text links.";
-                    return Json(new { result = false, message = "You must first add and verify a mobile number to send text links.", redirect=true });
+                    return Json(new { result = false, message = "You must first add and verify a mobile number to send text links.", redirect = true });
                 }
 
-                if (wish.UserId == GetCurrentUserId())                
-                    current.SendText("Your item: " + wish.Name + ". http://www.wishlu.com/i/" + wish.Id);                
-                else                
+                if (wish.UserId == GetCurrentUserId())
+                    current.SendText("Your item: " + wish.Name + ". http://www.wishlu.com/i/" + wish.Id);
+                else
                     current.SendText(name + "'s item: " + wish.Name + ". http://www.wishlu.com/i/" + wish.Id);
-                                
+
                 return Json(new { result = true, message = "A text with a link to this item has been sent to your phone." });
             }
             catch
@@ -1270,7 +1225,7 @@ namespace Disco.Controllers
                 return Json(new { result = false, message = "An error occurred while attempting to text your phone." });
             }
         }
-                
+
         [Authorize]
         [HttpPost]
         public ActionResult Suggest(SuggestWishModel model)
@@ -1282,7 +1237,7 @@ namespace Disco.Controllers
 
                 if (model.Friends == null || model.Friends.Count == 0)
                     return Json(new { result = false, message = "Please select at least one friend to suggest to." });
-                                                                
+
                 User current = GetCurrentUser();
                 foreach (Guid friend in model.Friends)
                 {
@@ -1294,9 +1249,9 @@ namespace Disco.Controllers
             else
             {
                 return Json(new { result = false, message = "The server received an invalid model." });
-            }                        
+            }
         }
-        
+
         public string ScoutGeo(FormCollection col)
         {
             string final = "";
@@ -1493,6 +1448,14 @@ namespace Disco.Controllers
     public class DeleteWishesModel
     {
         public List<Guid> Wishes { get; set; }        
+    }
+
+    [Serializable]
+    public class GiftWishModel
+    {
+        public Guid Id { get; set; }
+        public bool Purchased { get; set; }
+        public string Date { get; set; }
     }
 
     [Serializable]

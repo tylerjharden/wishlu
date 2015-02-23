@@ -81,6 +81,13 @@ namespace Disco
                defaults: new { controller = "Item", action = "View", id = UrlParameter.Optional }
            );
 
+           // Gift           
+           routes.MapRoute(
+               name: "g",
+               url: "g/{id}",
+               defaults: new { controller = "Gift", action = "View", id = UrlParameter.Optional }
+           );
+
            // User/Profile           
            routes.MapRoute(
                name: "u",

@@ -39,8 +39,8 @@ namespace Squid.Housekeeping
     // Fantine promise/gift reveal task
     public class RevealTask
     {
-        [JsonProperty("PromiseId")]
-        public Guid PromiseId { get; set; }
+        [JsonProperty("GiftId")]
+        public Guid GiftId { get; set; }
         [JsonProperty("Date")]
         public DateTimeOffset Date { get; set; }
     }

@@ -746,6 +746,7 @@ namespace Squid.Users
             {
                 Wishlu birthday = Wishlu.GetUsersBirthdayWishLu(this.Id);
                 this.BirthdayWishLuId = birthday.Id;
+                this.Update();
             }
             
             return this.BirthdayWishLuId;
@@ -758,6 +759,7 @@ namespace Squid.Users
             {
                 Wishlu floating = Wishlu.GetUsersJustMeWishLu(this.Id);
                 this.JustMeWishLuId = floating.Id;
+                this.Update();
             }
 
             return this.JustMeWishLuId;
@@ -765,7 +767,7 @@ namespace Squid.Users
 
         // Return the inbox of the given user, if it doesn't exist, create it
         public static Inbox GetUsersInbox(Guid id)
-        {            
+        {
             try
             {
                 return Graph.Instance.Cypher
@@ -2849,15 +2851,47 @@ namespace Squid.Users
             }
             catch (Exception ex) { Logger.Error(ex.ToString()); }
         }
-
-        // Returns true if the given user made a promise for the given wish, only if not canceled.
-        public bool PromisedWish(Wish wish)
+                
+        // Returns true if the given user has gifted the given wish, only if not canceled.
+        public bool HasGifted(Wish wish)
         {
-            foreach (Promise p in wish.GetPromisedPromises())            
-                if (p.UserId == this.Id && (p.PromiseStatus == PromiseStatus.Promised || p.PromiseStatus == PromiseStatus.Confirmed || p.PromiseStatus == PromiseStatus.Revealed))
+            foreach (Gift g in wish.GetAllGifts())
+                if (g.GiverId == this.Id && g.Status != GiftStatus.Canceled)
                     return true;
-            
+
             return false;
+        }
+
+        public List<Gift> GetGiftsGiven()
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                    .Match("(u:User)-[:GIVER]->(g:Gift)")
+                    .Where((User u) => u.Id == this.Id)
+                    .Return(g => g.As<Gift>())
+                    .Results.ToList();
+            }
+            catch
+            {
+                return new List<Gift>();
+            }
+        }
+
+        public List<Gift> GetGiftsReceived()
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                    .Match("(u:User)<-[:RECEIVER]->(g:Gift)")
+                    .Where((User u) => u.Id == this.Id)
+                    .Return(g => g.As<Gift>())
+                    .Results.ToList();
+            }
+            catch
+            {
+                return new List<Gift>();
+            }
         }
                 
         // Returns true if the given wishloop ID is a wishloop created by the current user.

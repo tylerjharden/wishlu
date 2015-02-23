@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.Web.Mvc;
 
 namespace Disco.Controllers
 {
@@ -7,6 +8,21 @@ namespace Disco.Controllers
     {
         public ActionResult Index()
         {            
+            return View();
+        }
+
+        public ActionResult Other()
+        {
+            return View();
+        }
+
+        public ActionResult My()
+        {
+            return View();
+        }
+
+        public ActionResult View(Guid id)
+        {
             return View();
         }
 

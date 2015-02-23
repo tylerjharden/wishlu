@@ -148,6 +148,79 @@
 	<script type="text/javascript">
 		$(document).ready(function () {
 			$("#wish_give").click(function () {
+				swal({
+					title: "Did you already buy this item?",
+					text: "Select whether you have already purchased this item or still need to.",
+					type: "info",
+					showCancelButton: true,
+					confirmButtonText: "I already bought this gift",
+					cancelButtonText: "I need to buy this gift",
+					closeOnConfirm: false,
+					closeOnCancel: false
+				},
+				function (isConfirm){
+					if (isConfirm) {
+						$.ajax({
+							type: "POST",
+							url: "/item/gift",
+							dataType: 'json',
+							contentType: 'application/json; charset=utf-8',
+							traditional: true,
+							data: JSON.stringify({ Id: $("#wish_id").val(), Purchased: true /*Date: $("#wish_reveal").val()*/ }),
+							success: function (data, status, request) {
+								if (data.result == true) {
+									swal("Success!", data.message, "success");
+									location.reload();
+								}
+								else {
+									swal("Uh oh...", data.message, "error");
+								}
+							},
+							error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+						});
+						//swal("Success!", "Your gift has been recorded as purchased.", "success");
+					}
+					else {
+						swal({
+							title: "Now or Later?",
+							text: "Select whether you would like to buy this gift now or purchase it later or in person.",
+							type: "info",
+							showCancelButton: true,
+							confirmButtonText: "Buy now online",
+							cancelButtonText: "Buy later / buy in-store",
+							closeOnConfirm: true,
+							closeOnCancel: false
+						},
+						function (isConfirm) {
+							if (isConfirm) {
+								$("#wish_url").get(0).click();
+								// TODO: Redirect to purchase page or open shopping cart
+							} else {
+								$.ajax({
+									type: "POST",
+									url: "/item/gift",
+									dataType: 'json',
+									contentType: 'application/json; charset=utf-8',
+									traditional: true,
+									data: JSON.stringify({ Id: $("#wish_id").val(), Purchased: false /*Date: $("#wish_reveal").val()*/ }),
+									success: function (data, status, request) {
+										if (data.result == true) {
+											swal("Success!", data.message, "success");
+											location.reload();
+										}
+										else {
+											swal("Uh oh...", data.message, "error");
+										}
+									},
+									error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+								});
+							}
+						});
+					}
+				});
+			});
+
+			/*$("#wish_give").click(function () {
 				$("#wish_give_container").slideToggle();
 			});
 
@@ -170,7 +243,7 @@
 					},
 					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
 				});
-			});
+			});*/
 
 			$("#wish_cancel").click(function () {
 				$.ajax({
@@ -367,22 +440,22 @@
 			<div class="col_12 pop wishimg wishLuList tilelarge" style="position: relative; padding: 5px; margin-top: 0;">
 				<div id="image@(Model.Id)" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@Model.ImageUrl'); width: 400px; height: 400px;">
 				</div>
-				@if (Model.WishStatus == Squid.Wishes.WishStatus.Revealed && Model.GetRevealedPromises().Count == Model.Quantity)
+				@if (Model.Status == Squid.Wishes.WishStatus.Revealed)
 				{
 					<div class="rectangle" style="height: 50px;">
-						<span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted</span>
+						<span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted (@Model.GetRevealedGifts().Count of @Model.Quantity)</span>
 					</div>
 				}
-				else if (Request.IsAuthenticated && Model.WishStatus == Squid.Wishes.WishStatus.Confirmed)
+				else if (Request.IsAuthenticated && Model.Status == Squid.Wishes.WishStatus.Confirmed)
 				{
 					<div class="rectangle" style="height: 50px;">
-						<span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+						<span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i> (@Model.GetConfirmedGifts().Count of @Model.Quantity)</span>
 					</div>
 				}
-				else if (Request.IsAuthenticated && Model.WishStatus == Squid.Wishes.WishStatus.Promised)
+				else if (Request.IsAuthenticated && Model.Status == Squid.Wishes.WishStatus.Reserved)
 				{
 					<div class="rectangle" style="height: 50px;">
-						<span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">@Model.WishStatus</span>
+						<span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">reserved (@Model.GetReservedGifts().Count of @Model.Quantity)</span>
 					</div>
 				}
 			</div>
@@ -543,7 +616,7 @@
 							Uri url = new Uri(wishUrl);
 							string host = url.Host.Replace("www.", "");
 
-							<a target="_blank" href="@wishUrl"><span style="float: left; width: 85%; overflow: hidden; color: #9a8b7d; font-weight: bold;">View on @(host)</span></a>
+							<a id="wish_url" target="_blank" href="@wishUrl"><span style="float: left; width: 85%; overflow: hidden; color: #9a8b7d; font-weight: bold;">View on @(host)</span></a>
 						}
 						catch
 						{ }
@@ -577,15 +650,15 @@
 
 					<!-- Give / Cancel Button -->
 					<div class="col_12">
-						@if (current.PromisedWish(Model))
+						@if (current.HasGifted(Model))
 						{
 							<a class="button pop full center" id="wish_cancel">
 								cancel
 							</a>
 						}
-						else if (Model.Purchased < Model.Quantity) // user's can only gift an item if it has not reached it's requested quantity
+						else if (Model.IsGiftable) // users can only gift an item if it has not reached it's requested quantity
 						{
-							<a class="button pop full center tooltip" data-delay="0" title="Promise to give your friend this item." id="wish_give">
+							<a class="button pop full center tooltip" data-delay="0" title="Gift this item." id="wish_give">
 								give
 							</a>
 							<div id="wish_give_container" class="center" style="display: none;">
@@ -670,8 +743,8 @@
 				<!-- Promises -->
 					<div id="promises" class="tab-content">
 						<div class="col_12 center" style="margin: 0; padding: 0;">
-							@{var promises = Model.GetAllPromises();}
-							@if (promises.Count == 0)
+							@{var gifts = Model.GetAllGifts();}
+							@if (gifts.Count == 0)
 							{
 								if (Model.WishStatus == Squid.Wishes.WishStatus.Confirmed)
 								{
@@ -682,30 +755,30 @@
 									<span><b>No one has gifted this item yet.</b></span>
 								}
 							}
-							@foreach (Squid.Wishes.Promise p in promises)
+							@foreach (Squid.Wishes.Gift g in gifts)
 							{
 								<div class="col_12 center" style="border: 1px solid gray; background: white; border-radius: 15px;">
-									@{var promiser = p.GetPromiser();}
+									@{var giver = g.GetGiver();}
 									<div class="col_3">
-										<a href="/u/@promiser.Id">
-											<div class="circlefriend pop" style="background-image: url('@(promiser.ImageUrl)'); border: 1px solid gray; width: 50px; height: 50px"></div>
+										<a href="/u/@giver.Id">
+											<div class="circlefriend pop" style="background-image: url('@(giver.ImageUrl)'); border: 1px solid gray; width: 50px; height: 50px"></div>
 										</a>
 									</div>
-									@switch (p.PromiseStatus)
+									@switch (g.Status)
 									{
-										case Squid.Wishes.PromiseStatus.Canceled:
+										case Squid.Wishes.GiftStatus.Canceled:
 											<div class="col_6 center">
-												<span class="col_12 full center nomargin"><b>@promiser.FullName</b></span>
+												<span class="col_12 full center nomargin"><b>@giver.FullName</b></span>
 												<span class="col_12 full center" style="font-size: 10pt;">Canceled</span>
 											</div>
 											<div class="col_3 center">
-												<i class="fa fa-3x fa-ban tooltip" data-delay="50" title="@promiser.FirstName gifted this item, but then canceled it." style="color: #b5919b;"></i>
+												<i class="fa fa-3x fa-ban tooltip" data-delay="50" title="@giver.FirstName gifted this item, but then canceled it." style="color: #b5919b;"></i>
 											</div>
 											break;
 
-										case Squid.Wishes.PromiseStatus.Confirmed:
+										case Squid.Wishes.GiftStatus.Confirmed:
 										<div class="col_6 center">
-											<span class="col_12 full center nomargin"><b>Gifted by @promiser.FullName (confirmed)</b></span>
+											<span class="col_12 full center nomargin"><b>Gifted by @giver.FullName (confirmed)</b></span>
 											<span class="col_12 full center" style="font-size: 10pt;">Gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
 										</div>
 										<div class="col_3 center">
@@ -713,25 +786,33 @@
 										</div>
 											break;
 
-										case Squid.Wishes.PromiseStatus.Promised:
+										case Squid.Wishes.GiftStatus.Reserved:
 										<div class="col_6">
-											<span class="col_12 full center nomargin"><b>Gifted by @promiser.FullName</b></span>
+											<span class="col_12 full center nomargin"><b>Reserved by @giver.FullName</b></span>
 										</div>
 										<div class="col_3">
 											<i class="fa fa-3x fa-refresh tooltip" data-delay="50" title="Promised" style="color: #79cae0;"></i>
 										</div>
 											break;
 
-
-										case Squid.Wishes.PromiseStatus.Revealed:
+										case Squid.Wishes.GiftStatus.Purchased:
 										<div class="col_6">
-											<span class="col_12 full center nomargin"><b>Gifted by @promiser.FullName</b></span>
+											<span class="col_12 full center nomargin"><b>Purchased by @giver.FullName</b></span>
+										</div>
+										<div class="col_3">
+											<i class="fa fa-3x fa-refresh tooltip" data-delay="50" title="Promised" style="color: #79cae0;"></i>
+										</div>
+											break;
+
+										case Squid.Wishes.GiftStatus.Revealed:
+										<div class="col_6">
+											<span class="col_12 full center nomargin"><b>Gifted by @giver.FullName</b></span>
 											<span class="col_12 full center">
-												Revealed: @p.RevealDate.ToString("M/dd/yy")
+												Revealed: @g.RevealDate.ToString("M/dd/yy")
 											</span>
 										</div>
 										<div class="col_3 center">
-											<i class="fa fa-3x fa-certificate tooltip" data-delay="50" title="@promiser.FirstName has revealed this gift. It may not have been received yet." style="color: palegoldenrod;"></i>
+											<i class="fa fa-3x fa-certificate tooltip" data-delay="50" title="@giver.FirstName has revealed this gift. It may not have been received yet." style="color: palegoldenrod;"></i>
 										</div>
 											break;
 									}

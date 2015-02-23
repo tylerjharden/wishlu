@@ -124,15 +124,15 @@ namespace Squid.Mail
         }
 
         // Template of the email sent when a gift is revealed
-        public RazorEmailResult RevealEmail(Promise model)
+        public RazorEmailResult RevealEmail(Gift model)
         {
             // mail properties
             MailAttributes.From = new MailAddress("no-reply@wishlu.com", "wishlu");
             MailAttributes.To.Add(new MailAddress(model.GetReceiver().LoginId));
             MailAttributes.Priority = MailPriority.High;
-            MailAttributes.Subject = model.GetPromiser().FullName + " has gifted you one of your items!";
+            MailAttributes.Subject = model.GetGiver().FullName + " has gifted you one of your items!";
 
-            return Email<Promise>("RevealEmail", model);
+            return Email<Gift>("RevealEmail", model);
         }
 
         // Template Email sent when a user requests to reset their password

@@ -16,13 +16,13 @@ using System.Xml;
 
 namespace Squid.Wishes
 {
-    public
-    enum WishStatus
+    public enum WishStatus
     {
         Requested,
         Promised,
         Revealed,
         Confirmed,
+        Reserved,
         Unfulfilled,
         Invalid
     }
@@ -75,9 +75,40 @@ namespace Squid.Wishes
         [JsonProperty("WishStatus")]
         public WishStatus WishStatus { get; set; }
 
-        [JsonProperty("ManuallyConfirmed")]
-        public bool ManuallyConfirmed { get; set; }
-                                
+        [JsonIgnore]
+        public WishStatus Status
+        {
+            get
+            {
+                if (this.GetConfirmedGifts().Count >= this.Quantity)
+                    return WishStatus.Confirmed;
+
+                if (this.GetRevealedGifts().Count >= 1)
+                    return WishStatus.Revealed;
+
+                if (this.GetReservedGifts().Count >= this.Quantity || this.GetPurchasedGifts().Count >= this.Quantity)
+                    return WishStatus.Reserved;
+
+                return WishStatus.Requested; // default valid wish status
+            }
+        }
+
+        [JsonIgnore]
+        public bool IsGiftable
+        {
+            get
+            {
+                Wishlu lu = Wishlu.GetWishLuById(this.GetAssignmentId());
+
+                if (lu.EventDateTime.HasValue && lu.EventDateTime.Value.AddDays(1) < DateTimeOffset.Now)
+                    return false; // this wish is in a wishlu whose event gifting window has already passed
+
+                // gifting window has not passed, or wishlu does not have a specified date
+                // wish is giftable is the number of confirmed gifts is less than the requested quantity
+                return (this.GetConfirmedGifts().Count < this.Quantity);
+            }
+        }
+                      
         [JsonProperty("Quantity")]
         public int Quantity { get; set; }
 
@@ -151,14 +182,12 @@ namespace Squid.Wishes
         [JsonIgnore]
         private static Regex GtinCodeRegex { get; set; }
 
-        static
-        Wish()
+        static Wish()
         {
             GtinCodeRegex = new Regex("^((\\d{8})|(\\d{12,14}))$");
         }
 
-        public
-        Wish()
+        public Wish()
         {
             // Empty Ids
             Id = Guid.Empty;
@@ -179,7 +208,7 @@ namespace Squid.Wishes
             Price = 0.00m;
             Size = "";
             SKU = "";
-                        
+           
             // Default Stats            
             IsCustom = false;
             IsMilkshake = false;
@@ -213,7 +242,7 @@ namespace Squid.Wishes
                 return true;
             }
         }
-
+        
         public void MakeMembersValid()
         {
             Name = Name.Substring(0, 100);
@@ -229,33 +258,17 @@ namespace Squid.Wishes
         public void PerformGeneralValidations(List<ValidationError> validationErrors)
         {
             validationErrors.ValidateMaxLength("Name", Name, 256);
-            validationErrors.ValidateMaxLength("Description", Description, 2048);           
+            validationErrors.ValidateMaxLength("Description", Description, 2048);
             validationErrors.ValidateMaxLength("WishUrl", WishUrl, 2048);
             validationErrors.ValidateNotNull("UserId", UserId);
             validationErrors.ValidateNotNull("Name", Name);
             validationErrors.ValidateRange("Rating", Rating, 0, 5);
-            //validationErrors.ValidatePattern   ("GtinCode"             ,GtinCode              ,GtinCodeRegex,"Service.Wish.InvalidGtinCode");
+            //validationErrors.ValidatePattern("GtinCode", GtinCode, GtinCodeRegex, "Service.Wish.InvalidGtinCode");
         }
-
-        private static Byte[] GetImageData(String imageUrl)
-        {
-            try
-            {
-                using (WebClient webClient = new WebClient())
-                    return webClient.DownloadData(imageUrl);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
+        
         public override void Create()
         {
             List<ValidationError> validationErrors = new List<ValidationError>();
-
-            if (Id == Guid.Empty)
-                Id = Guid.NewGuid();
 
             PerformGeneralValidations(validationErrors);
             validationErrors.ThrowValidationException();
@@ -300,21 +313,8 @@ namespace Squid.Wishes
             if (wishluId != null && wishluId != Guid.Empty)
                 this.AssignToWishlu(wishluId);
         }
-
-        public static List<Wish> GetUsersWishes(Guid userId)
-        {
-            try
-            {
-                return Graph.Instance.Cypher
-                    .OptionalMatch("(user:User)-[:WISHED_FOR]-(wish:Wish)")
-                    .Where((User user) => user.Id == userId)
-                    .Return(wish => wish.As<Wish>())
-                    .Results.ToList();
-            }
-            catch { return null; }
-        }
-        
-        public void DeleteWish()
+                
+        public override void Delete()
         {
             if (!IsDeletable)
             {
@@ -486,7 +486,7 @@ namespace Squid.Wishes
              .CreateUnique("(w2)-[:GRABBED_FROM]->(w1)")
              .ExecuteWithoutResults();
 
-            // Notification
+            // Push Notification
             Notification n = new Notification();
             n.SenderId = userId;
             n.UserId = this.UserId;
@@ -625,6 +625,19 @@ namespace Squid.Wishes
             return this.WishLuId;
         }
 
+        private static Byte[] GetImageData(String imageUrl)
+        {
+            try
+            {
+                using (WebClient webClient = new WebClient())
+                    return webClient.DownloadData(imageUrl);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public bool SetImage(Byte[] imageDataBytes)
         {
             try
@@ -662,7 +675,7 @@ namespace Squid.Wishes
                 _HttpWebRequest.UserAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)";
                 // _HttpWebRequest.Referer = "http://www.google.com/";
 
-                // set timeout for 20 seconds (Optional)
+                // set timeout for 5 seconds (Optional)
                 _HttpWebRequest.Timeout = 5000;
 
                 // Request response:
@@ -702,235 +715,136 @@ namespace Squid.Wishes
             }
             catch { return false; }
         }
-
-        public Promise SelfPromise(Guid userId)
-        {
-            if (WishStatus == WishStatus.Requested)
-                WishStatus = Wishes.WishStatus.Promised;
-
-            if (WishStatus == Wishes.WishStatus.Promised)
-                WishStatus = Wishes.WishStatus.Confirmed;
-
-            this.ManuallyConfirmed = true;
-
-            this.Update();
-
-            return Wishes.Promise.CreateSelfConfirmedPromiseForWish(this.Id, userId);
-        }
-
-        public Promise Promise(Guid userId, DateTimeOffset revealDate)
-        {
-            //using (DatabaseTransactionGuard transaction = new DatabaseTransactionGuard(databaseInstance))
-            //{
-            if (WishStatus == WishStatus.Requested)
-                WishStatus = WishStatus.Promised;
-
-            // This update must be performed even if the status is not being changed.  This will     //
-            // ensure that the wish data that this pledge is based on is not stale data.  i.e. it    //
-            // will ensure that another user has not pledged or granted the wish in the time since   //
-            // this wish object was read from the database.                                          //
-            //                                                                                       //
-            this.Update();
-
-            Promise promise = Wishes.Promise.CreatePromiseForWish(Id, userId, revealDate);
-
-            //if (promise != null)
-            //    promise.SendFirstNotificationMessage();
-            //transaction.Commit();
-            return promise;
-            //}
-        }
-
-        public static Promise PromiseWish(Guid wishId, Guid userId, DateTimeOffset revealDate)
-        {
-            Wish wish = GetWishById(wishId);
-            return wish.Promise(userId, revealDate);
-        }
-
-        public void Reveal(Promise promise)
-        {
-            WishStatus = WishStatus.Revealed;
-            IsRevealed = true;
-
-            this.Update();
-
-            promise.Reveal();
-
-            User promiser = promise.GetPromiser();
-
-            Wishlu wishlu = Wishlu.GetWishLuById(this.GetAssignmentId());
-
-            Notification n = new Notification();
-            n.UserId = this.UserId;
-            n.SenderId = promiser.Id;
-            n.NotificationType = NotificationType.Info;
-            n.Content = promiser.FullName + " has gifted you " + this.Name + ". When you receive it, go to your " + wishlu.Name + " wishlu to confirm as received, or click this notification.";
-            n.Url = "/i/" + this.Id;
-            n.CreateNotification();
-
-            //User to = User.GetUserById(this.UserId);
-
-            /*EmailTask em = new EmailTask();
-            em.EmailNotification = EmailNotification.Reveal;
-            em.To = to.LoginId;
-            em.Subject = promiser.FullName + " has gifted you one of your items!";
-            
-            Graph.Instance.Cypher
-                .Create("(n:EmailTask" + DateTime.Now.ToString("MMddyy") + " {p})")
-                .WithParam("p", em)
-                .ExecuteWithoutResults();*/
-
-            new Mail.MailController().RevealEmail(promise).Deliver();
-        }
-
-        public void Confirm(Promise promise)
-        {
-            //using (DatabaseTransactionGuard transaction = new DatabaseTransactionGuard(databaseInstance))
-            //{
-            WishStatus = WishStatus.Confirmed;
-
-            // This update must be performed even if the status is not being changed.  This will     //
-            // ensure that the wish data that this grant is based on is not stale data.  i.e. it     //
-            // will ensure that another user has not granted the wish in the time since this wish    //
-            // object was read from the database.                                                    //
-            //                    
-            this.Purchased = this.Purchased + 1;
-
-            //
-            this.Update();
-
-            promise.Confirm();
-
-            User promiser = promise.GetPromiser();
-
-            Notification n = new Notification();
-            n.UserId = promiser.Id;
-            n.SenderId = this.UserId;
-            n.NotificationType = NotificationType.Info;
-            n.Content = User.GetUserFullName(this.UserId) + " has confirmed receiving your gift of " + this.Name + ".";
-            n.Url = "/i/" + this.Id;
-            n.CreateNotification();
-
-            //if (followUpTime == null)
-            //MakeGrantNotificationForSinglePledge(pledge);
-            //transaction.Commit();
-            //}
-        }
-
-        public bool HasBeenRevealed()
-        {
-            return GetRevealedPromises().Count > 0;
-        }
-
-        public static void ConfirmWish(Guid promiseId)
-        {
-            Promise promise = null;
-            Wish wish = null;
-
-            try
-            {
-                promise = Wishes.Promise.GetPromiseById(promiseId);
-                wish = promise.GetWish();
-            }
-            catch (ItemNotFoundException exception)
-            {
-                String message = "Service.Pledge.PledgeExpiredError";
-                throw new PledgeExpiredException(message, exception);
-            }
-            wish.Confirm(promise);
-        }
-
-        public void Cancel(Promise promise)
-        {
-            if (promise == null)
-                return;
-
-            if (promise.WishId != Id)
-                return;
-
-            //using (DatabaseTransactionGuard transaction = new DatabaseTransactionGuard(databaseInstance))
-            //{
-
-            promise.Cancel();
-
-            if (WishStatus == WishStatus.Promised && GetPromisedPromises().Count == 0)
-                WishStatus = WishStatus.Requested;
-
-            // This update must be performed even if the status is not being changed.  This will     //
-            // ensure that the wish data that this grant is based on is not stale data.  i.e. it     //
-            // will ensure that another user has not granted the wish in the time since this wish    //
-            // object was read from the database.                                                    //
-            //                                                                                       //
-            this.Update();
-
-            User promiser = promise.GetPromiser();
-
-            Notification n = new Notification();
-            n.UserId = this.UserId;
-            n.SenderId = promiser.Id;
-            n.NotificationType = NotificationType.Info;
-            n.Content = promiser.FullName + " has canceled their promise to give you " + this.Name + ".";
-            n.Url = "/i/" + this.Id;
-            n.CreateNotification();
-
-            //transaction.Commit();
-            //}
-        }
-
-        public static void CancelPromise(Guid promiseId)
-        {
-            Promise promise = null;
-            Wish wish = null;
-
-            try
-            {
-                promise = Wishes.Promise.GetPromiseById(promiseId);
-                wish = promise.GetWish();
-            }
-            catch (ItemNotFoundException exception)
-            {
-                String message = "Service.Promise.PromiseExpiredError";
-
-                throw new PledgeExpiredException(message, exception);
-            }
-            wish.Cancel(promise);
-        }
-
-        public List<Promise> GetConfirmedPromises()
-        {
-            return Wishes.Promise.GetConfirmedPromisesForWish(Id);
-        }
-
-        public List<Promise> GetPromisedPromises()
-        {
-            return Wishes.Promise.GetPromisesForWish(Id);
-        }
-
-        public Promise GetPromise(Guid userId)
+                
+        public List<Gift> GetAllGifts()
         {
             try
             {
                 return Graph.Instance.Cypher
-                     .Match("(user:User)-[r:PROMISED]->(wish:Wish)")
-                     .Where((Promise r) => r.WishId == this.Id)
-                     .AndWhere((Promise r) => r.UserId == userId)
-                     .AndWhere((Promise r) => r.PromiseStatus.ToString() == PromiseStatus.Promised.ToString())
-                     .Return(r => r.As<Promise>())
+                 .Match("(g:Gift)<-[:GIFT]-(w:Wish)")
+                 .Where((Wish w) => w.Id == this.Id)
+                 .Return(g => g.As<Gift>())
+                 .Results.ToList();
+            }
+            catch
+            {
+                return new List<Gift>();
+            }
+        }
+
+        public List<Gift> GetReservedGifts()
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                 .Match("(g:Gift)<-[:GIFT]-(w:Wish)")
+                 .Where((Wish w) => w.Id == this.Id)
+                 .AndWhere((Gift g) => g.Status.ToString() == GiftStatus.Reserved.ToString())
+                 .Return(g => g.As<Gift>())
+                 .Results.ToList();
+            }
+            catch
+            {
+                return new List<Gift>();
+            }
+        }
+
+        public List<Gift> GetPurchasedGifts()
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                 .Match("(g:Gift)<-[:GIFT]-(w:Wish)")
+                 .Where((Wish w) => w.Id == this.Id)
+                 .AndWhere((Gift g) => g.Status.ToString() == GiftStatus.Purchased.ToString())
+                 .Return(g => g.As<Gift>())
+                 .Results.ToList();
+            }
+            catch
+            {
+                return new List<Gift>();
+            }
+        }
+
+        public List<Gift> GetRevealedGifts()
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                 .Match("(g:Gift)<-[:GIFT]-(w:Wish)")
+                 .Where((Wish w) => w.Id == this.Id)
+                 .AndWhere((Gift g) => g.Status.ToString() == GiftStatus.Revealed.ToString())
+                 .Return(g => g.As<Gift>())
+                 .Results.ToList();
+            }
+            catch
+            {
+                return new List<Gift>();
+            }
+        }
+
+        public List<Gift> GetConfirmedGifts()
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                 .Match("(g:Gift)<-[:GIFT]-(w:Wish)")
+                 .Where((Wish w) => w.Id == this.Id)
+                 .AndWhere((Gift g) => g.Status.ToString() == GiftStatus.Confirmed.ToString())
+                 .Return(g => g.As<Gift>())
+                 .Results.ToList();
+            }
+            catch
+            {
+                return new List<Gift>();
+            }
+        }
+
+        public List<Gift> GetCanceledGifts()
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                 .Match("(g:Gift)<-[:GIFT]-(w:Wish)")
+                 .Where((Wish w) => w.Id == this.Id)
+                 .AndWhere((Gift g) => g.Status.ToString() == GiftStatus.Canceled.ToString())
+                 .Return(g => g.As<Gift>())
+                 .Results.ToList();
+            }
+            catch
+            {
+                return new List<Gift>();
+            }
+        }
+
+        public Gift Gift(Guid userId, DateTimeOffset revealDate)
+        {            
+            Gift gift = Wishes.Gift.CreateGiftForWish(Id, userId, UserId, revealDate);
+
+            return gift;
+        }
+
+        public static Gift Gift(Guid wishId, Guid userId, DateTimeOffset revealDate)
+        {
+            Wish wish = GetWishById(wishId);
+            return wish.Gift(userId, revealDate);
+        }
+                
+        public Gift GetGift(Guid userId)
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                     .Match("(g:Gift)<-[:GIFT]-(wish:Wish)")
+                     .Where((Gift g) => g.WishId == this.Id)
+                     .AndWhere((Gift g) => g.GiverId == userId)
+                     .AndWhere((Gift g) => g.Status.ToString() != GiftStatus.Canceled.ToString())
+                     .Return(g => g.As<Gift>())
                      .Results.Single();
             }
             catch { return null; }
         }
-
-        public List<Promise> GetRevealedPromises()
-        {
-            return Wishes.Promise.GetRevealedPromisesForWish(Id);
-        }
-
-        public List<Promise> GetAllPromises()
-        {
-            return Wishes.Promise.GetAllPromisesForWish(Id);
-        }
-
+                
         public static Wish CopyWish(Guid id)
         {
             return Wish.GetWishById(id).Copy();

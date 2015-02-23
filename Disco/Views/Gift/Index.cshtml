@@ -1,0 +1,183 @@
+﻿@model List<Squid.Wishes.Wish>
+@using Disco.Common
+@using System.Text.RegularExpressions
+@{
+    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+
+    Squid.Users.User current = Squid.Users.User.GetUserById(UserId);
+
+    List<Squid.Wishes.Gift> others = current.GetGiftsGiven();
+    List<Squid.Wishes.Gift> my = current.GetGiftsReceived();
+}
+
+@section page {
+    gifts - wishlu
+}
+
+@section title {    
+    <span>gifts</span>
+}
+
+@section styles {
+}
+
+@section scripts {
+
+}
+
+@section info {
+    <div class="col_12" style="text-align:left;height:200px;">
+    </div>
+}
+
+<div class="col_10 clearfix nomargin nopadding">    
+    <div class="col_6" style="border: 2px solid lightblue; border-radius: 15px; background:white;">
+        <a href="/gift/other"><h6 style="margin-left:10px;">gifts for others:</h6></a>
+        <div class="col_12">
+            <h5>reserved:</h5>
+            @foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Reserved))
+            {
+                Squid.Users.User r = g.GetReceiver();
+                Squid.Wishes.Wish w = g.GetWish();
+
+                <div class="col_12">
+                    <span>Receiver: @r.FullName</span>
+                    <span>Item: @w.Name</span>
+                    <span>Gift Status: @g.Status</span>
+                </div>
+            }
+        </div>
+        <div class="col_12">
+            <h5>purchased:</h5>
+            @foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Purchased))
+            {
+                Squid.Users.User r = g.GetReceiver();
+                Squid.Wishes.Wish w = g.GetWish();
+
+                <div class="col_12">
+                    <span>Receiver: @r.FullName</span>
+                    <span>Item: @w.Name</span>
+                    <span>Gift Status: @g.Status</span>
+                </div>
+            }
+        </div>
+        <div class="col_12">
+            <h5>awaiting confirmation:</h5>
+            @foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Revealed))
+            {
+                Squid.Users.User r = g.GetReceiver();
+                Squid.Wishes.Wish w = g.GetWish();
+
+                <div class="col_12">
+                    <span>Receiver: @r.FullName</span>
+                    <span>Item: @w.Name</span>
+                    <span>Gift Status: @g.Status</span>
+                </div>
+            }
+        </div>
+        <div class="col_12">
+            <h5>canceled:</h5>
+            @foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Canceled))
+            {
+                Squid.Users.User r = g.GetReceiver();
+                Squid.Wishes.Wish w = g.GetWish();
+
+                <div class="col_12">
+                    <span>Receiver: @r.FullName</span>
+                    <span>Item: @w.Name</span>
+                    <span>Gift Status: @g.Status</span>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col_6" style="border: 2px solid lightblue; border-radius: 15px; background: white;">
+        <a href="/gift/my"><h6 style="margin-left:10px;">my gifts:</h6></a>        
+        <div class="col_12">
+            <h5>revealed:</h5>
+            @foreach (Squid.Wishes.Gift g in my.Where(x => x.Status == Squid.Wishes.GiftStatus.Revealed))
+            {
+                Squid.Users.User u = g.GetGiver();
+                Squid.Wishes.Wish w = g.GetWish();
+
+                <div class="col_12">
+                    <span>Giver: @u.FullName</span>
+                    <span>Item: @w.Name</span>
+                    <span>Gift Status: @g.Status</span>
+                </div>
+            }
+        </div>        
+        <div class="col_12">
+            <h5>confirmed:</h5>
+            @foreach (Squid.Wishes.Gift g in my.Where(x => x.Status == Squid.Wishes.GiftStatus.Confirmed))
+            {
+                Squid.Users.User u = g.GetGiver();
+                Squid.Wishes.Wish w = g.GetWish();
+                
+                <div class="col_12">
+                    <span>Giver: @u.FullName</span>
+                    <span>Item: @w.Name</span>
+                    <span>Gift Status: @g.Status</span>
+                </div>
+            }
+        </div>
+        <div class="col_12">
+            <h5>canceled:</h5>
+            @foreach (Squid.Wishes.Gift g in my.Where(x => x.Status == Squid.Wishes.GiftStatus.Canceled))
+            {
+                Squid.Users.User u = g.GetGiver();
+                Squid.Wishes.Wish w = g.GetWish();
+                
+                <div class="col_12">
+                    <span>Giver: @u.FullName</span>
+                    <span>Item: @w.Name</span>
+                    <span>Gift Status: @g.Status</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="col_2 clearfix omega" style="float:right; position: relative;">    
+    <!-- Sort -->
+    <div class="col_12 headerfooterFont" style="color:#9a8b7d;"><b>sort:</b></div>
+    <div class="col_12">
+        <select id="sort" class="full small-input input-like lowercase">
+            <option value="1">a - z</option>
+            <option value="2">z - a</option>
+            <option value="3">price: high to low</option>
+            <option value="4">price: low to high</option>
+            <option value="5">rating: highest first</option>
+            <option value="6">rating: lowest first</option>
+            <option selected value="7">date added: newest first</option>
+            <option value="8">date added: newest last</option>
+        </select>
+    </div>
+
+    <hr class="alt1 mg-sm" />
+    <!-- Select Items -->
+    <div class="col_6 headerfooterFont" style="color: #9a8b7d;"><b>select items:</b></div>
+    <div class="col_6 right">
+        <a class="button pop" style="padding:5px;" onclick="clickAll();">all</a>
+        <a class="button pop" style="padding:5px;" onclick="clickNone();">none</a>
+    </div>
+
+    <hr class="alt1 mg-sm" />
+    <!-- Actions -->
+    <div class="col_12 headerfooterFont" style="color: #9a8b7d;"><b>actions:</b></div>
+    @*
+    <a class="button pop full center" id="wish_copy">copy items</a>
+    <div class="col_12 center" id="wish_copy_container" style="display:none;">
+        <select class="full small-input input-like lowercase" id="wish_copy_wishlus">
+            @foreach (Squid.Wishes.Wishlu wishlu in wishlus)
+            {                
+                <option value="@wishlu.Id">@wishlu.Name</option>
+            }
+        </select>
+        <hr class="or" />
+        <input type="text" class="input-like small-input full" id="copy_wishlu_input" placeholder="enter name here" style="margin-top: 5px; margin-bottom: 5px;" />
+        <a class="button pop center" id="wish_copy_do" style="padding:5px;">copy</a>
+    </div>
+    *@
+
+    <a class="button pop full center" id="wish_delete">delete items</a>
+</div>

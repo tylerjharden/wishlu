@@ -534,6 +534,9 @@
     <Content Include="Views\Sitemap\Stores.cshtml" />
     <Content Include="Views\Sitemap\Members.cshtml" />
     <Content Include="Views\Category\Subcategories.cshtml" />
+    <Content Include="Views\Gift\Index.cshtml" />
+    <Content Include="Views\Gift\My.cshtml" />
+    <Content Include="Views\Gift\Other.cshtml" />
     <None Include="Web.config">
       <SubType>Designer</SubType>
     </None>

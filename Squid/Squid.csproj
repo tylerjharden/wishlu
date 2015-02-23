@@ -195,7 +195,7 @@
     <Compile Include="Users\User.cs" />
     <Compile Include="Validation\ValidationError.cs" />
     <Compile Include="Validation\ValidationHelper.cs" />
-    <Compile Include="Wishes\Promise.cs" />
+    <Compile Include="Wishes\Gift.cs" />
     <Compile Include="Wishes\Wish.cs" />
     <Compile Include="Wishes\WishAssignment.cs" />
     <Compile Include="Wishes\Wishloop.cs" />

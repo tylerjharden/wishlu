@@ -215,6 +215,7 @@ namespace Squid.Database
         SUBSCRIBED_TO,
         CONNECTED_ACCOUNT,
         CREATED,
-        CREATED_BY
+        CREATED_BY,
+        GIFTED
     }
 }

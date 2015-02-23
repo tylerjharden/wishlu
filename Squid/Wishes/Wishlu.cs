@@ -406,7 +406,7 @@ namespace Squid.Wishes
             List<Wish> wishes = GetWishes();
             if (deleteWishLuOptions == DeleteWishluOptions.DeleteAllWishes)            
                 foreach (Wish wish in wishes)
-                    wish.DeleteWish();            
+                    wish.Delete();            
             else            
                 foreach (Wish wish in wishes)
                     wish.AssignToJustMeWishLu();

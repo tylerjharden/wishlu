@@ -41,18 +41,18 @@ namespace Fantine
         {
             if (ShouldFetch())
                 FetchRevealTasks();
-                                    
+            
             foreach (RevealTask rt in RevealTasks)
             {
                 try
                 {
-                    Logger.Log("Fantine is revealing a promise! (Id: " + rt.PromiseId + ")");
+                    Logger.Log("Fantine is revealing a gift! (Id: " + rt.GiftId + ")");
 
-                    Promise p = Promise.GetPromiseById(rt.PromiseId);
-                    Wish w = p.GetWish();
-                    User u = p.GetPromiser();
+                    Gift g = Gift.GetGiftById(rt.GiftId);
+                    //Wish w = g.GetWish();
+                    //User u = g.GetGiver();
 
-                    w.Reveal(p);                                        
+                    g.Reveal();
                 }
                 catch (Exception e)
                 {
@@ -62,7 +62,7 @@ namespace Fantine
                 {
                     Graph.Instance.Cypher
                         .Match("(task:RevealTask" + DateTime.Now.ToString("MMddyy") + ")")
-                        .Where((RevealTask task) => task.PromiseId == rt.PromiseId)
+                        .Where((RevealTask task) => task.GiftId == rt.GiftId)
                         .Delete("task")
                         .ExecuteWithoutResults();
                 }                

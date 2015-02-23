@@ -14,7 +14,7 @@
                                                                                         </div>
 }
 @{
-    Squid.Users.User promiser = Model.GetPromiser();
+    Squid.Users.User promiser = Model.GetGiver();
     Squid.Users.User to = Model.GetReceiver();
     Squid.Wishes.Wish wish = Model.GetWish();
     Squid.Wishes.Wishlu wishlu = Squid.Wishes.Wishlu.GetWishLuById(wish.GetAssignmentId());
@@ -38,6 +38,6 @@
         <img style="width:50%;" src="@wish.ImageUrl" />
     </div>
     <br />
-    @Button("http://www.wishlu.com/i/" + wish.Id, "view item & confirm")    
+    @Button("http://www.wishlu.com/i/" + wish.Id, "view item & confirm")
 </div>
 

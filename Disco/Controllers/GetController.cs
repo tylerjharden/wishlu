@@ -176,7 +176,7 @@ namespace Disco.Controllers
         [Authorize]
         public ActionResult Wishes()
         {
-            List<Squid.Wishes.Wish> model = Squid.Wishes.Wish.GetUsersWishes(GetCurrentUserId());
+            List<Squid.Wishes.Wish> model = Squid.Users.User.GetUsersWishes(GetCurrentUserId());
 
             return PartialView("Wishes", model);
         }
