@@ -9,17 +9,9 @@
 	string wishNotes = Model.Notes;
 	string wishModified = Model.LastModifiedOn.ToString("M.d.yy");
 	string wishCreated = Model.CreatedOn.ToString("M.d.yy");
-	string wishUrl = Model.WishUrl;
-	string wishAddress1 = Model.SourceAddress1;
-	string wishAddress2 = Model.SourceAddress2;
-	string wishCity = Model.SourceCity;
-	string wishState = Model.SourceStateOrProvince;
-	string wishZip = Model.SourceZipOrPostalCode;
-	string wishCountry = Model.SourceCountryId;
+	string wishUrl = Model.WishUrl;	
 	int wishRating = Model.Rating;
-	string wishPrice = "$" + @Model.Price.ToString();
-	string fulladdress = wishAddress1 + "\n" + wishAddress2 + "\n" + wishCity + ", " + wishState + " " + wishZip + "\n" + wishCountry;
-	fulladdress = fulladdress.Replace("\n\n", "\n").Replace("\n, ", "\n").Replace("  ", " ");
+	string wishPrice = "$" + @Model.Price.ToString();	
 	int wishQuantity = Model.Quantity;
 	wishQuantity = wishQuantity == 0 ? 1 : wishQuantity;
 }
@@ -142,7 +134,7 @@
 		<div class="col_6">
 			<!-- Wish Image Container -->
 			<div class="col_12 pop wishLuList tilelarge sitelink" style="padding: 5px; margin-top: 0;" onclick="$('#filePicker').trigger('click');">
-				<div id="wishimage" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@Model.ImageUrl'); width: 400px; height: 400px; text-align: center;">&nbsp;</div>
+				<div id="wishimage" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@Model.Image'); width: 400px; height: 400px; text-align: center;">&nbsp;</div>
 			</div>
 
 			@if (Model.IsCustom)
@@ -175,22 +167,15 @@
 					else
 					{
 						if (Model.WishUrl != null && !String.IsNullOrEmpty(Model.WishUrl))
-						{
-							if (Model.Shop != null && !String.IsNullOrWhiteSpace(Model.Shop) && !String.IsNullOrWhiteSpace(Model.Shop))
+						{							
+							try
 							{
-								<a target="_blank" href="@wishUrl"><span style="float: left; width: 85%; overflow: hidden; color: #9a8b7d; font-weight: bold;">View on @(Model.Shop) @*@wishUrl.Replace("http://", "").Remove(wishUrl.Replace("http://", "").IndexOf("/"))*@</span></a>
-							}
-							else
-							{
-								try
-								{
-									Uri url = new Uri(wishUrl);
+								Uri url = new Uri(wishUrl);
 
-									<a target="_blank" href="@wishUrl"><span style="float: left; width: 85%; overflow: hidden; color: #9a8b7d; font-weight: bold;">View on @(url.Host)</span></a>
-								}
-								catch
-								{ }
+								<a target="_blank" href="@wishUrl"><span style="float: left; width: 85%; overflow: hidden; color: #9a8b7d; font-weight: bold;">View on @(url.Host)</span></a>
 							}
+							catch
+							{ }
 						}
 					}
 				</div>

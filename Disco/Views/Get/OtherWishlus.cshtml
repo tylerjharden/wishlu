@@ -88,9 +88,9 @@
                 @foreach (Squid.Wishes.Wish wish in wishes.OrderByDescending(x => x.Rating).Take(6))
                 {
                     string thisImage = "//assets.wishlu.com/images/DefaultWish.jpg";
-                    if (@wish.ImageUrl != null)
+                    if (wish.ImageUrl != null)
                     {
-                        thisImage = @wish.ImageUrl;
+                        thisImage = wish.Image;
                     }
                     <a href="@("/i/" + wish.Id.ToString())" style="position:relative;">
                         <div class="col_4 center square" style="position:relative; border: 1px solid #a8a096; background-position: center; background-size: contain; background-repeat: no-repeat; background-image: url('@(thisImage)'); background-color: white; font-size: .75em;">

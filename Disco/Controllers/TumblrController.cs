@@ -58,7 +58,7 @@ namespace Disco.Controllers
                 Session["LastName"] = wlUser.LastName;
                 Session["Email"] = wlUser.Email;
                 Session["DOB"] = wlUser.DateOfBirth;
-                Session["ImageURL"] = wlUser.ImageUrl;
+                Session["ImageURL"] = wlUser.Image;
                 Session["LANGUAGE"] = "en-us";
                 Session["IsAdmin"] = wlUser.IsAdminUser;
 
@@ -154,7 +154,7 @@ namespace Disco.Controllers
                         Session["LastName"] = wlUser.LastName;
                         Session["Email"] = wlUser.Email;
                         Session["DOB"] = wlUser.DateOfBirth;
-                        Session["ImageURL"] = wlUser.ImageUrl;
+                        Session["ImageURL"] = wlUser.Image;
                         Session["LANGUAGE"] = "en-us";
                         Session["IsAdmin"] = wlUser.IsAdminUser;
 
@@ -216,7 +216,7 @@ namespace Disco.Controllers
                     Session["LastName"] = wlUser.LastName;
                     Session["Email"] = wlUser.Email;
                     Session["DOB"] = wlUser.DateOfBirth;
-                    Session["ImageURL"] = wlUser.ImageUrl;
+                    Session["ImageURL"] = wlUser.Image;
                     Session["LANGUAGE"] = "en-us";
                     Session["IsAdmin"] = wlUser.IsAdminUser;
 

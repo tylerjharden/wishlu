@@ -27,8 +27,8 @@
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="wishlu" />
 	<meta property="og:title" content="Join @Model.Inviter.FullName on wishlu" />
-	<meta property="og:image" content="http://assets.wishlu.com/images/logobeta.jpg" />
-	<meta property="og:url" content="http://www.wishlu.com/join/invite?code=@Model.Code" />
+	<meta property="og:image" content="https://assets.wishlu.com/images/logobeta.jpg" />
+	<meta property="og:url" content="https://www.wishlu.com/join/invite?code=@Model.Code" />
 	<meta property="og:description" content="@Model.Inviter.FirstName would like you to join @(Model.Inviter.Gender == 'f' ? "her" : "him") on wishlu, the new way to give (and to get)." />
 }
 
@@ -212,7 +212,7 @@
 }
 
 <div class="col_12 pop nomargin center full" style="margin-bottom: 10px !important; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white; padding:5px;">
-	<div class="circlefriend pop centerDiv" style="background-image: url('@Model.Inviter.ImageUrl'); width: 100px; height: 100px;">
+	<div class="circlefriend pop centerDiv" style="background-image: url('@Model.Inviter.Image'); width: 100px; height: 100px;">
 	</div>
 	@if (Model.Inviter.Gender == 'm')
 	{

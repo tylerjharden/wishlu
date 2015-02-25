@@ -28,13 +28,14 @@ namespace Squid.Services.Imgur
                 System.Text.RegularExpressions.Regex reg = new System.Text.RegularExpressions.Regex("link\":\"(.*?)\"");
                 System.Text.RegularExpressions.Match match = reg.Match(result);
                 string url = match.ToString().Replace("link\":\"", "").Replace("\"", "").Replace("\\/", "/");
+                url = url.Replace("http://", "https://");
                 return url;
             }
             catch (Exception s)
             {
                 Logger.Error("Imgur Exception: " + s.ToString());
 
-                return "failed!";
+                return "//assets.wishlu.com/images/DefaultWish.jpg";
             }
         }
 
@@ -54,6 +55,7 @@ namespace Squid.Services.Imgur
                 System.Text.RegularExpressions.Regex reg = new System.Text.RegularExpressions.Regex("link\":\"(.*?)\"");
                 System.Text.RegularExpressions.Match match = reg.Match(result);
                 string url = match.ToString().Replace("link\":\"", "").Replace("\"", "").Replace("\\/", "/");
+                url = url.Replace("http://", "https://");
                 return url;
             }
             catch (Exception s)

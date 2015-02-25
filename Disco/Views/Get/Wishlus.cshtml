@@ -66,7 +66,7 @@
                     string thisImage = "//assets.wishlu.com/images/DefaultWish.jpg";
                     if (!String.IsNullOrEmpty(wish.ImageUrl))
                     {
-                        thisImage = wish.ImageUrl;
+                        thisImage = wish.Image;
                     }
                     <a href="@("/i/" + wish.Id.ToString())">
                         <div class="col_4 square" style="position: relative; border: 1px solid #a8a096; background-size: contain; background-position: center; background-repeat: no-repeat; background-image: url('@thisImage');">

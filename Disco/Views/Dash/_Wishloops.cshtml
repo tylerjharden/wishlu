@@ -50,7 +50,7 @@
 
 				<a href="@Url.Action("view", "user", routeValues: new { @id = mem.Id })">
 					<div class="@(cols) nomargin">
-						<div class="centerDiv circlefriend pop tooltip" data-delay="50" title="@(curMember)" style="background-image: url('@(mem.ImageUrl)'); @(memberCounter == 2 || memberCounter == 7 ? "margin-left: -25px;" : "")">
+						<div class="centerDiv circlefriend pop tooltip" data-delay="50" title="@(curMember)" style="background-image: url('@(mem.Image)'); @(memberCounter == 2 || memberCounter == 7 ? "margin-left: -25px;" : "")">
 						</div>
 					</div>
 				</a>

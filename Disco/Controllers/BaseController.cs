@@ -247,7 +247,7 @@ namespace Disco.Controllers
 			Session["LastName"] = user.LastName;
 			Session["Email"] = user.Email;
 			Session["DOB"] = user.DateOfBirth;
-			Session["ImageURL"] = user.ImageUrl;
+			Session["ImageURL"] = user.Image;
 			Session["LANGUAGE"] = "en-us";
 			Session["IsAdmin"] = user.IsAdminUser;
 			Session["TutorialMode"] = user.TutorialMode;

@@ -61,7 +61,7 @@
 	<meta property="og:type" content="og:product" />
 	<meta property="og:site_name" content="wishlu" />
 	<meta property="og:title" content="@wishName" />
-	<meta property="og:image" content="@Model.ImageUrl" />
+	<meta property="og:image" content="@Model.Image" />
 	<meta property="og:url" content="http://www.wishlu.com/i/@Model.Id" />
 	@if (String.IsNullOrEmpty(Model.Description))
 	{
@@ -100,7 +100,7 @@
 	<meta name="twitter:creator" content="@("@" + creator.TwitterUserId)">
 	<meta name="twitter:title" content="@wishName" />
 	<meta name="twitter:description" content="@Model.Description" />
-	<meta name="twitter:image:src" content="@Model.ImageUrl" />
+	<meta name="twitter:image:src" content="@Model.Image" />
 	<meta name="twitter:data1" content="@(wishPrice) USD" />
 	<meta name="twitter:label1" content="PRICE" />
 	<meta name="twitter:data2" content="Available at " />
@@ -438,7 +438,7 @@
 		<div class="col_6">
 			<!-- Item Image / Status Banner -->
 			<div class="col_12 pop wishimg wishLuList tilelarge" style="position: relative; padding: 5px; margin-top: 0;">
-				<div id="image@(Model.Id)" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@Model.ImageUrl'); width: 400px; height: 400px;">
+				<div id="image@(Model.Id)" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@Model.Image'); width: 400px; height: 400px;">
 				</div>
 				@if (Model.Status == Squid.Wishes.WishStatus.Revealed)
 				{
@@ -468,8 +468,8 @@
 					<fb:send href="http://www.wishlu.com/i/@(Model.Id)" colorscheme="light" style="vertical-align: top !important;"></fb:send>
 					<div class="g-plus" data-action="share" data-annotation="none" data-href="http://www.wishlu.com/i/@Model.Id"></div>
 					<a href="https://twitter.com/share" class="twitter-share-button" data-related="wishlu:The official Wishlu Twitter" data-via="wishlu" data-url="http://wishlu.com/i/@Model.Id" data-text="Check out my wish" data-lang="en" data-size="medium" data-count="none">Tweet</a>
-					<a onclick="pinClicked(this.href); return false;" href="//www.pinterest.com/pin/create/button/?url=http://www.wishlu.com/i/@(Model.Id)&media=@Url.Encode(Model.ImageUrl)&description=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)" data-pin-do="buttonPin" data-pin-config="none" data-pin-color="red" style="vertical-align:top; background: url('http://assets.pinterest.com/images/pinit6.png');font: 11px Arial, sans-serif; text-indent: -9999em; font-size: .01em; color: #CD1F1F; height: 20px; width: 43px; background-position: 0 -7px;"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_20.png" style="vertical-align:top;" /></a>
-					<a href="http://www.tumblr.com/share/photo?source=@Url.Encode(Model.ImageUrl)&caption=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)&clickthru=http://www.wishlu.com/i/@(Model.Id))" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url('http://platform.tumblr.com/v1/share_2.png') top left no-repeat transparent;">Share on Tumblr</a>
+					<a onclick="pinClicked(this.href); return false;" href="//www.pinterest.com/pin/create/button/?url=http://www.wishlu.com/i/@(Model.Id)&media=@Url.Encode(Model.Image)&description=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)" data-pin-do="buttonPin" data-pin-config="none" data-pin-color="red" style="vertical-align:top; background: url('http://assets.pinterest.com/images/pinit6.png');font: 11px Arial, sans-serif; text-indent: -9999em; font-size: .01em; color: #CD1F1F; height: 20px; width: 43px; background-position: 0 -7px;"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_20.png" style="vertical-align:top;" /></a>
+					<a href="http://www.tumblr.com/share/photo?source=@Url.Encode(Model.Image)&caption=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)&clickthru=http://www.wishlu.com/i/@(Model.Id))" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url('http://platform.tumblr.com/v1/share_2.png') top left no-repeat transparent;">Share on Tumblr</a>
 				</div>
 			}
 
@@ -543,7 +543,7 @@
 					<div id="wish_newcomment" class="col_12" style="background-color:rgba(190, 190, 190, .2);">
 						<div class="col_2">
 							<a href="/u/@current.Id">
-								<img src="@current.ImageUrl" width="50" height="50" style="display: inline-block;" />
+								<img src="@current.Image" width="50" height="50" style="display: inline-block;" />
 							</a>
 						</div>
 						<div class="col_10">
@@ -565,7 +565,7 @@
 
 							<div class="col_12 wish_comment">
 								<div class="col_2">
-									<img src="@author.ImageUrl" width="50" height="50" style="display: inline-block;" />
+									<img src="@author.Image" width="50" height="50" style="display: inline-block;" />
 								</div>
 								<div class="col_10">
 									<div class="post_container">
@@ -761,7 +761,7 @@
 									@{var giver = g.GetGiver();}
 									<div class="col_3">
 										<a href="/u/@giver.Id">
-											<div class="circlefriend pop" style="background-image: url('@(giver.ImageUrl)'); border: 1px solid gray; width: 50px; height: 50px"></div>
+											<div class="circlefriend pop" style="background-image: url('@(giver.Image)'); border: 1px solid gray; width: 50px; height: 50px"></div>
 										</a>
 									</div>
 									@switch (g.Status)

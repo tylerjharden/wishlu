@@ -99,8 +99,8 @@
 @section styles {
 	<link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/jquery.rating.css" />
 
-	<link rel="stylesheet" href="http://assets.wishlu.com/css/twotap/animate.css" />
-	<link rel="stylesheet" href="http://assets.wishlu.com/css/twotap/twotap.css" />
+	<link rel="stylesheet" href="https://assets.wishlu.com/css/twotap/animate.css" />
+	<link rel="stylesheet" href="https://assets.wishlu.com/css/twotap/twotap.css" />
 
 	<style>
 		.twitter-share-button {
@@ -325,7 +325,7 @@
 				<fb:send href="http://www.wishlu.com/p/@(p.Id)" colorscheme="light" style="vertical-align: top !important;"></fb:send>
 				<div class="g-plus" data-action="share" data-annotation="none" data-href="http://www.wishlu.com/p/@p.Id"></div>
 				<a href="https://twitter.com/share" class="twitter-share-button" data-related="wishlu:The official Wishlu Twitter" data-via="wishlu" data-url="http://www.wishlu.com/p/@p.Id" data-text="Check out this product on wishlu" data-lang="en" data-size="medium" data-count="none">Tweet</a>
-				<a onclick="pinClicked(this.href); return false;" href="//www.pinterest.com/pin/create/button/?url=http://www.wishlu.com/p/@(p.Id)&media=@Url.Encode(p.Image)&description=@Url.Encode(p.Description != null ? p.Description : p.Name)" data-pin-do="buttonPin" data-pin-config="none" data-pin-color="red" style="vertical-align:top; background: url('http://assets.pinterest.com/images/pinit6.png');font: 11px Arial, sans-serif; text-indent: -9999em; font-size: .01em; color: #CD1F1F; height: 20px; width: 43px; background-position: 0 -7px;"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_20.png" style="vertical-align:top;" /></a>
+				<a onclick="pinClicked(this.href); return false;" href="//www.pinterest.com/pin/create/button/?url=http://www.wishlu.com/p/@(p.Id)&media=@Url.Encode(p.Image)&description=@Url.Encode(p.Description != null ? p.Description : p.Name)" data-pin-do="buttonPin" data-pin-config="none" data-pin-color="red" style="vertical-align:top; background: url('https://assets.pinterest.com/images/pinit6.png');font: 11px Arial, sans-serif; text-indent: -9999em; font-size: .01em; color: #CD1F1F; height: 20px; width: 43px; background-position: 0 -7px;"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_20.png" style="vertical-align:top;" /></a>
 				<a href="http://www.tumblr.com/share/photo?source=@Url.Encode(p.Image)&caption=@Url.Encode(p.Description != null ? p.Description : p.Name)&clickthru=http://www.wishlu.com/p/@(p.Id))" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url('http://platform.tumblr.com/v1/share_2.png') top left no-repeat transparent;">Share on Tumblr</a>
 			</div>
 		</div>

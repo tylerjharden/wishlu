@@ -460,7 +460,7 @@ namespace Disco.Controllers
                     wlUser.HideAge = model.HideAge;
 
                     // Default the user's profile to their Facebook Profile Picture
-                    wlUser.ImageUrl = string.Format("http://graph.facebook.com/{0}/picture", wlUser.FacebookPageId);
+                    wlUser.ImageUrl = string.Format("https://graph.facebook.com/{0}/picture", wlUser.FacebookPageId);
 
                     wlUser.FacebookPageId = model.FacebookId;
                     wlUser.FacebookAccessToken = model.FacebookToken;

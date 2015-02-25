@@ -80,7 +80,7 @@
     <!-- Facebook -->
     <meta property="og:title" content="@Model.FullName's profile on wishlu." />
     <meta property="og:type" content="profile" />
-    <meta property="og:image" content="@Model.ImageUrl" />
+    <meta property="og:image" content="@Model.Image" />
     <meta property="og:url" content="http://www.wishlu.com/u/@Model.Id" />
     <meta property="profile:first_name" content="@Model.FirstName" />
     <meta property="profile:last_name" content="@Model.LastName" />
@@ -387,7 +387,7 @@
 <div class="grid" style="position: relative; padding: 0;">
     <div class="col_4">
         <div class="col_12 wishLuList center pop" style="background-color: white; border-color: gray;">
-            <div class="col_12 circle pop" style="float: none; display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(Model.ImageUrl)?width=200&height=200'); background-color: white; width: 200px; height: 200px; /*width: 250px; height: 250px;*/">
+            <div class="col_12 circle pop" style="float: none; display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(Model.Image)?width=200&height=200'); background-color: white; width: 200px; height: 200px; /*width: 250px; height: 250px;*/">
             </div>
         </div>
         <div class="col_12 wishLuList center pop" style="color: #a8a096; background-color: white; border-color: gray; padding-bottom: 5px;">
@@ -566,7 +566,7 @@
                         try
                         {
                             <a href="/u/@friend.Id">
-                                <div class="col_2 circle pop tooltip-top" title="@friend.FullName" style="float: none; display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.ImageUrl : "//assets.wishlu.com/images/GenericFriend.png")'); background-color: white; width: 100px; height: 100px;">
+                                <div class="col_2 circle pop tooltip-top" title="@friend.FullName" style="float: none; display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.Image : "//assets.wishlu.com/images/GenericFriend.png")'); background-color: white; width: 100px; height: 100px;">
                                     <div class="col_12" style="margin: 0; margin-top: 10px; opacity: 0.9;">
                                     </div>
                                 </div>

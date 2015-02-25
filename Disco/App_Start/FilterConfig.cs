@@ -9,6 +9,7 @@ namespace Disco
       {
          filters.Add(new HandleErrorAttribute());
          filters.Add(new ValidateAntiForgeryTokenOnAllPosts());
+         filters.Add(new RequireHttpsAttribute());
       }
    }
 }

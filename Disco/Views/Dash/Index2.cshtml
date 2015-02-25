@@ -144,9 +144,9 @@
                     foreach (Squid.Wishes.Wish wish in Squid.Users.User.GetUsersWishes(UserId).OrderByDescending(x => x.CreatedOn).Take(8))
                     {
                         string thisImage = "//assets.wishlu.com/images/DefaultWish.jpg";
-                        if (@wish.ImageUrl != null)
+                        if (wish.ImageUrl != null)
                         {
-                            thisImage = @wish.ImageUrl;
+                            thisImage = wish.Image;
                         }
                         <div style="display:inline-block; border: 1px solid #a8a096; background-size: contain; background-position: center; background-repeat: no-repeat; background-image: url('@thisImage'); background-color: transparent; height: 75px; width: 75px;">
                         </div>
@@ -195,7 +195,7 @@
                         memberCounter++;
 
                         <div class="col_3" style="margin-bottom: 0; border: 1px solid gray;">
-                            <div class="centerDiv circlefriend pop" style="background-image: url('@(mem.ImageUrl)'); background-position: center; width: 65px; height: 65px; border: 2px solid gray;">
+                            <div class="centerDiv circlefriend pop" style="background-image: url('@(mem.Image)'); background-position: center; width: 65px; height: 65px; border: 2px solid gray;">
                             </div>
                         </div>
                     }

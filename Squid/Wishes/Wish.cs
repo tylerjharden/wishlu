@@ -62,6 +62,15 @@ namespace Squid.Wishes
 
         [JsonProperty("ImageUrl")]
         public String ImageUrl { get; set; }
+
+        [JsonIgnore]
+        public string Image
+        {
+            get
+            {
+                return ImageUrl.Replace("http://", "https://");
+            }
+        }
                 
         [JsonProperty("WishUrl")]
         public String WishUrl { get; set; }

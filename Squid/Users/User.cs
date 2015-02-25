@@ -173,7 +173,17 @@ namespace Squid.Users
         public bool IsAdminUser { get; set; } // this user is an administrator / developer
 
         [JsonProperty("ImageUrl")]
-        public String ImageUrl { get; set; }
+        public String ImageUrl
+        {
+            get;
+            set;
+        }
+
+        [JsonIgnore]
+        public string Image
+        {
+            get { return ImageUrl.Replace("http://", "https://"); }
+        }
 
         [JsonProperty("Gender")]
         public Char Gender { get; set; }
@@ -338,7 +348,7 @@ namespace Squid.Users
             //ConnectionIds = new HashSet<string>();
             Token = Guid.Empty;
             TokenExpirationTime = DateTimeOffset.MinValue;
-            ImageUrl = "http://assets.wishlu.com/images/GenericFriend.png"; // default profile picture
+            ImageUrl = "//assets.wishlu.com/images/GenericFriend.png"; // default profile picture
             DateOfBirth = DateTimeOffset.MinValue;
             LoginId = "";
             Email = "";
@@ -1698,9 +1708,9 @@ namespace Squid.Users
 
             user.IncrementLoginCounter();
 
-            if(user.ImageUrl == "http://assets.wishlu.com/images/GenericFriend.png")
+            if(user.ImageUrl == "//assets.wishlu.com/images/GenericFriend.png")
             {
-                user.ImageUrl = string.Format("http://graph.facebook.com/{0}/picture", facebook_userID);
+                user.ImageUrl = string.Format("//graph.facebook.com/{0}/picture", facebook_userID);
                 user.Set("ImageUrl", user.ImageUrl);
             }
             

@@ -18,7 +18,7 @@
 
 <div style="width:600px; border: 2px solid lightblue; border-radius: 15px; margin:25px; padding: 25px;">
     <div style="text-align:center;">
-        <img src="http://assets.wishlu.com/images/email/logo.png" />
+        <img src="https://assets.wishlu.com/images/email/logo.png" />
     </div>
     
     <br />
@@ -29,11 +29,11 @@
     <span style="text-align:center;">Thank you for joining wishlu. To finish signing up, please confirm your email.</span>
     <br />
     <br />
-    @Button(string.Format("http://www.wishlu.com/user/verify?token={0}!{1}", Model.Id, Model.VerificationCode), "confirm your email")
+    @Button(string.Format("https://www.wishlu.com/user/verify?token={0}!{1}", Model.Id, Model.VerificationCode), "confirm your email")
     @*<a class="button pop center" style="text-shadow:0 1px 0 #fff;font-size:14px;vertical-align: middle;color:#666;text-decoration:none;position:relative;top:0;left:0;box-sizing: border-box; display:inline-block; @background border:1px solid #ccc; border-radius: 5px; padding: 10px 15px; " href="http://www.wishlu.com/user/verify?token=@(Model.Id)!@(Model.VerificationCode)">confirm your email</a>*@
 
     <p>If the button isn't working paste the link below in your browser</p>
-    <p>http://www.wishlu.com/user/verify?token=@(Model.Id)!@(Model.VerificationCode)</p>
+    <p>https://www.wishlu.com/user/verify?token=@(Model.Id)!@(Model.VerificationCode)</p>
 </div>
 
 <div class="footer" style="width:600px; margin:25px; padding: 25px; text-align: center;">
