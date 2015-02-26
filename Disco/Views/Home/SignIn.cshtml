@@ -4,7 +4,7 @@
         
     // Facebook
     string clientId = "296645670486904";
-    string redirectUrl = "http://www.wishlu.com/facebook/signin";
+    string redirectUrl = "https://www.wishlu.com/facebook/signin";
     string scope = "read_friendlists,email,offline_access";
     TempData["ReturnUrl"] = ViewBag.ReturnUrl;
 }
@@ -133,7 +133,7 @@ input[type="checkbox"]:checked + label span.fa-circle-o {
             $(this).attr('href', 'https://accounts.google.com/o/oauth2/auth?scope=' +
               'https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login&' +
               'state=@ViewData["googleplus_state"]&' +
-              'redirect_uri=http://wishlu.com/google/signin&' +
+              'redirect_uri=https://wishlu.com/google/signin&' +
               'response_type=code&' +
               'client_id=432351898016-1g1q8vbuqhp5nui1fmeu2iuitruumd7n.apps.googleusercontent.com&' +
               'access_type=offline');

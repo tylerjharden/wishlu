@@ -11,6 +11,8 @@
 
    <script type="text/javascript">
        $(document).ready(function () {
+           var submitting = false;
+
            $("#joinForm").validate({
                errorPlacement: function (error, element) {
                    error.appendTo($('#formError'));
@@ -104,24 +106,27 @@
                    $("#join_submit").disabled = true;
                    $("#join_submit").html("<i class='fa fa-spinner fa-spin'></i>");
 
-                   $.ajax({
-                       type: "POST",
-                       url: "/facebook/create",
-                       dataType: 'json',
-                       contentType: 'application/json; charset=utf-8',
-                       traditional: true,
-                       data: JSON.stringify(getCreateUser()),
-                       success: function (data, status, request) {
-                           if (data.result == true) {
-                               swal("Success!", data.message, "success");
-                               location.href = "/tutorial/see";
-                           }
-                           else {
-                               swal("Uh oh...", data.message, "error");
-                           }
-                       },
-                       error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-                   });
+                   if (!submitting) {
+                       submitting = true;
+                       $.ajax({
+                           type: "POST",
+                           url: "/facebook/create",
+                           dataType: 'json',
+                           contentType: 'application/json; charset=utf-8',
+                           traditional: true,
+                           data: JSON.stringify(getCreateUser()),
+                           success: function (data, status, request) {
+                               if (data.result == true) {
+                                   swal("Success!", data.message, "success");
+                                   location.href = "/tutorial/see";
+                               }
+                               else {
+                                   swal("Uh oh...", data.message, "error");
+                               }
+                           },
+                           error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                       });
+                   }
 
                    function getCreateUser() {
                        var data = {}

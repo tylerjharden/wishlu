@@ -270,7 +270,7 @@ a {
 	position: absolute;
 	top: 50px;
 	/*bottom: 25px;*/ /* PRE ALPHA */
-	bottom: 0; /* Changed for alpha for new, minimalist footer */
+	/*bottom: 0;*/ /* Changed for alpha for new, minimalist footer */
 	left: 0;
 	right: 0;
 	overflow:visible;

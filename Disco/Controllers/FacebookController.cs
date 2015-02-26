@@ -51,7 +51,7 @@ namespace Disco.Controllers
 
             if (Session["fb_access_token"] == null)
             {
-                string token = Squid.Users.FacebookManager.GetOauthToken(code, "http://www.wishlu.com/facebook/connect");
+                string token = Squid.Users.FacebookManager.GetOauthToken(code, "https://www.wishlu.com/facebook/connect");
 
                 access_token = Squid.Users.FacebookManager.GetExtendedAccessToken(token);
 
@@ -110,7 +110,7 @@ namespace Disco.Controllers
 
             if (Session["fb_access_token"] == null)
             {
-                string token = Squid.Users.FacebookManager.GetOauthToken(code, "http://www.wishlu.com/facebook/signin");
+                string token = Squid.Users.FacebookManager.GetOauthToken(code, "https://www.wishlu.com/facebook/signin");
 
                 access_token = Squid.Users.FacebookManager.GetExtendedAccessToken(token);
 
@@ -178,7 +178,7 @@ namespace Disco.Controllers
 
             if (Session["fb_access_token"] == null)
             {
-                string token = Squid.Users.FacebookManager.GetOauthToken(code, "http://www.wishlu.com/facebook/register");
+                string token = Squid.Users.FacebookManager.GetOauthToken(code, "https://www.wishlu.com/facebook/register");
 
                 access_token = Squid.Users.FacebookManager.GetExtendedAccessToken(token);
 
@@ -278,7 +278,7 @@ namespace Disco.Controllers
 
             if (Session["fb_access_token"] == null)
             {
-                string token = Squid.Users.FacebookManager.GetOauthToken(code, "http://www.wishlu.com/facebook/invite?key=" + key);
+                string token = Squid.Users.FacebookManager.GetOauthToken(code, "https://www.wishlu.com/facebook/invite?key=" + key);
 
                 access_token = Squid.Users.FacebookManager.GetExtendedAccessToken(token);
                 

@@ -82,12 +82,12 @@ namespace Disco.Controllers
         }
 
         [Authorize]
-        public ActionResult Feed()
+        public ActionResult Feed(int page = 0)
         {
             //List<Squid.Wishes.Wish> model = GetCurrentUser().GetFollowingWishes().OrderBy(x => x.CreatedOn).Reverse().ToList();
             //model.RemoveAll(x => x.GetAssignmentId() == Guid.Empty);
 
-            List<Squid.Users.FeedItem> model = Squid.Users.User.GetFollowingWishes(GetCurrentUserId());
+            List<Squid.Users.FeedItem> model = Squid.Users.User.GetFollowingWishes(GetCurrentUserId(), page);
 
             // New user or empty feed
             if (model.Count == 0)
@@ -104,6 +104,14 @@ namespace Disco.Controllers
         public ActionResult FeedPage(int page)
         {
             List<Squid.Users.FeedItem> model = Squid.Users.User.GetFollowingWishes(GetCurrentUserId(),page);
+
+            // New user or empty feed
+            if (model.Count == 0)
+            {
+                List<Milkshake.Product> filler = Squid.Users.User.GetFillerFeed();
+
+                return PartialView("FillerFeed", filler);
+            }
 
             return PartialView("Feed", model);
         }

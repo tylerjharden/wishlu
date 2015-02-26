@@ -60,6 +60,7 @@
 </script>
 @foreach (Squid.Users.FeedItem item in Model)
 {
+    try { 
     <div class="pop item" style="height: auto !important; width: 150px; overflow: hidden; border: 1px solid lightgray; border-radius: 15px; position:relative; background-color: white;">
         <a href="/i/@item.Wish.Id">
             <div class="full" style="float: none; display: inline-block; position: relative; background-size: cover; background-position: center; background-image: url('@(item.Wish.Image)'); background-color: white; width:100%; min-height: 250px; height: auto;">
@@ -129,4 +130,6 @@
             </div>
         </div>
     </div>
+}
+    catch { }
 }

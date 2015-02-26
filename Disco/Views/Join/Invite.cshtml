@@ -4,7 +4,7 @@
 	
 	// Facebook
 	string clientId = "296645670486904";
-	string redirectUrl = "http://www.wishlu.com/facebook/invite?key=" + Model.Code;
+	string redirectUrl = "https://www.wishlu.com/facebook/invite?key=" + Model.Code;
 	string scope = "email,public_profile,user_birthday,user_friends,user_likes";
 }
 
@@ -35,6 +35,8 @@
 @section scripts {
 	<script type="text/javascript">
 		$(document).ready(function () {
+			var submitting = false;
+
 			$("#joinForm").validate({
 				errorPlacement: function (error, element) {
 					error.appendTo($('#formError'));
@@ -118,24 +120,27 @@
 					$("#join_submit").disabled = true;
 					$("#join_submit").html("<i class='fa fa-spinner fa-spin'></i>");
 
-					$.ajax({
-						type: "POST",
-						url: "/join/create",
-						dataType: 'json',
-						contentType: 'application/json; charset=utf-8',
-						traditional: true,
-						data: JSON.stringify(getCreateUser()),
-						success: function (data, status, request) {
-							if (data.result == true) {
-								swal("Success!", data.message, "success");
-								location.href = "/tutorial/see";
-							}
-							else {
-								swal("Uh oh...", data.message, "error");
-							}
-						},
-						error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-					});
+					if (!submitting) {
+						submitting = true;
+						$.ajax({
+							type: "POST",
+							url: "/join/create",
+							dataType: 'json',
+							contentType: 'application/json; charset=utf-8',
+							traditional: true,
+							data: JSON.stringify(getCreateUser()),
+							success: function (data, status, request) {
+								if (data.result == true) {
+									swal("Success!", data.message, "success");
+									location.href = "/tutorial/see";
+								}
+								else {
+									swal("Uh oh...", data.message, "error");
+								}
+							},
+							error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+						});
+					}
 
 					function getCreateUser() {
 						var data = {}
@@ -168,7 +173,7 @@
 				$(this).attr('href', 'https://accounts.google.com/o/oauth2/auth?scope=' +
 				  'https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login&' +
 				  'state=@ViewData["googleplus_state"]&' +
-				  'redirect_uri=http://wishlu.com/google/invite?code=@Model.Code&' +
+				  'redirect_uri=https://wishlu.com/google/invite?code=@Model.Code&' +
 				  'response_type=code&' +
 				  'client_id=432351898016-1g1q8vbuqhp5nui1fmeu2iuitruumd7n.apps.googleusercontent.com&' +
 				  'access_type=offline');

@@ -23,7 +23,7 @@
         $(document).ready(function () {
             $(".WishLuNavigationBar").hide();
 
-            $.get("/Get/Feed", null, function (result) {
+            $.get("/get/feed", null, function (result) {
                 $("#feed_container").html(result);
                 $("#loadingProducts").hide();
 
@@ -78,7 +78,7 @@
                     gettingFeed = true;
                     $("#loadingProducts").show();
 
-                    searchRequest = $.get("/Get/FeedPage?page=" + page, null, function (result) {
+                    searchRequest = $.get("/get/feed?page=" + page, null, function (result) {
                         $("#feed_container").append(result);
                         $("#loadingProducts").hide();
 
