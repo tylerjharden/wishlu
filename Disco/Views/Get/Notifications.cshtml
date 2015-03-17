@@ -1,0 +1,79 @@
+﻿@model Disco.Controllers.NotificationsModel
+
+@if (Model.Notifications.Count == 0)
+{
+    <h5><b>No new notifications.</b></h5>
+}
+else
+{
+    foreach (Squid.Messages.MappedNotification n in Model.Notifications)
+    {
+        <div class="notification clearfix" data-id="@n.Id" style="position:relative;padding:10px;">
+            @if (n.SenderId != Guid.Empty)
+            {
+                <a href="/u/@n.SenderId" class="pull-left">
+                    <img src="@n.SenderProfileImage" style="border-radius:50%;border:1px solid gray;width:40px;height:40px;" />
+                </a>
+            }
+            else
+            {
+                <img src="//assets.wishlu.com/images/DefaultWish.jpg" class="img-responsive" style="border-radius:50%;border:1px solid gray;" />
+            }
+            <a class="delete" style="position:absolute; top:1px; right:1px;" href="#" rel="nofollow">
+                <i class="fa fa-times"></i>
+            </a>
+            <a href="@n.Url">
+                <div class="message" style="font-size:12px;">
+                    @Html.Raw(n.Content)
+                </div>
+            </a>
+            <div class="messageblock">
+
+                @if (n.NotificationType == Squid.Messages.NotificationType.FriendRequest)
+                {
+                    <div class="messageaction center">
+                        <a class="button pop friend_accept" href="#" rel="nofollow" data-id="@n.SenderId" data-name="@n.SenderFullName" style="padding:5px;"><i class="fa fa-check fa-fw" style="color:#79e0c3;"></i></a>
+                        <a class="button pop friend_decline" href="#" rel="nofollow" data-id="@n.SenderId" data-name="@n.SenderFullName" style="padding:5px;"><i class="fa fa-times fa-fw" style="color:#b5919b;"></i></a>
+                    </div>
+                }
+                else if (n.NotificationType == Squid.Messages.NotificationType.SuggestedFriend)
+                {
+                    <div class="messageaction center">
+                        <a class="button pop friend_request" href="#" rel="nofollow" data-id="@n.SenderId" data-url="@n.Url" style="padding:1px;">send friend request</a>
+                    </div>
+                }
+                else if (n.NotificationType == Squid.Messages.NotificationType.SuggestedWish)
+                {
+                    <div class="messageaction center">
+                        <a class="button pop" href="@n.Url" style="padding:1px;">view item</a>
+                    </div>
+                }
+                <div class="messageinfo" style="font-size:10px;position:absolute;bottom:1px;right:1px;">
+                    <i class="fa fa-clock-o"></i>
+                    @{
+                TimeSpan ts = DateTimeOffset.Now.Subtract(n.SendTime);
+
+                if (ts.Days == 0)
+                {
+                    if (ts.Hours == 0)
+                    {
+                        if (ts.Minutes == 0)
+                        { <span>@ts.Seconds seconds ago</span> }
+                        else
+                        { <span>@ts.Minutes minutes ago</span> }
+                    }
+                    else if (ts.Hours == 1)
+                    { <span>About an hour ago</span> }
+                    else
+                    { <span>About @ts.Hours hours ago</span> }
+                }
+                else if (ts.Days == 1)
+                { <span>Yesterday</span> }
+                else
+                { <span>@ts.Days days ago</span> }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
