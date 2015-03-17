@@ -17,6 +17,8 @@ using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
+using System.Threading;
 
 namespace Squid.Users
 {
@@ -29,10 +31,66 @@ namespace Squid.Users
         Friends = 3, // Only a user's friends
         OnlyMe = 4 // Visible only to the user
     }
+        
+    public class NotificationSetting
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("wishlu")]
+        public bool Wishlu { get; set; }
+        [JsonProperty("email")]
+        public bool Email { get; set; }
+        [JsonProperty("mobile")]
+        public bool Mobile { get; set; }
+    }
     
     // This class manages logic and data handling for a user on wishlu.
     public class User : GraphObject
     {
+        public static Guid CurrentUserId
+        {
+            get
+            {
+                if (_currentUser != null)
+                    return _currentUser.Id;
+
+                try
+                {
+                    if (HttpContext.Current != null)
+                        return Guid.Parse(HttpContext.Current.User.Identity.Name);
+
+                    return Guid.Parse(Thread.CurrentPrincipal.Identity.Name);
+                }
+                catch
+                {
+                    return Guid.Empty;
+                }
+            }
+        }
+
+        public static User _currentUser = null;
+        public static User CurrentUser
+        {
+            get
+            {
+                if (_currentUser != null)
+                    return _currentUser;
+
+                try
+                {
+                    return GetUserById(CurrentUserId);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            set {
+                _currentUser = value;
+            }
+        }
+
         [JsonProperty("FirstName")]
         public String FirstName { get; set; }
 
@@ -132,6 +190,15 @@ namespace Squid.Users
                 }
             }
         }
+
+        [JsonIgnore]
+        public bool HasPhone 
+        { 
+            get
+            {
+                return !string.IsNullOrEmpty(PhoneNumber) && PhoneCarrier != 0;
+            }
+        }
                 
         [JsonProperty("Headline")]
         public String Headline { get; set; }
@@ -182,7 +249,14 @@ namespace Squid.Users
         [JsonIgnore]
         public string Image
         {
-            get { return ImageUrl.Replace("http://", "https://"); }
+            get 
+            {
+                if (ImageUrl.Contains("GenericFriend.png") && this.IsFacebookSynced)
+                {
+                    return string.Format("https://graph.facebook.com/{0}/picture", this.FacebookPageId);
+                }
+                return ImageUrl.Replace("http://", "https://"); 
+            }
         }
 
         [JsonProperty("Gender")]
@@ -316,28 +390,9 @@ namespace Squid.Users
         [JsonProperty("Notifications_ShouldSendNotifications")]
         public bool ShouldSendNotifications { get; set; }
 
-        public bool Notifications_Me_Wishlu { get; set; }
-        public bool Notifications_Me_Email { get; set; }
-        public bool Notifications_Me_Text { get; set; }
-        public bool Notifications_Birthdays_Wishlu { get; set; }
-        public bool Notifications_Birthdays_Email { get; set; }
-        public bool Notifications_Birthdays_Text { get; set; }
-        public bool Notifications_Holidays_Wishlu { get; set; }
-        public bool Notifications_Holidays_Email { get; set; }
-        public bool Notifications_Holidays_Text { get; set; }
-        public bool Notifications_Events_Wishlu { get; set; }
-        public bool Notifications_Events_Email { get; set; }
-        public bool Notifications_Events_Text { get; set; }
-        public bool Notifications_Price_Wishlu { get; set; }
-        public bool Notifications_Price_Email { get; set; }
-        public bool Notifications_Price_Text { get; set; }
-        public bool Notifications_Discount_Wishlu { get; set; }
-        public bool Notifications_Discount_Email { get; set; }
-        public bool Notifications_Discount_Text { get; set; }
-        public bool Notifications_News_Wishlu { get; set; }
-        public bool Notifications_News_Email { get; set; }
-        public bool Notifications_News_Text { get; set; }
-        
+        [JsonProperty("NotificationSettings")]
+        public IDictionary<string, NotificationSetting> NotificationSettings { get; set; }
+                                        
         //---------------------------------------------------------------------------------------------//
         
         static User() { }
@@ -384,7 +439,46 @@ namespace Squid.Users
 
             // Default Notification Settings
             ShouldSendNotifications = true;
-            Notifications_Me_Wishlu = true;
+
+            NotificationSettings = new Dictionary<string, NotificationSetting>
+            {
+                // activity involving you
+                { "activity_new_friend_request", new NotificationSetting { Name = "Someone sends me a friend request", Wishlu = true, Email = true, Mobile = false } },
+                { "activity_friend_request_accepted", new NotificationSetting { Name = "A friend request I have sent is accepted", Wishlu = true, Email = true, Mobile = false } },
+                { "activity_invitation_accepted", new NotificationSetting { Name = "Someone I invite joins wishlu", Wishlu = true, Email = true, Mobile = false } },
+                { "activity_new_item_comment", new NotificationSetting { Name = "Someone comments on one of my items", Wishlu = true, Email = false, Mobile = false } },
+                { "activity_item_copied", new NotificationSetting { Name = "Someone has copied one of my items", Wishlu = true, Email = true, Mobile = false } },
+                { "activity_item_gifted", new NotificationSetting { Name = "Someone has gifted one of my items", Wishlu = true, Email = true, Mobile = false } },
+                { "activity_item_confirmed", new NotificationSetting { Name = "Someone has confirmed a gift I've given", Wishlu = true, Email = true, Mobile = false } },
+                { "activity_new_follower", new NotificationSetting { Name = "A new user has followed you", Wishlu = true, Email = false, Mobile = false } },
+
+                // wishlu subscriptions
+                { "subscription_new_item", new NotificationSetting { Name = "A new item has been added to a wishlu you a subscribed to", Wishlu = true, Email = false, Mobile = false } },
+                { "subscription_item_removed", new NotificationSetting { Name = "An item has been removed (moved or deleted) from a wishlu you a subscribed to", Wishlu = true, Email = false, Mobile = false } },
+                { "subscription_item_gifted", new NotificationSetting { Name = "An item belonging to a wishlu you are subscribed to has been gifted", Wishlu = true, Email = false, Mobile = false } },
+                { "subscription_item_confirmed", new NotificationSetting { Name = "A gift has been confirmed for an item in a wishlu you are subscribed to", Wishlu = true, Email = false, Mobile = false } },
+                { "subscription_date_changed", new NotificationSetting { Name = "The date of a wishlu you are subscribed to has been changed (added, changed, removed)", Wishlu = true, Email = true, Mobile = false } },
+                { "subscription_name_changed", new NotificationSetting { Name = "A wishlu you are subscribed to has been renamed", Wishlu = true, Email = false, Mobile = false } },
+
+                // reminders
+                { "reminder_subscribed_wishlu", new NotificationSetting { Name = "Subscribed wishlus", Wishlu = true, Email = true, Mobile = false } },
+                { "reminder_birthday", new NotificationSetting { Name = "Birthdays", Wishlu = true, Email = true, Mobile = false } },
+
+                // wishlu news and updates
+                { "wishlu_tips_tricks", new NotificationSetting { Name = "wishlu Tips & Tricks", Wishlu = false, Email = true, Mobile = false } },
+                { "wishlu_suggestions", new NotificationSetting { Name = "gift ideas & suggestions", Wishlu = false, Email = true, Mobile = false } },
+                { "wishlu_platform_updates", new NotificationSetting { Name = "Platform Updates", Wishlu = false, Email = true, Mobile = false } },
+                { "wishlu_company_news", new NotificationSetting { Name = "wishlu Company News", Wishlu = false, Email = true, Mobile = false } },
+
+                // Followers
+                { "following_new_wishlu", new NotificationSetting { Name = "A user I follow has added a new wishlu", Wishlu = true, Email = false, Mobile = false } },
+                { "following_new_item", new NotificationSetting { Name = "A user I follow has added a new item", Wishlu = true, Email = false, Mobile = false } },                
+                { "following_post", new NotificationSetting { Name = "A store you follow has posted an update", Wishlu = true, Email = false, Mobile = false } },
+
+                // Milkshake
+                { "milkshake_price_change", new NotificationSetting { Name = "The price for one of your items has changed", Wishlu = true, Email = false, Mobile = false } },
+                { "milkshake_product_sale", new NotificationSetting { Name = "One of your items has gone on sale", Wishlu = true, Email = false, Mobile = false } }
+            };
         }
 
         [JsonIgnore]
@@ -572,7 +666,7 @@ namespace Squid.Users
             SetPassword(password1);
             PerformAddOperationValidations(validationErrors, password1, password2);
             validationErrors.ThrowValidationException();
-                        
+            
             // Name Capitalization Validation
             this.FirstName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(this.FirstName.ToLower()); // ensure user first name is "Title Case"
             this.LastName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(this.LastName.ToLower()); // ensure user last name is "Title Case"
@@ -627,10 +721,10 @@ namespace Squid.Users
             */
  
             // Create Friends wishloop
-            Wishloop allfriends = Wishloop.CreateAllFriendsWishloop(this.Id);
+            //Wishloop allfriends = Wishloop.CreateAllFriendsWishloop(this.Id);
 
             // Automatically subscribe "My Friends" wishloop to Birthday
-            birthday.AddSubscriber(allfriends.Id);
+            //birthday.AddSubscriber(allfriends.Id);
             
             // Send e-mail verification    
             try
@@ -927,6 +1021,22 @@ namespace Squid.Users
             {
                 return false;
             }
+        }
+
+        public static bool Push(Guid userId, Guid notificationId)
+        {
+            try
+            {
+                Graph.Instance.Cypher
+                    .Match("(u:User {Id:{userid}})-[:NOTIFICATIONS]-(q:Notifications)", "(n:Notification {Id:{noteid}})")
+                    .WithParam("userid", userId)
+                    .WithParam("noteid", notificationId)
+                    .Merge("(q)-[:NOTIFICATION]-(n)")
+                    .ExecuteWithoutResults();
+
+                return true;
+            }
+            catch { return false; }
         }
 
         // Push a notification to a user, at this point a user will actually see a notification, receive an e-mail, get a text, etc.
@@ -1658,7 +1768,7 @@ namespace Squid.Users
                 {
                     ret.AddRange(loop.GetMembers());
                 }
-
+                
                 return ret;
             }
             catch { return new List<User>(); }
@@ -1950,8 +2060,8 @@ namespace Squid.Users
                     return false;
 
                 // reciprocal "friends" wishloop membership
-                Wishloop.GetAllFriendsWishloopByUserId(this.Id).AddMember(userId);
-                Wishloop.GetAllFriendsWishloopByUserId(userId).AddMember(this.Id);
+                //Wishloop.GetAllFriendsWishloopByUserId(this.Id).AddMember(userId);
+                //Wishloop.GetAllFriendsWishloopByUserId(userId).AddMember(this.Id);
 
                 return true;
             }
@@ -1973,14 +2083,31 @@ namespace Squid.Users
                     .Create("(inviter)<-[:INVITED_BY]-(user)")
                     .ExecuteWithoutResults();
 
-                Notification n = new Notification();
-                n.Content = GetUserFullName(userId) + " has accepted your invitation and joined wishlu.";
-                n.NotificationType = NotificationType.Info;
-                n.SenderId = userId;
-                n.UserId = this.Id;
-                n.Url = "/u/" + userId;
-                n.CreateNotification();
+                var u = GetUserById(this.Id);
 
+                if (u.ShouldSendPush("activity_invitation_accepted"))
+                {
+                    Notification n = new Notification();
+                    n.Content = "<b>" +  GetUserFullName(userId) + "</b> has accepted your invitation and joined wishlu.";
+                    n.NotificationType = NotificationType.Info;
+                    n.SenderId = userId;
+                    n.UserId = this.Id;
+                    n.Url = "/u/" + userId;
+                    n.AddRecipient(this.Id);
+                    n.CreateNotification();
+                    n.Push();
+                }
+
+                if (u.ShouldSendEmail("activity_invitation_accepted"))
+                {
+                    // TODO: Invitation accepted notification email
+                }
+
+                if (u.ShouldSendMobile("activity_invitation_accepted"))
+                {
+                    u.SendText(GetUserFullName(userId) + " has accepted your invitation and joined wishlu.");
+                }
+                                
                 return true;
             }
             catch { return false; }
@@ -2022,12 +2149,33 @@ namespace Squid.Users
                     .Create("(user)-[:FRIEND_REQUEST]->(friend)")
                     .ExecuteWithoutResults();
 
-                Notification n = new Notification();
-                n.Content = this.FullName + " has sent you a friend request.";
-                n.NotificationType = NotificationType.FriendRequest;
-                n.SenderId = this.Id;
-                n.UserId = userId;
-                n.CreateNotification();
+                User f = GetUserById(userId);
+
+                // Push
+                if (f.ShouldSendPush("activity_new_friend_request"))
+                {
+                    Notification n = new Notification();
+                    n.Content = this.FullName + " has sent you a friend request.";
+                    n.NotificationType = NotificationType.FriendRequest;
+                    n.SenderId = this.Id;
+                    n.UserId = userId;
+                    n.AddRecipient(userId);
+                    n.CreateNotification();
+                    n.Push();
+                }
+
+                // Email
+                if (f.ShouldSendEmail("activity_new_friend_request"))
+                {
+                    // TODO: New friend request email
+                }
+
+                // Mobile
+                if (f.ShouldSendMobile("activity_new_friend_request"))
+                {
+                    // TODO: Add link
+                    f.SendText(this.FullName + " has sent you a friend request.");
+                }
 
                 return true;
             }
@@ -2045,7 +2193,9 @@ namespace Squid.Users
                 n.SenderId = this.Id;
                 n.UserId = friendId;
                 n.Url = "/friends/add/" + suggestId;
+                n.AddRecipient(friendId);
                 n.CreateNotification();
+                n.Push();
 
                 return true;
             }
@@ -2063,7 +2213,9 @@ namespace Squid.Users
                 n.SenderId = this.Id;
                 n.UserId = friendId;
                 n.Url = "/i/" + wishId;
+                n.AddRecipient(friendId);
                 n.CreateNotification();
+                n.Push();
 
                 return true;
             }
@@ -2081,7 +2233,9 @@ namespace Squid.Users
                 n.SenderId = this.Id;
                 n.UserId = friendId;
                 n.Url = "/p/" + productId;
+                n.AddRecipient(friendId);
                 n.CreateNotification();
+                n.Push();
 
                 return true;
             }
@@ -2265,14 +2419,32 @@ namespace Squid.Users
 
                 this.DeleteFriendRequest(userId);
 
-                // accepted notification                
-                Notification n = new Notification();
-                n.Content = this.FullName + " has accepted your friend request.";
-                n.NotificationType = NotificationType.Info;
-                n.SenderId = this.Id;
-                n.UserId = userId;
-                n.Url = "/u/" + this.Id;
-                n.CreateNotification();
+                var user = GetUserById(userId);
+
+                // Push
+                if (user.ShouldSendPush("activity_friend_request_accepted"))
+                {
+                    // accepted notification                
+                    Notification n = new Notification();
+                    n.Content = this.FullName + " has accepted your friend request.";
+                    n.NotificationType = NotificationType.Info;
+                    n.SenderId = this.Id;
+                    n.UserId = userId;
+                    n.Url = "/u/" + this.Id;
+                    n.CreateNotification();
+                }
+
+                // Email
+                if (user.ShouldSendEmail("activity_friend_request_accepted"))
+                {
+                    // TODO: Friend request accepted email
+                }
+
+                // Mobile
+                if (user.ShouldSendMobile("activity_friend_request_accepted"))
+                {
+                    this.SendText(this.FullName + " has accepted your friend request.");
+                }
                                 
                 return true;
             }
@@ -2669,6 +2841,34 @@ namespace Squid.Users
                     .AndWhere((User friend) => friend.Id == userId)
                     .CreateUnique("(user)-[:FOLLOWING]->(friend)")
                     .ExecuteWithoutResults();
+
+                var u = GetUserById(userId);
+
+                // Push
+                if (u.ShouldSendPush("activity_new_follower"))
+                {
+                    Notification n = new Notification();
+                    n.Content = "<b>" + this.FullName + "</b> followed you.";
+                    n.NotificationType = NotificationType.Info;
+                    n.SenderId = this.Id;
+                    n.UserId = userId;
+                    n.Url = "/u/" + this.Id;
+                    n.AddRecipient(userId);
+                    n.CreateNotification();
+                    n.Push();
+                }
+
+                // Email
+                if (u.ShouldSendEmail("activity_new_follower"))
+                {
+                    // TODO: New follower email
+                }
+
+                // Mobile
+                if (u.ShouldSendMobile("activity_new_follower"))
+                {
+                    u.SendText(this.FullName + " followed you.");
+                }
             }
             catch (Exception ex)
             {
@@ -3009,6 +3209,33 @@ namespace Squid.Users
             Byte[] imageDataBytes = Convert.FromBase64String(imageDataBase64String);
 
             SetUsersImage(imageDataBytes);
+        }
+
+        public bool ShouldSendPush(string key)
+        {
+            try 
+            {
+                return NotificationSettings[key].Wishlu;
+            }
+            catch { return false; }
+        }
+
+        public bool ShouldSendEmail(string key)
+        {
+            try
+            {
+                return NotificationSettings[key].Email;
+            }
+            catch { return false; }
+        }
+
+        public bool ShouldSendMobile(string key)
+        {
+            try
+            {
+                return NotificationSettings[key].Mobile;
+            }
+            catch { return false; }
         }
                         
         // Create the queue of Fantine e-mail tasks for the current user's new user e-mail flow.
