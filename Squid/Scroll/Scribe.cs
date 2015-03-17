@@ -81,11 +81,7 @@ namespace Squid.Scroll
 
         public void AddComment(Guid userId, string comment)
         {
-            Comment com = new Comment();
-            com.AuthorId = userId;
-            com.Body = comment;
-            com.Id = Guid.NewGuid();
-            
+            Comment com = new Comment(userId, comment);            
             com.Create();
 
             Guid comid = com.Id;

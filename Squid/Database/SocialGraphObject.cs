@@ -75,12 +75,8 @@ namespace Squid.Database
             if (string.IsNullOrEmpty(comment))
                 return;
 
-            Comment com = new Comment();
-            com.AuthorId = userId;
-            com.Body = comment;
-            com.Id = Guid.NewGuid();
-
-            com.Create();
+            Comment com = new Comment(userId, comment);
+            com.Create(); // commit to database
 
             Guid comid = com.Id;
 
