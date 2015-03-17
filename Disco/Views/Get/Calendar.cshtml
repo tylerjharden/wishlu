@@ -1,0 +1,48 @@
+﻿@model List<Squid.Wishes.MappedWishlu>
+
+@if (Model.Count == 0)
+{
+    <h5><b>No upcoming events.</b></h5>
+}
+else 
+{
+    foreach (var e in Model)
+    {
+        <div class="event" style="border-bottom: 1px solid gray;position:relative;padding:10px;min-height:65px;">
+            <a href="/u/@e.UserId" class="pull-left">
+                <img src="@e.UserProfileImage" style="border-radius:50%;border:1px solid gray;width:40px;height:40px;" />
+            </a>
+            @if (e.WishLuType == Squid.Wishes.WishluType.Birthday)
+            {
+                <a href="/l/@e.Id">
+                    <b>@e.UserFullName's birthday!</b>
+                    <i class="fa fa-birthday-cake"></i>
+                </a>
+            }
+            else
+            {
+                <a href="/l/@e.Id">
+                    <b>@e.Name</b>
+                    <br />
+                    <span style="font-size: 8pt;">@e.UserFullName</span>
+                </a>
+            }            
+            <div style="position:absolute; bottom: 5px; right: 5px;">
+                @if (e.EventDateTime.Value.Date.Date == DateTime.Now.Date)
+                {
+                    <span style="background: green; border-radius: 5px; padding:2px;color:white;">Today</span>
+                }
+                else if (e.EventDateTime.Value.Date.Date == DateTime.Now.Date.AddDays(1))
+                {
+                    <span style="background: lightgreen; border-radius: 5px; padding:2px;">Tomorrow</span>
+                }
+                else
+                {
+                    double days = e.EventDateTime.Value.Date.Date.Subtract(DateTime.Now.Date).TotalDays;
+
+                    <span style="background: pink; border-radius: 5px; padding:2px;">In @days days</span>
+                }
+            </div>
+        </div>
+    }
+}
