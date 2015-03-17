@@ -120,8 +120,8 @@ namespace Disco.Controllers
         {
             var user = GetCurrentUser();
 
-            Session["TutorialStep"] = 4;
-            user.Set("TutorialStep", 4);
+            Session["TutorialStep"] = 5;
+            user.Set("TutorialStep", 5);
 
             if (user.IsFacebookSynced)
             {
@@ -173,6 +173,78 @@ namespace Disco.Controllers
                 return Json(new { result = false, message = "The server received an invalid model." });
             }
         }
+
+        [Authorize]
+        public new ActionResult Profile()
+        {
+            var user = GetCurrentUser();
+
+            Session["TutorialStep"] = 6;
+            user.Set("TutorialStep", 6);
+                        
+            return View("profile", user);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public new ActionResult Profile(ProfileModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (String.IsNullOrEmpty(model.FavoriteThings))
+                    model.FavoriteThings = "";
+
+                if (String.IsNullOrEmpty(model.AddressLine1))
+                    return Json(new { result = false, message = "Please specify the first line of your address." });
+
+                if (String.IsNullOrEmpty(model.City))
+                    return Json(new { result = false, message = "Please specify your city." });
+
+                if (String.IsNullOrEmpty(model.State))
+                    return Json(new { result = false, message = "Please select your state." });
+
+                if (String.IsNullOrEmpty(model.ZipCode))
+                    return Json(new { result = false, message = "Please provide your 5-digit postal / zip code." });
+
+                if (model.ZipCode.Length < 5)
+                    return Json(new { result = false, message = "The postal / zip code you provided is too short. It must be 5 characters." });
+
+                if (model.ZipCode.Length > 5)
+                    return Json(new { result = false, message = "The postal / zip code you provided is too long. It must be 5 characters." });
+
+                var user = CurrentUser;
+
+                user.Favorites = model.FavoriteThings;                
+                user.ShipAddress1 = model.AddressLine1;
+                user.ShipAddress2 = model.AddressLine2;
+                user.ShipCity = model.City;
+                user.ShipStateOrProvince = model.State;
+                user.ShipZipOrPostalCode = model.ZipCode;
+
+                user.Update();
+
+                return Json(new { result = true, message = "Your profile information has been updated successfully." });
+            }
+            else
+            {
+                return Json(new { result = false, message = "The server received an invalid model." });
+            }
+        }
+
+        [Authorize]
+        public ActionResult Bookmarklet()
+        {
+            var user = GetCurrentUser();
+
+            // if a user has completed the tutorial, do not let them back here
+            //if (!user.TutorialMode)
+            //    return RedirectToAction("index", "dash");
+
+            Session["TutorialStep"] = 7;
+            user.Set("TutorialStep", 7);
+
+            return View("bookmarklet");
+        }
                        
         [Authorize]
         public ActionResult Skip()
@@ -192,5 +264,16 @@ namespace Disco.Controllers
     public class ChooseStoresModel
     {
         public List<Guid> Stores { get; set; }
+    }
+
+    [Serializable]
+    public class ProfileModel
+    {
+        public string FavoriteThings { get; set; }
+        public string AddressLine1 { get; set; }
+        public string AddressLine2 { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string ZipCode { get; set; }
     }
 }
