@@ -326,6 +326,46 @@ namespace Disco.Controllers
             }
         }
 
+        [Authorize]
+        public ActionResult Notification(string key, string medium, bool value)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(key))
+                    return JsonResponse(false, "Please specify a valid notification setting.");
+
+                if (string.IsNullOrEmpty(medium))
+                    return JsonResponse(false, "Please specify a valid notification medium.");
+
+                var user = CurrentUser;
+
+                switch (medium)
+                {
+                    default:
+                    case "wishlu":
+                        user.NotificationSettings[key].Wishlu = value;
+                        break;
+
+                    case "email":
+                        user.NotificationSettings[key].Email = value;
+                        break;
+
+                    case "mobile":
+                        user.NotificationSettings[key].Mobile = value;
+                        break;
+                }
+
+                user.Update();
+
+                return JsonResponse(true, "Notification settings updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return JsonResponse(false, "There was an error updating your notification settings.");
+            }
+        }
+
         //////////////
         // Blocking //
         //////////////
