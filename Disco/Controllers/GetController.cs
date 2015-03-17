@@ -8,8 +8,44 @@ using System.Web.Mvc;
 
 namespace Disco.Controllers
 {    
+    [Serializable]
+    public class NotificationsModel
+    {
+        public List<Squid.Messages.MappedNotification> Notifications { get; set; }
+        public int Count { get; set; }
+    }
+    
     public class GetController : BaseController
-    {        
+    {   
+        [Authorize]
+        [HttpGet]
+        public ActionResult Gifts()
+        {
+            return PartialView("Gifts");
+        }
+
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult Notifications()
+        {
+            NotificationsModel model = new NotificationsModel();
+            model.Notifications = Squid.Users.User.GetMappedNotifications(GetCurrentUserId());
+            model.Count = model.Notifications.Count(x => x.Read == false);
+
+            return PartialView("Notifications", model);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult Calendar()
+        {            
+            List<Squid.Wishes.MappedWishlu> events = Squid.Users.User.GetMappedUpcomingWishlus(GetCurrentUserId()).OrderBy(x => x.EventDateTime.Value.Date).ToList();
+            events.RemoveAll(x => !x.EventDateTime.HasValue || x.EventDateTime.Value.Date > DateTimeOffset.Now.AddDays(30).Date);
+
+            return PartialView("Calendar", events);
+        }
+
         [AllowAnonymous]
         [ValidateInput(false)]
         public ActionResult Products()
@@ -50,6 +86,20 @@ namespace Disco.Controllers
         }
 
         [AllowAnonymous]
+        public ActionResult MoreLike(Guid id, int page = 0, int limit = 50)
+        {
+            return PartialView("Products", Milkshake.Search.MoreLike(id,page,limit));
+        }
+
+        [AllowAnonymous]
+        public ActionResult MoreFrom(Guid id, int page = 0, int limit = 5)
+        {
+            Milkshake.Offer o = Milkshake.Search.ProductId(id).Offers[0];
+
+            return PartialView("ProductImages", Milkshake.Search.MoreFrom(id,o.StoreId,page,limit));
+        }
+
+        [AllowAnonymous]
         public ActionResult RootCategories()
         {
             return PartialView("Categories", Category.GetRootCategories());
@@ -70,7 +120,7 @@ namespace Disco.Controllers
         [AllowAnonymous]
         public ActionResult CategoryProducts(Guid id, int page = 0)
         {
-            return PartialView("Products", Category.GetProducts(id, page));
+            return PartialView("Products", Search.CategoryProducts(id, page));
             //return PartialView("CategoryProducts", Category.GetProducts(id, page));
         }
         
@@ -81,23 +131,32 @@ namespace Disco.Controllers
             return PartialView("People", GetCurrentUser().Find(query));
         }
 
-        [Authorize]
+        [AllowAnonymous]
         public ActionResult Feed(int page = 0)
         {
             //List<Squid.Wishes.Wish> model = GetCurrentUser().GetFollowingWishes().OrderBy(x => x.CreatedOn).Reverse().ToList();
             //model.RemoveAll(x => x.GetAssignmentId() == Guid.Empty);
 
-            List<Squid.Users.FeedItem> model = Squid.Users.User.GetFollowingWishes(GetCurrentUserId(), page);
+            if (Request.IsAuthenticated)
+            {
+                List<Squid.Users.FeedItem> model = Squid.Users.User.GetFollowingWishes(GetCurrentUserId(), page);
 
-            // New user or empty feed
-            if (model.Count == 0)
+                // New user or empty feed
+                if (model.Count == 0)
+                {
+                    List<Milkshake.Product> filler = Squid.Users.User.GetFillerFeed();
+
+                    return PartialView("FillerFeed", filler);
+                }
+
+                return PartialView("Feed", model);
+            }
+            else
             {
                 List<Milkshake.Product> filler = Squid.Users.User.GetFillerFeed();
 
                 return PartialView("FillerFeed", filler);
             }
-
-            return PartialView("Feed", model);
         }
 
         [Authorize]
