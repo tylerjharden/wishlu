@@ -58,7 +58,6 @@ namespace Disco.Controllers
                     addWishloop.UserId = CurrentUser.Id;
                     addWishloop.Description = "";
                     addWishloop.DisplayColor = Int32.Parse(coltmp.Replace("#", ""), System.Globalization.NumberStyles.HexNumber);
-                    addWishloop.WishloopType = Squid.Wishes.WishloopType.UserDefined;
                     addWishloop.Create();
                 }
                 catch (Exception ex)
@@ -149,11 +148,8 @@ namespace Disco.Controllers
 
                 try
                 {
-                    if (wishloop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
-                    {
-                        wishloop.Name = model.Name;
-                        wishloop.Update();
-                    }
+                    wishloop.Name = model.Name;
+                    wishloop.Update();
                 }
                 catch
                 {
@@ -249,9 +245,6 @@ namespace Disco.Controllers
 
                 if (wishloop.UserId != GetCurrentUserId())
                     return Json(new { result = false, message = "You may only modify wishloops that belong to you." });
-
-                if (wishloop.WishloopType == Squid.Wishes.WishloopType.AllFriends)
-                    return Json(new { result = false, message = "You cannot remove members from the all friends wishloop." });
                                 
                 try
                 {
@@ -301,9 +294,6 @@ namespace Disco.Controllers
 
                 if (wishloop.UserId != GetCurrentUserId())
                     return Json(new { result = false, message = "You may only modify wishloops that belong to you." });
-
-                if (wishloop.WishloopType == Squid.Wishes.WishloopType.AllFriends)
-                    return Json(new { result = false, message = "You cannot add members to the all friends wishloop." });
 
                 string members = "";
                 try
@@ -359,10 +349,7 @@ namespace Disco.Controllers
 
                     if (wishloop.UserId != GetCurrentUserId())
                         return Json(new { result = false, message = "You may only modify wishloops that belong to you." });
-
-                    if (wishloop.WishloopType == Squid.Wishes.WishloopType.AllFriends)
-                        return Json(new { result = false, message = "You cannot add members to the all friends wishloop." });
-                                        
+                
                     try
                     {
                         if (model.Members != null && model.Members.Count > 0)
@@ -415,9 +402,8 @@ namespace Disco.Controllers
 
                 Squid.Wishes.Wishloop wishloop = null;
 
-                if (currentloop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
-                    if (model.Members != null && model.Members.Count > 0)
-                        currentloop.RemoveMembers(model.Members);
+                if (model.Members != null && model.Members.Count > 0)
+                    currentloop.RemoveMembers(model.Members);
                                 
                 foreach (Guid id in model.Wishloops)
                 {
@@ -432,9 +418,6 @@ namespace Disco.Controllers
 
                     if (wishloop.UserId != GetCurrentUserId())
                         return Json(new { result = false, message = "You may only modify wishloops that belong to you." });
-
-                    if (wishloop.WishloopType == Squid.Wishes.WishloopType.AllFriends)
-                        return Json(new { result = false, message = "You cannot add members to the all friends wishloop." });
 
                     try
                     {
@@ -496,8 +479,7 @@ namespace Disco.Controllers
 
                 try
                 {
-                    if (wishloop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
-                        wishloop.Name = model.Name;
+                    wishloop.Name = model.Name;
 
                     wishloop.DisplayColor = Int32.Parse(coltmp.Replace("#", ""), System.Globalization.NumberStyles.HexNumber);
                     wishloop.Update();
@@ -556,11 +538,6 @@ namespace Disco.Controllers
                 catch
                 {
                     return Json(new { result = false, message = "Please select a valid wishloop to delete." });
-                }
-
-                if (wishLoop.WishloopType == Squid.Wishes.WishloopType.AllFriends)
-                {
-                    return Json(new { result = false, message = "The friends wishloop is systematically generated and can not be deleted." });
                 }
 
                 if (wishLoop.UserId != GetCurrentUserId())
