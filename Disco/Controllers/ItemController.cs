@@ -155,6 +155,7 @@ namespace Disco.Controllers
 
             return RedirectToAction("view", new { @id = addWish.Id });
         }
+               
 
         [Authorize]
         [HttpPost]
@@ -192,7 +193,7 @@ namespace Disco.Controllers
                             wishlu.Visibility = Squid.Wishes.WishluVisibility.Friends;
                             wishlu.WishLuType = Squid.Wishes.WishluType.UserDefined;
                             wishlu.Create();
-                            wishlu.AddSubscriber(Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(GetCurrentUserId()).Id);
+                            //wishlu.AddSubscriber(Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(GetCurrentUserId()).Id);
 
                             model.Wishlu = wishlu.Id;
                         }
@@ -489,7 +490,7 @@ namespace Disco.Controllers
                         return JsonResponse(true, "Your gift has been recorded as purchased.");
                     }
 
-                    return JsonResponse(true, "Your gift has been recorded as reserved. Remember to mark your gift as purchased once you have bought it. We won't notify the user of your gift until it has been marked as purchased.");
+                    return JsonResponse(true, "You have chosen to buy this gift later. You can buy in one click on wishlu from your <a href='/gifts'>gifts page</a>, or from this page directly via the buy now button. If you wish to buy from another site or in-store, use the same options to mark your gift as purchased. We won't notify the user of your gift until it has been marked as purchased.");
                 }
                 catch (Exception e)
                 {
@@ -1018,7 +1019,7 @@ namespace Disco.Controllers
                         wishlu.Visibility = Squid.Wishes.WishluVisibility.Friends;
                         wishlu.WishLuType = Squid.Wishes.WishluType.UserDefined;
                         wishlu.Create();
-                        wishlu.AddSubscriber(Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(GetCurrentUserId()).Id);
+                        //wishlu.AddSubscriber(Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(GetCurrentUserId()).Id);
 
                         model.Wishlu = wishlu.Id;
                     }
