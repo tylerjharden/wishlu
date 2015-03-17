@@ -9,6 +9,7 @@ using System.Web.Mvc;
 
 namespace Disco.Controllers
 {
+    // TODO: Add facility for anonymous/unregistered users to invite friends
     public class InviteController : BaseController
     {
         [Authorize]
