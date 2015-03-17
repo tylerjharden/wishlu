@@ -80,7 +80,7 @@ namespace Squid.Log
 
         // when logging an Exception, attempt to e-mail us (developers) directly with the stack trace
         public static void Error(Exception ex)
-        {
+        {            
             Log(LogType.Error, "Exception: " + ex.Message + " Source: " + ex.Source + " Stack Trace: " + ex.StackTrace);
 
             try
@@ -90,6 +90,12 @@ namespace Squid.Log
             catch (Exception e)
             {
                 Log(LogType.Error, "Logger was unable to send an exception email. Exception: " + e.Message + " Source: " + e.Source + " Stack Trace: " + e.StackTrace);
+            }
+
+            if (ex.GetType() == typeof(AggregateException))
+            {
+                foreach (Exception e in ((AggregateException)ex).InnerExceptions)
+                    Error(e);
             }
         }
     }    
