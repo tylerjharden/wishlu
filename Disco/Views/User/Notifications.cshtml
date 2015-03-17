@@ -2,6 +2,50 @@
 @using Disco.Common
 @{
     Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+    
+    if (Model.NotificationSettings == null || Model.NotificationSettings.Count == 0)
+    {
+        Model.NotificationSettings = new Dictionary<string, Squid.Users.NotificationSetting>
+            {
+                // activity involving you
+                { "activity_new_friend_request", new Squid.Users.NotificationSetting { Name = "Someone sends me a friend request", Wishlu = true, Email = true, Mobile = false } },
+                { "activity_friend_request_accepted", new Squid.Users.NotificationSetting { Name = "A friend request I have sent is accepted", Wishlu = true, Email = true, Mobile = false } },
+                { "activity_invitation_accepted", new Squid.Users.NotificationSetting { Name = "Someone I invite joins wishlu", Wishlu = true, Email = true, Mobile = false } },
+                { "activity_new_item_comment", new Squid.Users.NotificationSetting { Name = "Someone comments on one of my items", Wishlu = true, Email = false, Mobile = false } },
+                { "activity_item_copied", new Squid.Users.NotificationSetting { Name = "Someone has copied one of my items", Wishlu = true, Email = true, Mobile = false } },
+                { "activity_item_gifted", new Squid.Users.NotificationSetting { Name = "Someone has gifted one of my items", Wishlu = true, Email = true, Mobile = false } },
+                { "activity_new_follower", new Squid.Users.NotificationSetting { Name = "A new user has followed you", Wishlu = true, Email = false, Mobile = false } },
+
+                // wishlu subscriptions
+                { "subscription_new_item", new Squid.Users.NotificationSetting { Name = "A new item has been added to a wishlu you a subscribed to", Wishlu = true, Email = false, Mobile = false } },
+                { "subscription_item_removed", new Squid.Users.NotificationSetting { Name = "An item has been removed (moved or deleted) from a wishlu you a subscribed to", Wishlu = true, Email = false, Mobile = false } },
+                { "subscription_item_gifted", new Squid.Users.NotificationSetting { Name = "An item belonging to a wishlu you are subscribed to has been gifted", Wishlu = true, Email = false, Mobile = false } },
+                { "subscription_item_confirmed", new Squid.Users.NotificationSetting { Name = "A gift has been confirmed for an item in a wishlu you are subscribed to", Wishlu = true, Email = false, Mobile = false } },
+                { "subscription_date_changed", new Squid.Users.NotificationSetting { Name = "The date of a wishlu you are subscribed to has been changed (added, changed, removed)", Wishlu = true, Email = true, Mobile = false } },
+                { "subscription_name_changed", new Squid.Users.NotificationSetting { Name = "A wishlu you are subscribed to has been renamed", Wishlu = true, Email = false, Mobile = false } },
+
+                // reminders
+                { "reminder_subscribed_wishlu", new Squid.Users.NotificationSetting { Name = "Subscribed wishlus", Wishlu = true, Email = true, Mobile = false } },
+                { "reminder_birthday", new Squid.Users.NotificationSetting { Name = "Birthdays", Wishlu = true, Email = true, Mobile = false } },
+
+                // wishlu news and updates
+                { "wishlu_tips_tricks", new Squid.Users.NotificationSetting { Name = "wishlu Tips & Tricks", Wishlu = false, Email = true, Mobile = false } },
+                { "wishlu_suggestions", new Squid.Users.NotificationSetting { Name = "gift ideas & suggestions", Wishlu = false, Email = true, Mobile = false } },
+                { "wishlu_platform_updates", new Squid.Users.NotificationSetting { Name = "Platform Updates", Wishlu = false, Email = true, Mobile = false } },
+                { "wishlu_company_news", new Squid.Users.NotificationSetting { Name = "wishlu Company News", Wishlu = false, Email = true, Mobile = false } },
+
+                // Followers
+                { "following_new_wishlu", new Squid.Users.NotificationSetting { Name = "A user I follow has added a new wishlu", Wishlu = true, Email = false, Mobile = false } },
+                { "following_new_item", new Squid.Users.NotificationSetting { Name = "A user I follow has added a new item", Wishlu = true, Email = false, Mobile = false } },                
+                { "following_post", new Squid.Users.NotificationSetting { Name = "A store you follow has posted an update", Wishlu = true, Email = false, Mobile = false } },
+
+                // Milkshake
+                { "milkshake_price_change", new Squid.Users.NotificationSetting { Name = "The price for one of your items has changed", Wishlu = true, Email = false, Mobile = false } },
+                { "milkshake_product_sale", new Squid.Users.NotificationSetting { Name = "One of your items has gone on sale", Wishlu = true, Email = false, Mobile = false } }
+            };
+
+        Model.Update();
+    }
 }
 
 @section page {
@@ -12,166 +56,177 @@
     my account <i class="fa fa-angle-right" style="margin-left: 5px; margin-right: 5px;"></i> notifications
 }
 
-@section scripts {
-
+@section styles {
+    <link href="//assets.wishlu.com/css/bootstrap-switch.css" rel="stylesheet">
 }
 
-<div class="col_2 nomargin">
-    <ul class="menu vertical" style="z-index: 100; font-size: 12pt;">
-        <li><a href="/user/index"><i class="fa fa-fw fa-2x fa-cogs"></i>general</a></li>
-        @*<li><a href="/user/security"><i class="fa fa-fw fa-2x fa-shield" style="color: gold;"></i>security</a></li>*@
-        <li><a href="/user/privacy"><i class="fa fa-fw fa-2x fa-lock" style="color: gold;"></i>privacy</a></li>
-        <li><a href="/user/blocking"><i class="fa fa-fw fa-2x fa-minus-circle" style="color: indianred;"></i>blocking</a></li>
-        <li class="current"><a href="/user/notifications"><i class="fa fa-fw fa-2x fa-globe"></i>notifications</a></li>
-        <li><a href="/user/mobile"><i class="fa fa-fw fa-2x fa-mobile"></i>mobile</a></li>
-        <li><a href="/user/findfriends"><i class="fa fa-fw fa-2x fa-users"></i>find friends</a></li>
-        <li><a href="/user/social"><i class="fa fa-fw fa-2x fa-cubes"></i>social</a></li>
-        @*<li><a href="/user/payments"><i class="fa fa-fw fa-2x fa-credit-card"></i>payments</a></li>*@
-    </ul>
+@section scripts {
+<script src="//assets.wishlu.com/js/bootstrap-switch.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $.fn.bootstrapSwitch.defaults.size = 'small';
+            $('input[type="checkbox"]').bootstrapSwitch();
+
+            $('input[type="checkbox"]').on("switchChange.bootstrapSwitch", function (e,s) {                
+                var key = $(this).data("id");
+                var medium = $(this).data("medium");
+                var val = s;
+
+                $.get("/user/notification?key=" + encodeURIComponent(key) + "&medium=" + encodeURIComponent(medium) + "&value=" + encodeURIComponent(val), null, function (data) {                    
+                    if (data.result === true) {                        
+                    }
+                    else {
+                        swal("Uh oh...", data.message, "error");
+                        $(this).checked = !val;
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<div class="row" style="margin-bottom:10px;">
+    <div class="col-xs-12">
+        <ul class="nav nav-pills nav-justified">
+            <li role="presentation">
+                <a href="/user/index">
+                    <i class="fa fa-fw fa-cogs" style="color:gray;"></i> general
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/privacy">
+                    <i class="fa fa-fw fa-lock" style="color: gold;"></i> privacy
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/blocking">
+                    <i class="fa fa-fw fa-minus-circle" style="color: indianred;"></i> blocking
+                </a>
+            </li>
+            <li role="presentation" class="active">
+                <a href="/user/notifications">
+                    <i class="fa fa-fw fa-globe" style="color: deepskyblue;"></i> notifications
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/mobile">
+                    <i class="fa fa-fw fa-mobile" style="color:darkslategray;"></i> mobile
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/findfriends">
+                    <i class="fa fa-fw fa-users" style="color:midnightblue"></i> find friends
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/social">
+                    <i class="fa fa-fw fa-cubes" style="color:gray;"></i> social
+                </a>
+            </li>
+        </ul>
+    </div>
 </div>
 
-<div class="col_10 pop" style="float: right; margin-top: 0; margin-right: 0; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
-    <div class="grid" style="color: Gray">
-        <div class="col_9">
-            <h6>what you get notified about</h6>
+@helper NotificationSetting(KeyValuePair<string,Squid.Users.NotificationSetting> setting)
+{
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <h5>@setting.Value.Name</h5>
         </div>
-        <div class="col_3">
-            <h6>how you get notifications</h6>
+        <div class="col-xs-4 col-md-2 text-center">
+            <input type="checkbox" checked="@setting.Value.Wishlu" data-id="@setting.Key" data-medium="wishlu" />
         </div>
-        <div class="col_12">
-            <div class="col_6">
-            </div>
-            <div class="col_2 center">
+        <div class="col-xs-4 col-md-2 text-center">
+            <input type="checkbox" checked="@setting.Value.Email" data-id="@setting.Key" data-medium="email" />
+        </div>
+        <div class="col-xs-4 col-md-2 text-center">
+            <input type="checkbox" checked="@setting.Value.Mobile" data-id="@setting.Key" data-medium="mobile" @(Model.HasPhone ? "" : "disabled") />
+        </div>
+    </div>
+} 
+
+<div class="row">
+    <div class="col-xs-12" style="color: gray;">        
+        <div class="row">
+            <div class="col-xs-4 col-md-2 col-md-offset-6 text-center">
                 <i class="fa fa-share-alt fa-2x"></i>
-                <span class="col_12 nomargin nopadding">on wishlu</span>
+                <div><b>on wishlu</b></div>
             </div>
-            <div class="col_2 center">
+            <div class="col-xs-4 col-md-2 text-center">
                 <i class="fa fa-envelope fa-2x"></i>
-                <span class="col_12 nomargin nopadding">via email</span>
+                <div><b>via email</b></div>
+            </div>            
+            <div class="col-xs-4 col-md-2 text-center">
+                <i class="fa fa-mobile fa-2x"></i>
+                <div><b>by text</b></div>
+            </div>            
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h3><i class="fa fa-fw fa-user" style="color:#CFDF51"></i><b>activity involving you</b></h3>
             </div>
-            @if (!String.IsNullOrEmpty(Model.PhoneNumber) && Model.PhoneCarrier != 0)
-            {
-                <div class="col_2 center nter">
-                    <i class="fa fa-mobile fa-2x"></i>
-                    <span class="col_12 nomargin nopadding">by text</span>
-                </div>
-            }
         </div>
 
-        <div class="col_12" style="background: white; border: 2px solid lightblue; border-radius: 15px;">
-            <span class="col_6"><i class="fa fa-fw fa-2x fa-user" style="color:#CFDF51"></i><b>activity involving you</b></span>
-            <span class="col_2 center">
-                <input type="checkbox" checked="@Model.Notifications_Me_Wishlu" />
-            </span>
-            <span class="col_2 center">
-                <input type="checkbox" checked="@Model.Notifications_Me_Email" />
-            </span>
-            @if (!String.IsNullOrEmpty(Model.PhoneNumber) && Model.PhoneCarrier != 0)
-            {
-                <span class="col_2 center">
-                    <input type="checkbox" checked="@Model.Notifications_Me_Text" />
-                </span>
-            }
+        @foreach (var ns in Model.NotificationSettings.Where(x => x.Key.StartsWith("activity_")))
+        {
+            @:@NotificationSetting(ns)
+        }
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h3><i class="fa fa-fw fa-bars"></i><b>wishlu subscriptions</b></h3>
+            </div>
         </div>
 
-        <div class="col_12" style="background: white; border: 2px solid lightblue; border-radius: 15px;">
-            <span class="col_6"><i class="fa fa-fw fa-2x fa-birthday-cake"></i><b>birthdays</b></span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            @if (!String.IsNullOrEmpty(Model.PhoneNumber) && Model.PhoneCarrier != 0)
-            {
-                <span class="col_2 center">
-                    <input type="checkbox" />
-                </span>
-            }
+        @foreach (var ns in Model.NotificationSettings.Where(x => x.Key.StartsWith("subscription_")))
+        {
+            @:@NotificationSetting(ns)
+        }
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h3><i class="fa fa-fw fa-bell"></i><b>reminders</b></h3>
+            </div>
         </div>
 
-        <div class="col_12" style="background: white; border: 2px solid lightblue; border-radius: 15px;">
-            <span class="col_6"><i class="fa fa-fw fa-2x fa-bell" style="color: gold;"></i><b>holidays</b></span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            @if (!String.IsNullOrEmpty(Model.PhoneNumber) && Model.PhoneCarrier != 0)
-            {
-                <span class="col_2 center">
-                    <input type="checkbox" />
-                </span>
-            }
+        @foreach (var ns in Model.NotificationSettings.Where(x => x.Key.StartsWith("reminder_")))
+        {
+            @:@NotificationSetting(ns)
+        }
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h3><img src="//assets.wishlu.com/images/headerLogo.png" style="width:35px;height:35px;" /><b>wishlu news & updates</b></h3>
+            </div>
         </div>
 
-        <div class="col_12" style="background: white; border: 2px solid lightblue; border-radius: 15px;">
-            <span class="col_6"><i class="fa fa-fw fa-2x fa-calendar"></i><b>upcoming events</b></span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            @if (!String.IsNullOrEmpty(Model.PhoneNumber) && Model.PhoneCarrier != 0)
-            {
-                <span class="col_2 center">
-                    <input type="checkbox" />
-                </span>
-            }
+        @foreach (var ns in Model.NotificationSettings.Where(x => x.Key.StartsWith("wishlu_")))
+        {
+            @:@NotificationSetting(ns)
+        }
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h3><i class="fa fa-fw fa-users"></i><b>followers</b></h3>
+            </div>
         </div>
 
-        <div class="col_12" style="background: white; border: 2px solid lightblue; border-radius: 15px;">
-            <span class="col_6"><i class="fa fa-fw fa-2x fa-dollar" style="color: darkgreen;"></i><b>price changes for your items</b></span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            @if (!String.IsNullOrEmpty(Model.PhoneNumber) && Model.PhoneCarrier != 0)
-            {
-                <span class="col_2 center">
-                    <input type="checkbox" />
-                </span>
-            }
+        @foreach (var ns in Model.NotificationSettings.Where(x => x.Key.StartsWith("following_")))
+        {
+            @:@NotificationSetting(ns)
+        }
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h3><i class="fa fa-fw fa-dollar" style="color: darkgreen;"></i><b>pricing</b></h3>
+            </div>
         </div>
 
-        <div class="col_12" style="background: white; border: 2px solid lightblue; border-radius: 15px;">
-            <span class="col_6"><i class="fa fa-fw fa-2x fa-gift"></i><b>promotions and discounts for your items</b></span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            @if (!String.IsNullOrEmpty(Model.PhoneNumber) && Model.PhoneCarrier != 0)
-            {
-                <span class="col_2 center">
-                    <input type="checkbox" />
-                </span>
-            }
-        </div>
-
-        <div class="col_12" style="background: white; border: 2px solid lightblue; border-radius: 15px;">
-            <span class="col_6" style="line-height: 50px;">
-                @*<i class="fa fa-fw fa-2x fa-rss" style="color:darkorange;"></i>*@
-                <img src="//assets.wishlu.com/images/headerLogo.png" style="width:50px;height:50px;" />
-                <b>wishlu news and updates</b>
-            </span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            <span class="col_2 center">
-                <input type="checkbox" />
-            </span>
-            @if (!String.IsNullOrEmpty(Model.PhoneNumber) && Model.PhoneCarrier != 0)
-            {
-                <span class="col_2 center">
-                    <input type="checkbox" />
-                </span>
-            }
-        </div>
+        @foreach (var ns in Model.NotificationSettings.Where(x => x.Key.StartsWith("milkshake_")))
+        {
+            @:@NotificationSetting(ns)
+        }
     </div>
 </div>

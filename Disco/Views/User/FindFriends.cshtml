@@ -218,93 +218,78 @@
 </script>
 }
 
-<div class="col_2 nomargin">
-    <ul class="menu vertical" style="z-index: 100; font-size: 12pt;">
-        <li>
-            <a href="/user/index">
-                <i class="fa fa-fw fa-2x fa-cogs"></i>
-                general
-            </a>
-        </li>
-        @*<li>
-            <a href="/user/security">
-                <i class="fa fa-fw fa-2x fa-shield" style="color: gold;"></i>
-                security
-            </a>
-        </li>*@
-        <li>
-            <a href="/user/privacy">
-                <i class="fa fa-fw fa-2x fa-lock" style="color: gold;"></i>
-                privacy
-            </a>
-        </li>
-        <li>
-            <a href="/user/blocking">
-                <i class="fa fa-fw fa-2x fa-minus-circle" style="color: indianred;"></i>
-                blocking
-            </a>
-        </li>
-
-        <li>
-            <a href="/user/notifications">
-                <i class="fa fa-fw fa-2x fa-globe" style="color: deepskyblue;"></i>
-                notifications
-            </a>
-        </li>
-        <li>
-            <a href="/user/mobile">
-                <i class="fa fa-fw fa-2x fa-mobile"></i>
-                mobile
-            </a>
-        </li>
-
-        <li class="current">
-            <a href="/user/findfriends">
-                <i class="fa fa-fw fa-2x fa-users"></i>
-                find friends
-            </a>
-        </li>
-        <li>
-            <a href="/user/social">
-                <i class="fa fa-fw fa-2x fa-cubes"></i>
-                social
-            </a>
-        </li>
-        @*<li>
-            <a href="/user/payments">
-                <i class="fa fa-fw fa-2x fa-credit-card"></i>
-                payments
-            </a>
-        </li>*@
-    </ul>
+<div class="row" style="margin-bottom:10px;">
+    <div class="col-xs-12">
+        <ul class="nav nav-pills nav-justified">
+            <li role="presentation">
+                <a href="/user/index">
+                    <i class="fa fa-fw fa-cogs" style="color:gray;"></i> general
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/privacy">
+                    <i class="fa fa-fw fa-lock" style="color: gold;"></i> privacy
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/blocking">
+                    <i class="fa fa-fw fa-minus-circle" style="color: indianred;"></i> blocking
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/notifications">
+                    <i class="fa fa-fw fa-globe" style="color: deepskyblue;"></i> notifications
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/mobile">
+                    <i class="fa fa-fw fa-mobile" style="color:darkslategray;"></i> mobile
+                </a>
+            </li>
+            <li role="presentation" class="active">
+                <a href="/user/findfriends">
+                    <i class="fa fa-fw fa-users" style="color:midnightblue"></i> find friends
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/social">
+                    <i class="fa fa-fw fa-cubes" style="color:gray;"></i> social
+                </a>
+            </li>
+        </ul>
+    </div>
 </div>
 
-<div class="col_10 pop" style="float: right; margin-top: 0; margin-right: 0; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
-    @if (Model.user.IsFacebookSynced)
-    {
-        <div class="col_12">
-            <h6 class="center" style="color: gray;">see who's here</h6>
-            <div class="col_12">
-                @foreach (Squid.Users.User friend in Model.here)
-                {
-                    <a class="col_2 @(Model.user.FriendRequestExists(friend.Id) ? "requestedUser" : "requestUser") center" data-id="@friend.Id" href="#" style="position:relative;">
-                        <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-position: center; background-image: url('http://graph.facebook.com/@friend.FacebookPageId/picture'); width: 75px; height: 75px;">
-                        </div>
-                        <div class="col_12 nomargin" style="font-size: 8pt;">
-                            <b>@friend.FullName</b>
-                        </div>
-                        <i class="loading fa fa-spinner fa-3x fa-spin" style="display:none;position:absolute;top:15px;left:50px; color:gray;"></i>
-                        <i class="success fa fa-check fa-3x" style="@(Model.user.FriendRequestExists(friend.Id) ? "" : "display:none;") position:absolute;top:15px;left:50px; color:#79e0c3;"></i>
-                        <i class="fail fa fa-times fa-3x" style="display:none;position:absolute;top:15px;left:50px; color:#b5919b;"></i>
-                    </a>                    
-                }
+<div class="row">
+    <div class="col-xs-12">
+        @if (Model.user.IsFacebookSynced)
+        {
+            <h3 class="text-center" style="color: gray;">see who's here</h3>
+            <div class="row">
+                <div class="col-xs-12">
+                    @foreach (Squid.Users.User friend in Model.here)
+                    {
+                        <a class="col-xs-2 @(Model.user.FriendRequestExists(friend.Id) ? "requestedUser" : "requestUser") center" data-id="@friend.Id" href="#" style="position:relative;">
+                            <div class="circlefriend" style="float: none; display: inline-block; margin: 0; background-position: center; background-image: url('http://graph.facebook.com/@friend.FacebookPageId/picture'); width: 75px; height: 75px;">
+                            </div>
+                            <div class="nomargin" style="font-size: 8pt;">
+                                <b>@friend.FullName</b>
+                            </div>
+                            <i class="loading fa fa-spinner fa-3x fa-spin" style="display:none;position:absolute;top:15px;left:50px; color:gray;"></i>
+                            <i class="success fa fa-check fa-3x" style="@(Model.user.FriendRequestExists(friend.Id) ? "" : "display:none;") position:absolute;top:15px;left:50px; color:#79e0c3;"></i>
+                            <i class="fail fa fa-times fa-3x" style="display:none;position:absolute;top:15px;left:50px; color:#b5919b;"></i>
+                        </a>
+                    }
+                </div>
             </div>
-        </div>
-        <div class="col_12 center">
-            <a class="button large pop" id="facebook_invite">
-                invite whoever's missing
-            </a>
-            @*<div class="col_12" style="overflow-y: scroll; max-height: 320px;">
+                
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <a class="button large pop" id="facebook_invite">
+                        invite whoever's missing
+                    </a>
+                </div>                
+                @*<div class="col_12" style="overflow-y: scroll; max-height: 320px;">
                     @foreach (var friend in Model.missing)
                     {
                         <div class="col_12 nomargin" style="border-bottom: 1px solid lightgray; padding-left: 15px;">						@
@@ -321,17 +306,17 @@
                         </div>
                     }
                 </div>*@
-        </div>
-    }
-    else
-    {
-        <div class="col_12 center" id="facebook_connect">
-            <i class="fa fa-facebook-square fa-3x" style="color:#3b5998;"></i>
-            <br />
-            <a class="button large pop">Connect with Facebook</a>
-        </div>
-        <div class="col_12 center hide" id="facebook_here">
-
-        </div>
-    }
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-xs-12 text-center" id="facebook_connect">
+                    <i class="fa fa-facebook-square fa-3x" style="color:#3b5998;"></i>
+                    <br />
+                    <a class="button large pop">Connect with Facebook</a>
+                </div>
+            </div>
+        }
+    </div>
 </div>

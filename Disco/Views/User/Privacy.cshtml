@@ -14,7 +14,7 @@
 
 @section scripts {
 <script type="text/javascript">
-    $(document).ready(function ($) {
+    $(document).ready(function () {
         $(".working, .success, .error").hide();
 
         $(".setting").on("change", function (e) {
@@ -41,179 +41,200 @@
 </script>
 }
 
-<div class="col_2 nomargin">
-    <ul class="menu vertical" style="z-index: 100; font-size: 12pt;">
-        <li><a href="/user/index"><i class="fa fa-fw fa-2x fa-cogs"></i>general</a></li>
-        @*<li><a href="/user/security"><i class="fa fa-fw fa-2x fa-shield" style="color: gold;"></i>security</a></li>*@
-        <li class="current"><a href="/user/privacy"><i class="fa fa-fw fa-2x fa-lock"></i>privacy</a></li>
-        <li><a href="/user/blocking"><i class="fa fa-fw fa-2x fa-minus-circle" style="color: indianred;"></i>blocking</a></li>
-        <li><a href="/user/notifications"><i class="fa fa-fw fa-2x fa-globe" style="color: deepskyblue;"></i>notifications</a></li>
-        <li><a href="/user/mobile"><i class="fa fa-fw fa-2x fa-mobile"></i>mobile</a></li>
-        <li><a href="/user/findfriends"><i class="fa fa-fw fa-2x fa-users"></i>find friends</a></li>
-        <li><a href="/user/social"><i class="fa fa-fw fa-2x fa-cubes"></i>social</a></li>
-        @*<li><a href="/user/payments"><i class="fa fa-fw fa-2x fa-credit-card"></i>payments</a></li>*@
-    </ul>
+<div class="row" style="margin-bottom:10px;">
+    <div class="col-xs-12">
+        <ul class="nav nav-pills nav-justified">
+            <li role="presentation">
+                <a href="/user/index">
+                    <i class="fa fa-fw fa-cogs" style="color:gray;"></i> general
+                </a>
+            </li>
+            <li role="presentation" class="active">
+                <a href="/user/privacy">
+                    <i class="fa fa-fw fa-lock" style="color: gold;"></i> privacy
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/blocking">
+                    <i class="fa fa-fw fa-minus-circle" style="color: indianred;"></i> blocking
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/notifications">
+                    <i class="fa fa-fw fa-globe" style="color: deepskyblue;"></i> notifications
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/mobile">
+                    <i class="fa fa-fw fa-mobile" style="color:darkslategray;"></i> mobile
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/findfriends">
+                    <i class="fa fa-fw fa-users" style="color:midnightblue"></i> find friends
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/social">
+                    <i class="fa fa-fw fa-cubes" style="color:gray;"></i> social
+                </a>
+            </li>
+        </ul>
+    </div>
 </div>
 
-<div class="col_10 pop" style="float: right; margin-top: 0; margin-right: 0; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
-    <div class="col_12">
-        <h5>who can see what I do on wishlu?</h5>
-        <div class="col_4" style="position:relative;">
-            <h6>who can see my wishlu profile?</h6>
-            <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
-            <select id="ProfileVisibility" class="setting full input-like small-input">
-                @switch (Model.ProfileVisibility)
-                {
-                    case Squid.Users.UserPrivacy.Everyone:
-                        <option selected value="Everyone">everyone</option>
-                        <option value="Members">wishlu members</option>
-                        <option value="FriendsOfFriends">friends of friends</option>
-                        <option value="Friends">friends</option>
-                        break;
+<div class="row">
+    <div class="col-xs-12">
+        <div class="col_12">
+            <h3>who can see what I do on wishlu?</h3>
+            <div class="col_4" style="position:relative;">
+                <h4>who can see my wishlu profile?</h4>
+                <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
+                <select id="ProfileVisibility" class="setting full input-like small-input">
+                    @switch (Model.ProfileVisibility)
+                    {
+                        case Squid.Users.UserPrivacy.Everyone:
+                            <option selected value="Everyone">everyone</option>
+                            <option value="Members">wishlu members</option>
+                            <option value="FriendsOfFriends">friends of friends</option>
+                            <option value="Friends">friends</option>
+                            break;
 
-                    case Squid.Users.UserPrivacy.Members:
-                    <option value="Everyone">everyone</option>
-                    <option selected value="Members">wishlu members</option>
-                    <option value="FriendsOfFriends">friends of friends</option>
-                    <option value="Friends">friends</option>
-                        break;
-
-                    case Squid.Users.UserPrivacy.FriendsOfFriends:
-                    <option value="Everyone">everyone</option>
-                    <option value="Members">wishlu members</option>
-                    <option selected value="FriendsOfFriends">friends of friends</option>
-                    <option value="Friends">friends</option>
-                        break;
-
-                    case Squid.Users.UserPrivacy.Friends:
-                    <option value="Everyone">everyone</option>
-                    <option value="Members">wishlu members</option>
-                    <option value="FriendsOfFriends">friends of friends</option>
-                    <option selected value="Friends">friends</option>
-                        break;
-                }
-            </select>
-        </div>
-        @*<div class="col_4">
-                <h6>who can see my public wishlu(s)?</h6>
-                <select class="full input-like small-input">
-                    <option>everyone</option>
-                    <option>wishlu members</option>
-                    <option>friends of friends</option>
-                    <option>friends</option>
-                </select>
-            </div>*@
-        <div class="col_4" style="position:relative;">
-            <h6>who can follow me?</h6>
-            <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
-            <select id="FollowPermission" class="setting full input-like small-input">
-                @switch (Model.FollowPermission)
-                {
-                    case Squid.Users.UserPrivacy.Everyone:
-                    case Squid.Users.UserPrivacy.Members:
+                        case Squid.Users.UserPrivacy.Members:
+                        <option value="Everyone">everyone</option>
                         <option selected value="Members">wishlu members</option>
                         <option value="FriendsOfFriends">friends of friends</option>
                         <option value="Friends">friends</option>
-                        break;
+                            break;
 
-                    case Squid.Users.UserPrivacy.FriendsOfFriends:
-                    <option value="Members">wishlu members</option>
-                    <option selected value="FriendsOfFriends">friends of friends</option>
-                    <option value="Friends">friends</option>
-                        break;
+                        case Squid.Users.UserPrivacy.FriendsOfFriends:
+                        <option value="Everyone">everyone</option>
+                        <option value="Members">wishlu members</option>
+                        <option selected value="FriendsOfFriends">friends of friends</option>
+                        <option value="Friends">friends</option>
+                            break;
 
-                    case Squid.Users.UserPrivacy.Friends:
-                    <option value="Members">wishlu members</option>
-                    <option value="FriendsOfFriends">friends of friends</option>
-                    <option selected value="Friends">friends</option>
-                        break;
-                }
-            </select>
+                        case Squid.Users.UserPrivacy.Friends:
+                        <option value="Everyone">everyone</option>
+                        <option value="Members">wishlu members</option>
+                        <option value="FriendsOfFriends">friends of friends</option>
+                        <option selected value="Friends">friends</option>
+                            break;
+                    }
+                </select>
+            </div>            
+            <div class="col_4" style="position:relative;">
+                <h4>who can follow me?</h4>
+                <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
+                <select id="FollowPermission" class="setting full input-like small-input">
+                    @switch (Model.FollowPermission)
+                    {
+                        case Squid.Users.UserPrivacy.Everyone:
+                        case Squid.Users.UserPrivacy.Members:
+                            <option selected value="Members">wishlu members</option>
+                            <option value="FriendsOfFriends">friends of friends</option>
+                            <option value="Friends">friends</option>
+                            break;
+
+                        case Squid.Users.UserPrivacy.FriendsOfFriends:
+                        <option value="Members">wishlu members</option>
+                        <option selected value="FriendsOfFriends">friends of friends</option>
+                        <option value="Friends">friends</option>
+                            break;
+
+                        case Squid.Users.UserPrivacy.Friends:
+                        <option value="Members">wishlu members</option>
+                        <option value="FriendsOfFriends">friends of friends</option>
+                        <option selected value="Friends">friends</option>
+                            break;
+                    }
+                </select>
+            </div>
         </div>
-    </div>
 
-    <div class="col_12">
-        <h5>who can contact me on wishlu?</h5>
-        <div class="col_4" style="position:relative;">
-            <h6>who can send me friend requests?</h6>
-            <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
-            <select id="FriendRequestPermission" class="setting full input-like small-input">
-                @if (Model.FriendRequestPermission == Squid.Users.UserPrivacy.Members)
-                {
-                    <option selected value="Members">wishlu members</option>
-                    <option value="FriendsOfFriends">friends of friends</option>
-                }
-                else
-                {
-                    <option value="Members">wishlu members</option>
-                    <option selected value="FriendsOfFriends">friends of friends</option>
-                }
-            </select>
+        <div class="col_12">
+            <h3>who can contact me on wishlu?</h3>
+            <div class="col_4" style="position:relative;">
+                <h4>who can send me friend requests?</h4>
+                <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
+                <select id="FriendRequestPermission" class="setting full input-like small-input">
+                    @if (Model.FriendRequestPermission == Squid.Users.UserPrivacy.Members)
+                    {
+                        <option selected value="Members">wishlu members</option>
+                        <option value="FriendsOfFriends">friends of friends</option>
+                    }
+                    else
+                    {
+                        <option value="Members">wishlu members</option>
+                        <option selected value="FriendsOfFriends">friends of friends</option>
+                    }
+                </select>
+            </div>
+
         </div>
 
-    </div>
-
-    <div class="col_12">
-        <h5>who can look me up?</h5>
-        <div class="col_4" style="position:relative;">
-            <h6>can wishlu users look me up via e-mail?</h6>
-            <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
-            <select id="AllowEMailLookup" class="setting full input-like small-input">
-                @if (Model.AllowEMailLookup)
-                {
-                    <option selected value="true">yes</option>
-                    <option value="false">no</option>
-                }
-                else
-                {
-                    <option value="true">yes</option>
-                    <option selected value="false">no</option>
-                }
-            </select>
-        </div>
-        <div class="col_4" style="position:relative;">
-            <h6>can wishlu users look me up via phone number?</h6>
-            <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
-            <select id="AllowPhoneLookup" class="setting full input-like small-input">
-                @if (Model.AllowPhoneLookup)
-                {
-                    <option selected value="true">yes</option>
-                    <option value="false">no</option>
-                }
-                else
-                {
-                    <option value="true">yes</option>
-                    <option selected value="false">no</option>
-                }
-            </select>
-        </div>
-        <div class="col_4" style="position:relative;">
-            <h6>allow search engines to index my profile, wishes, wishlus, etc?</h6>
-            <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
-            <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
-            <select id="AllowIndexing" class="setting full input-like small-input">
-                @if (Model.AllowIndexing)
-                {
-                    <option selected value="true">yes, allow public indexing</option>
-                    <option value="false">no, keep search engines away</option>
-                }
-                else
-                {
-                    <option value="true">yes, allow public indexing</option>
-                    <option selected value="false">no, keep search engines away</option>
-                }
-            </select>
+        <div class="col_12">
+            <h3>who can look me up?</h3>
+            <div class="col_4" style="position:relative;">
+                <h4>can wishlu users look me up via e-mail?</h4>
+                <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
+                <select id="AllowEMailLookup" class="setting full input-like small-input">
+                    @if (Model.AllowEMailLookup)
+                    {
+                        <option selected value="true">yes</option>
+                        <option value="false">no</option>
+                    }
+                    else
+                    {
+                        <option value="true">yes</option>
+                        <option selected value="false">no</option>
+                    }
+                </select>
+            </div>
+            <div class="col_4" style="position:relative;">
+                <h4>can wishlu users look me up via phone number?</h4>
+                <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
+                <select id="AllowPhoneLookup" class="setting full input-like small-input">
+                    @if (Model.AllowPhoneLookup)
+                    {
+                        <option selected value="true">yes</option>
+                        <option value="false">no</option>
+                    }
+                    else
+                    {
+                        <option value="true">yes</option>
+                        <option selected value="false">no</option>
+                    }
+                </select>
+            </div>
+            <div class="col_4" style="position:relative;">
+                <h4>allow search engines to index my profile, wishes, wishlus, etc?</h4>
+                <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:14px;right:5px;"></i>
+                <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:14px;right:5px;"></i>
+                <select id="AllowIndexing" class="setting full input-like small-input">
+                    @if (Model.AllowIndexing)
+                    {
+                        <option selected value="true">yes, allow public indexing</option>
+                        <option value="false">no, keep search engines away</option>
+                    }
+                    else
+                    {
+                        <option value="true">yes, allow public indexing</option>
+                        <option selected value="false">no, keep search engines away</option>
+                    }
+                </select>
+            </div>
         </div>
     </div>
 </div>

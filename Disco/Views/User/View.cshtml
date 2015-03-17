@@ -70,13 +70,9 @@
 @section meta
 {
     <!-- Google -->
-    <meta name="description" content="" />
+    <meta name="description" content="@Model.FullName's profile on wishlu." />
     <meta name="keywords" content="" />
-
-    <meta name="author" content="wishlu" />
-    <meta name="copyright" content="&copy; 2014 wishlu." />
-    <meta name="application-name" content="wishlu" />
-
+        
     <!-- Facebook -->
     <meta property="og:title" content="@Model.FullName's profile on wishlu." />
     <meta property="og:type" content="profile" />
@@ -88,11 +84,11 @@
     <meta property="profile:gender" content="@(Model.Gender == 'f' ? "female" : "male")" />
     @if (Model.Gender == 'f')
     {
-        <meta property="og:description" content="Take a look at the things @Model.FirstName may want you to get her for that next special ocassion, holiday, or birthday." />
+        <meta property="og:description" content="Take a look at the things @Model.FirstName may want you to get her for that next special occasion, holiday, or birthday." />
     }
     else
     {
-        <meta property="og:description" content="Take a look at the things @Model.FirstName may want you to get him for that next special ocassion, holiday, or birthday." />
+        <meta property="og:description" content="Take a look at the things @Model.FirstName may want you to get him for that next special occasion, holiday, or birthday." />
     }
 
     <!-- Twitter -->
@@ -102,6 +98,7 @@
     <meta name="twitter:image" content="" />
 
     <!-- Pinterest -->
+
     <!-- Privacy -->
     @if (!Model.AllowIndexing)
     {
@@ -111,8 +108,6 @@
 
 @section styles {
     <link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/jquery.rating.css" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//assets.wishlu.com/css/bootstrap-select.css">
 
     <style>
         .large-tile {
@@ -128,8 +123,6 @@
     <script type="text/javascript" src="//assets.wishlu.com/js/jquery.unobtrusive-ajax.js"></script>
     <script type="text/javascript" src="//assets.wishlu.com/js/jquery.rating.js"></script>
     <script type="text/javascript" src="//assets.wishlu.com/js/jquery.autosize.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-    <script src="//assets.wishlu.com/js/bootstrap-select.js"></script>
 
     @*<script type="text/javascript" src="//assets.wishlu.com/js/jquery.jeditable.js"></script>*@
 
@@ -566,7 +559,7 @@
                         try
                         {
                             <a href="/u/@friend.Id">
-                                <div class="col_2 circle pop tooltip-top" title="@friend.FullName" style="float: none; display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.Image : "//assets.wishlu.com/images/GenericFriend.png")'); background-color: white; width: 100px; height: 100px;">
+                                <div class="col_2 circle pop tooltip-top" title="@friend.FullName" style="float: none; display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(!String.IsNullOrEmpty(friend.ImageUrl) ? friend.Image : "//assets.wishlu.com/images/GenericFriend.png")?width=200&height=200'); background-color: white; width: 100px; height: 100px;">
                                     <div class="col_12" style="margin: 0; margin-top: 10px; opacity: 0.9;">
                                     </div>
                                 </div>
@@ -607,10 +600,7 @@
                             <ul class="dropdown-menu" role="menu">
                                 @foreach (Squid.Wishes.Wishloop wishloop in all_wishloops)
                                 {
-                                    if (wishloop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
-                                    {
-                                        <li class="wishloop_add @(wishloops.Count(x => x.Id == wishloop.Id) == 0 ? "" : "hide")" data-id="@wishloop.Id"><a href="#">@wishloop.Name.ToLower()</a></li>
-                                    }
+                                    <li class="wishloop_add @(wishloops.Count(x => x.Id == wishloop.Id) == 0 ? "" : "hide")" data-id="@wishloop.Id"><a href="#">@wishloop.Name.ToLower()</a></li>
                                 }
                                 @*<li class="divider"></li>
                                     <li><a class="wishloop_remove_all" href="#">remove from all</a></li>*@
@@ -623,12 +613,9 @@
                             <div class="col_10">
                                 <a href="/o/@wishloop.Id">@wishloop.Name</a>
                             </div>
-                            @if (wishloop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
-                            {
-                                <div class="col_2 right">
-                                    <a class="button pop wishloop_remove" data-id="@wishloop.Id" style="padding:5px;"><i class="fa fa-times"></i></a>
-                                </div>
-                            }
+                            <div class="col_2 right">
+                                <a class="button pop wishloop_remove" data-id="@wishloop.Id" style="padding:5px;"><i class="fa fa-times"></i></a>
+                            </div>                            
                         </div>
                     }
                 </div>

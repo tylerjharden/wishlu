@@ -4,6 +4,25 @@
     Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
 
     List<Squid.Wishes.Wishloop> wishloops = Squid.Wishes.Wishloop.GetUsersWishloops(UserId);
+
+    int profile_progress = 100;
+    
+    if (String.IsNullOrEmpty(Model.Favorites))
+    {
+        profile_progress -= 10;
+    }
+    if (Model.FavoriteStores.Count == 0)
+    {
+        profile_progress -= 10;
+    }
+    if (String.IsNullOrEmpty(Model.ShipAddress1))
+    {
+        profile_progress -= 10;
+    }
+    if (String.IsNullOrEmpty(Model.Image) || Model.Image.ToLower().Contains("generic"))
+    {
+        profile_progress -= 10;
+    }
 }
 
 @section page {
@@ -20,18 +39,12 @@
 
 @section styles {
     <link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/jquery.rating.css" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//assets.wishlu.com/css/bootstrap-select.css">
-
 }
 
 @section scripts {
     <script type="text/javascript" src="//assets.wishlu.com/js/jquery.unobtrusive-ajax.js"></script>
     <script type="text/javascript" src="//assets.wishlu.com/js/jquery.rating.js"></script>
     <script type="text/javascript" src="//assets.wishlu.com/js/jquery.autosize.min.js"></script>
-
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-    <script src="//assets.wishlu.com/js/bootstrap-select.js"></script>
 
     @*<script type="text/javascript" src="/Scripts/jquery.jeditable.js"></script>*@
 
@@ -232,8 +245,20 @@
     </select>
 }
 
+@if (profile_progress < 100)
+{
+    <div class="col-lg-12 text-center wishLuList" style="background-color: white; border-color: gray;">
+        <h4>Your profile is almost finished! (@profile_progress%)</h4>
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="@profile_progress" aria-valuemin="0" aria-valuemax="100" style="width: @profile_progress%">
+                <span class="sr-only">Profile Completeness: @profile_progress%</span>
+            </div>
+        </div>
+    </div>
+}
+
 <div class="col-lg-4">
-    <div class="col_12 wishLuList center" style="background-color: white; border-color: gray;">
+    <div class="col_12 wishLuList center">
         <input type="file" id="filePicker" style="display: none;" />
         <div class="col_12 circle pop sitelink" id="profileImage" onclick="$('#filePicker').trigger('click');" style="float: none; overflow: hidden; display: inline-block; position: relative; color: #a8a096; background-size: cover; background-position: center; background-image: url('@Model.Image?width=200&height=200'); background-color: white; width: 250px; height: 250px;">
             <div class="full center" style="position:absolute; bottom: 0;background: rgba(0,0,0,0.6); padding-top: 10px; padding-bottom: 10px;">

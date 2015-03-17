@@ -113,9 +113,7 @@
             Manage your account here:
         </span>
         <ul>
-            <li>Edit your name, handle, email address, birth date, and password.</li>
-            <li>Sort items in your wishlu alphabetically, by price, or by the date on which they were added.</li>
-            <li>Move and delete items in your wishlu.</li>
+            <li>Edit your name, handle, email address, birth date, and password.</li>            
             <li>Click <b>privacy</b> to manage who can see your profile, follow you on wishlu, find you on wishlu, and contact you via wishlu.</li>
             <li>Click <b>blocking</b> to prevent users from interacting with you in anyway on wishlu by entering their email address or username (the name behind the backslash in your browser).  Or, you can find them via the search function and block them from their profile page.</li>
             <li>Click <b>notifications</b> to manage what you get notified about, by whom, and how.</li>
@@ -126,99 +124,132 @@
     </div>
 }
 
-<div class="col_2 nomargin">
-    <ul class="menu vertical" style="z-index: 100; font-size: 12pt;">
-        <li class="current"><a href="/user/index"><i class="fa fa-fw fa-2x fa-cogs"></i>general</a></li>
-        @*<li><a href="/user/security"><i class="fa fa-fw fa-2x fa-shield" style="color: gold;"></i>security</a></li>*@
-        <li><a href="/user/privacy"><i class="fa fa-fw fa-2x fa-lock" style="color: gold;"></i>privacy</a></li>
-        <li><a href="/user/blocking"><i class="fa fa-fw fa-2x fa-minus-circle" style="color: indianred;"></i>blocking</a></li>
-        <li><a href="/user/notifications"><i class="fa fa-fw fa-2x fa-globe" style="color: deepskyblue;"></i>notifications</a></li>
-        <li><a href="/user/mobile"><i class="fa fa-fw fa-2x fa-mobile"></i>mobile</a></li>
-        <li><a href="/user/findfriends"><i class="fa fa-fw fa-2x fa-users"></i>find friends</a></li>
-        <li><a href="/user/social"><i class="fa fa-fw fa-2x fa-cubes"></i>social</a></li>
-        @*<li><a href="/user/payments"><i class="fa fa-fw fa-2x fa-credit-card"></i>payments</a></li>*@
-    </ul>
+<div class="row" style="margin-bottom:10px;">
+    <div class="col-xs-12">
+        <ul class="nav nav-pills nav-justified">
+            <li role="presentation" class="active">
+                <a href="/user/index">
+                    <i class="fa fa-fw fa-cogs" style="color:gray;"></i> general
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/privacy">
+                    <i class="fa fa-fw fa-lock" style="color: gold;"></i> privacy
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/blocking">
+                    <i class="fa fa-fw fa-minus-circle" style="color: indianred;"></i> blocking
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/notifications">
+                    <i class="fa fa-fw fa-globe" style="color: deepskyblue;"></i> notifications
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/mobile">
+                    <i class="fa fa-fw fa-mobile" style="color:darkslategray;"></i> mobile
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/findfriends">
+                    <i class="fa fa-fw fa-users" style="color:midnightblue"></i> find friends
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="/user/social">
+                    <i class="fa fa-fw fa-cubes" style="color:gray;"></i> social
+                </a>
+            </li>
+        </ul>
+    </div>
 </div>
 
-<div class="col_10 pop" style="float: right; margin-top: 0; margin-right: 0; border: 2px solid lightblue; border-radius: 15px; background: white;">
-    @using (Html.BeginForm("", "", new { @id = "joinForm" }, FormMethod.Post, new { @class = "joinForm required-form" }))
-    {
-        <div class="grid" style="color: Gray">
-            <div class="col_12">
-                <span class="col_4">name</span>
-                <span class="col_3" style="padding: 0;">@Html.TextBox("settingsFirstName", Model.FirstName, new { @id = "settingsFirstName", @class = "full small-input", placeholder = "first name" })</span>
-                <span class="col_3" style="padding: 0;">@Html.TextBox("settingsLastName", Model.LastName, new { @id = "settingsLastName", @class = "full small-input", placeholder = "last name" })</span>
-                <span class="col_2"><a class="button pop" id="saveName">save</a></span>
-                <span class="col_4">handle</span>
-                <span class="col_6" style="padding: 0;">@Html.TextBox("settingsUsername", Model.Handle, new { @id = "settingsUsername", @class = "full small-input", placeholder = "username" })</span>
-                <span class="col_2"><a class="button pop" id="saveUsername">save</a></span>
-                <span class="col_4">email</span>
-                <div class="col_6">
-                    @Html.TextBox("settingsEmail", Model.Email, new { @id = "settingsEmail", @class = "full small-input", placeholder = "enter email address" })<br />
-                    <span style="float: left; padding: 0; font-size: 0.7em;"></span>
-                </div>
-                <span class="col_2"><a class="button pop" id="saveEmail">save</a></span>
-                <span class="col_4">birthday</span>
-                <input type="hidden" value="" id="settings_birthday" />
-                <div class="col_2">
-                    <select id="bdaymonth" class="full small-input input-like lowercase" title="Please indicate your birth month" required>
-                        <option value="">Month</option>
-                        <option value="1">January</option>
-                        <option value="2">February</option>
-                        <option value="3">March</option>
-                        <option value="4">April</option>
-                        <option value="5">May</option>
-                        <option value="6">June</option>
-                        <option value="7">July</option>
-                        <option value="8">August</option>
-                        <option value="9">September</option>
-                        <option value="10">October</option>
-                        <option value="11">November</option>
-                        <option value="12">December</option>
-                    </select>
-                </div>
-                <div class="col_2">
-                    <select id="bdayday" class="full small-input input-like lowercase" title="Please indicate your birth day" required>
-                        <option value="">Day</option>
-                        <option value="01">1</option>
-                        <option value="02">2</option>
-                        <option value="03">3</option>
-                        <option value="04">4</option>
-                        <option value="05">5</option>
-                        <option value="06">6</option>
-                        <option value="07">7</option>
-                        <option value="08">8</option>
-                        <option value="09">9</option>
-                        @for (int i = 10; i <= 31; i++)
-                        {
-                            <option value="@(i)">@(i)</option>
-                        }
-                    </select>
-                </div>
-                <div class="col_2">
-                    <select id="bdayyear" class="full small-input input-like lowercase selectwishloop">
-                        <option value="">Year</option>
-                        @for (int i = (DateTime.Now.Year - 12); i >= 1910; i--)
-                        {
-                            <option value="@(i)">@(i)</option>
-                        }
-                    </select>
-                </div>
-                <span class="col_2"><a class="button pop" id="save_birthday">save</a></span>
-                <span class="col_4">password</span>
-                <div class="col_6">
-                    <a class="button pop full" id="showChangePassword">change password</a>
-                    <div id="changePassword" style="margin-top: 10px;">
-                        <div class="col_5" style="margin-left: 0;">@Html.Password("settingsPassword", "", new { @id = "settingsPassword", @class = "full small-input", placeholder = "enter new password" })</div>
-                        <div class="col_5">@Html.Password("settingsPasswordRepeat", "", new { @id = "settingsPasswordRepeat", @class = "full small-input", placeholder = "confirm password" })</div>
-                        <div class="col_2 right" style="margin-right: 0; float: right;"><a class="button pop" id="savePassword">save</a></div>
-                        <span class="instructions">Your password is case sensitive and must be a minimum of 6 characters.</span>
+@*<li><a href="/user/security"><i class="fa fa-fw fa-2x fa-shield" style="color: gold;"></i>security</a></li>*@
+@*<li><a href="/user/payments"><i class="fa fa-fw fa-2x fa-credit-card"></i>payments</a></li>*@
+
+<div class="row">
+    <div class="col-xs-12">
+        @using (Html.BeginForm("", "", new { @id = "joinForm" }, FormMethod.Post, new { @class = "joinForm required-form" }))
+        {
+            <div class="grid" style="color: Gray">
+                <div class="col_12">
+                    <span class="col_4">name</span>
+                    <span class="col_3" style="padding: 0;">@Html.TextBox("settingsFirstName", Model.FirstName, new { @id = "settingsFirstName", @class = "full small-input", placeholder = "first name" })</span>
+                    <span class="col_3" style="padding: 0;">@Html.TextBox("settingsLastName", Model.LastName, new { @id = "settingsLastName", @class = "full small-input", placeholder = "last name" })</span>
+                    <span class="col_2"><a class="button pop" id="saveName">save</a></span>
+                    <span class="col_4">handle</span>
+                    <span class="col_6" style="padding: 0;">@Html.TextBox("settingsUsername", Model.Handle, new { @id = "settingsUsername", @class = "full small-input", placeholder = "username" })</span>
+                    <span class="col_2"><a class="button pop" id="saveUsername">save</a></span>
+                    <span class="col_4">email</span>
+                    <div class="col_6">
+                        @Html.TextBox("settingsEmail", Model.Email, new { @id = "settingsEmail", @class = "full small-input", placeholder = "enter email address" })<br />
+                        <span style="float: left; padding: 0; font-size: 0.7em;"></span>
+                    </div>
+                    <span class="col_2"><a class="button pop" id="saveEmail">save</a></span>
+                    <span class="col_4">birthday</span>
+                    <input type="hidden" value="" id="settings_birthday" />
+                    <div class="col_2">
+                        <select id="bdaymonth" class="full small-input input-like lowercase" title="Please indicate your birth month" required>
+                            <option value="">Month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <div class="col_2">
+                        <select id="bdayday" class="full small-input input-like lowercase" title="Please indicate your birth day" required>
+                            <option value="">Day</option>
+                            <option value="01">1</option>
+                            <option value="02">2</option>
+                            <option value="03">3</option>
+                            <option value="04">4</option>
+                            <option value="05">5</option>
+                            <option value="06">6</option>
+                            <option value="07">7</option>
+                            <option value="08">8</option>
+                            <option value="09">9</option>
+                            @for (int i = 10; i <= 31; i++)
+                            {
+                                <option value="@(i)">@(i)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col_2">
+                        <select id="bdayyear" class="full small-input input-like lowercase selectwishloop">
+                            <option value="">Year</option>
+                            @for (int i = (DateTime.Now.Year - 12); i >= 1910; i--)
+                            {
+                                <option value="@(i)">@(i)</option>
+                            }
+                        </select>
+                    </div>
+                    <span class="col_2"><a class="button pop" id="save_birthday">save</a></span>
+                    <span class="col_4">password</span>
+                    <div class="col_6">
+                        <a class="button pop full" id="showChangePassword">change password</a>
+                        <div id="changePassword" style="margin-top: 10px;">
+                            <div class="col_5" style="margin-left: 0;">@Html.Password("settingsPassword", "", new { @id = "settingsPassword", @class = "full small-input", placeholder = "enter new password" })</div>
+                            <div class="col_5">@Html.Password("settingsPasswordRepeat", "", new { @id = "settingsPasswordRepeat", @class = "full small-input", placeholder = "confirm password" })</div>
+                            <div class="col_2 right" style="margin-right: 0; float: right;"><a class="button pop" id="savePassword">save</a></div>
+                            <span class="instructions">Your password is case sensitive and must be a minimum of 6 characters.</span>
+                        </div>
+                    </div>
+                    <div class="col_12">
+                        <div id="formError" style="font-size: 0.7em;"></div>
                     </div>
                 </div>
-                <div class="col_12">
-                    <div id="formError" style="font-size: 0.7em;"></div>
-                </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
