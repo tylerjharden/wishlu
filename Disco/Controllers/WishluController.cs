@@ -103,11 +103,15 @@ namespace Disco.Controllers
                 if (coltmp == "" || coltmp == null || coltmp == String.Empty)
                     return Json(new { result = false, message = "Please select a color to identify your new wishlu." });
 
-                if ((model.Wishloops == null || model.Wishloops.Count < 1) && model.Visibility == Squid.Wishes.WishluVisibility.Friends)
-                    return Json(new { result = false, message = "Please select at least one wishloop to share this wishlu with." });
+                if (model.Visibility == Squid.Wishes.WishluVisibility.Friends)
+                {
+                    if ((model.Wishloops == null || model.Wishloops.Count == 0) && (model.Friends == null || model.Friends.Count == 0))
+                        return Json(new { result = false, message = "Please select at least one friend  or wishloop to share this wishlu with." });
+                }
                 
                 Squid.Wishes.Wishlu wishlu = null;
                 string wishloops = "";
+                string friends = "";
                 try
                 {
                     wishlu = new Squid.Wishes.Wishlu();
@@ -144,16 +148,27 @@ namespace Disco.Controllers
                         try
                         {
                             if (model.Wishloops != null && model.Wishloops.Count > 0)
+                            {
+                                wishlu.AddSubscribers(model.Wishloops);
+
                                 foreach (Guid value in model.Wishloops)
-                                {
-                                    wishlu.AddSubscriber(value);
                                     wishloops = wishloops + value + ",";
-                                }
-                            else
-                                wishlu.AddSubscriber(Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(GetCurrentUserId()).Id);
+                            }
+                            else if (model.Friends != null && model.Friends.Count > 0)
+                            {
+                                wishlu.UsePrivateWishloop();
+                                wishlu.GetPrivateWishloop().AddMembers(model.Friends);
+
+                                foreach (Guid value in model.Friends)
+                                    friends = friends + value + ",";
+                            }
+                            //else
+                            //    wishlu.AddSubscriber(Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(GetCurrentUserId()).Id);
 
                             if (wishloops.Length > 0)
                                 wishloops = wishloops.Remove(wishloops.Length - 1, 1);
+                            if (friends.Length > 0)
+                                friends = friends.Remove(friends.Length - 1, 1);
                         }
                         catch
                         {
@@ -167,7 +182,7 @@ namespace Disco.Controllers
                     return Json(new { result = false, message = "There was an error creating your wishlu." });
                 }
                                                             
-                return Json(new { result = true, message = "Your new wishlu was created successfully.", id = wishlu.Id, name = wishlu.Name, wishloops = wishloops, date = model.EventDate, visibility = wishlu.Visibility.ToString() }, JsonRequestBehavior.AllowGet);
+                return Json(new { result = true, message = "Your new wishlu was created successfully.", id = wishlu.Id, name = wishlu.Name, friends = friends, wishloops = wishloops, date = model.EventDate, visibility = wishlu.Visibility.ToString() }, JsonRequestBehavior.AllowGet);
             }
             else
             {
@@ -187,9 +202,12 @@ namespace Disco.Controllers
                 if (model.Id == null || model.Id == Guid.Empty)
                     return Json(new { result = false, message = "Please select a valid wishlu to update." });
 
-                if ((model.Wishloops == null || model.Wishloops.Count < 1) && model.Visibility == Squid.Wishes.WishluVisibility.Friends)
-                    return Json(new { result = false, message = "Please select at least one wishloop to share this wishlu with." });
-
+                if (model.Visibility == Squid.Wishes.WishluVisibility.Friends)
+                {
+                    if ((model.Wishloops == null || model.Wishloops.Count == 0) && (model.Friends == null || model.Friends.Count == 0))
+                        return Json(new { result = false, message = "Please select at least one friend  or wishloop to share this wishlu with." });
+                }
+                
                 Squid.Wishes.Wishlu wishlu = null;                
                 try
                 {
@@ -248,6 +266,7 @@ namespace Disco.Controllers
                 }
 
                 string wishloops = "";
+                string friends = "";
                 try
                 {
                     wishlu.RemoveAllSubscribers();
@@ -256,17 +275,26 @@ namespace Disco.Controllers
                     {
                         if (model.Wishloops != null && model.Wishloops.Count > 0)
                         {
-                            foreach (Guid value in model.Wishloops)
-                            {
-                                wishlu.AddSubscriber(value);
-                                wishloops = wishloops + value + ",";
-                            }
+                            wishlu.AddSubscribers(model.Wishloops);
+
+                            foreach (Guid value in model.Wishloops)                            
+                                wishloops = wishloops + value + ",";                            
                         }
-                        else
-                            wishlu.AddSubscriber(Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(GetCurrentUserId()).Id);
+                        else if (model.Friends != null && model.Friends.Count > 0)
+                        {
+                            wishlu.UsePrivateWishloop();
+                            wishlu.GetPrivateWishloop().AddMembers(model.Friends);
+
+                            foreach (Guid value in model.Friends)
+                                friends = friends + value + ",";
+                        }
+                        //else
+                        //    wishlu.AddSubscriber(Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(GetCurrentUserId()).Id);
 
                         if (wishloops.Length > 0)
                             wishloops = wishloops.Remove(wishloops.Length - 1, 1);
+                        if (friends.Length > 0)
+                            friends = friends.Remove(friends.Length - 1, 1);
                     }
                 }
                 catch
@@ -274,7 +302,7 @@ namespace Disco.Controllers
                     return Json(new { result = false, message = "Your wishlu has been updated, but there was an error assigning it to the selected wishloops." });
                 }
 
-                return Json(new { result = true, message = "Your wishlu was updated successfully.", id = wishlu.Id, name = wishlu.Name, wishloops = wishloops, date = model.EventDate, visibility = wishlu.Visibility.ToString() }, JsonRequestBehavior.AllowGet);
+                return Json(new { result = true, message = "Your wishlu was updated successfully.", id = wishlu.Id, name = wishlu.Name, friends = friends, wishloops = wishloops, date = model.EventDate, visibility = wishlu.Visibility.ToString() }, JsonRequestBehavior.AllowGet);
             }
             else
             {
@@ -431,7 +459,7 @@ namespace Disco.Controllers
                     if (model.Visibility != Squid.Wishes.WishluVisibility.Friends)
                     {
                         wishlu.RemoveAllSubscribers();
-                        wishlu.AddSubscriber(Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(GetCurrentUserId()).Id);
+                        //wishlu.AddSubscriber(Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(GetCurrentUserId()).Id);
                     }
                 }
                 catch
@@ -633,6 +661,7 @@ namespace Disco.Controllers
     public class CreateWishluModel
     {
         public List<Guid> Wishloops { get; set; }
+        public List<Guid> Friends { get; set; }
         public string Name { get; set; }
         public string Color { get; set; }
         public string EventDate { get; set; }        
@@ -643,6 +672,7 @@ namespace Disco.Controllers
     {
         public Guid Id { get; set; }
         public List<Guid> Wishloops { get; set; }
+        public List<Guid> Friends { get; set; }
         public string Name { get; set; }
         public string Color { get; set; }
         public string EventDate { get; set; }        
