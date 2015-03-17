@@ -239,8 +239,12 @@
     <script>!function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (!d.getElementById(id)) { js = d.createElement(s); js.id = id; js.src = "https://platform.twitter.com/widgets.js"; fjs.parentNode.insertBefore(js, fjs); } }(document, "script", "twitter-wjs");</script>
 }
 
+<div class="col_12 center pop" style="color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
+    <b>Friends are the most important part of wishlu. Invite them to find out what they want and share what you want.</b>
+</div>
+
 <div class="col_12 pop" style="color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
-    <h5 class="center">invitation link</h5>
+    <h2 class="center">invitation link</h2>
     <div class="col_12 center">
         <p>Copy, share, tweet, or post your unique invitation link below so that your friends can join you on wishlu:</p>
         <input type="text" class="input-like large-input center" size="25" value="@code.ToUpper()" readonly />
@@ -254,9 +258,9 @@
 </div>
 
 <div class="col_6 pop" style="color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
-    <h5 class="center">email</h5>
+    <h2 class="center">email</h2>
     <div class="col_12">
-        <p>Invite people you know to join you on wishlu. Once they accept your invitation, they will automatically belong to your friends wishloop. You can assign them to other wishloops if you like, too.</p>
+        <p>Invite people you know to join you on wishlu. Once they accept your invitation, they will automatically belong to your friends list. You can assign them to wishloops if you like, too.</p>
         <p>We'll send them a message with a link to join. Enter their email addresses below, separated by commas.</p>
     </div>
     <div class="col_12 center">
@@ -270,11 +274,11 @@
 </div>
 
 <div class="col_6 pop center" style="margin-right: 0; color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
-    <h5 class="center"><i class="fa fa-fw fa-facebook-square" style="color:#3b5998;"></i>facebook</h5>
+    <h2 class="center"><i class="fa fa-fw fa-facebook-square" style="color:#3b5998;"></i>facebook</h2>
     @if (Model.user.IsFacebookSynced)
     {
         <div class="col_12">
-            <h6 class="center" style="color: gray;">see who's here</h6>
+            <h3 class="nomargin center" style="color: gray;">see who's here</h3>
             <div class="col_12">
                 @foreach (Squid.Users.User friend in Model.here)
                 {
