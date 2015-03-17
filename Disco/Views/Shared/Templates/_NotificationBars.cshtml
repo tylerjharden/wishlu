@@ -11,7 +11,7 @@
 {
     <script>
         $(document).ready(function () {
-            setTimeout(function () { swal("Uh oh...", "@TempData["ErrorMessage"]", "error") }, 50);
+            setTimeout(function () { swal("Uh oh...", '@(TempData["ErrorMessage"])', "error") }, 50);
         });
     </script>
 }
@@ -28,7 +28,7 @@
 {
     <script>
         $(document).ready(function () {
-            setTimeout(function () { swal("Hmm...", "@TempData["WarningMessage"]", "warning") }, 50);
+            setTimeout(function () { swal("Hmm...", '@(TempData["WarningMessage"])', "warning") }, 50);
         });
     </script>
 }
@@ -45,7 +45,7 @@
 {
     <script>
         $(document).ready(function() {
-            setTimeout(function () { swal("Success!", "@TempData["SuccessMessage"]", "success") }, 50);
+            setTimeout(function () { swal("Success!", '@(TempData["SuccessMessage"])', "success") }, 50);
         });
     </script>
 }

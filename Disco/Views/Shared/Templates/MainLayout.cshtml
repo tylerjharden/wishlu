@@ -1,522 +1,719 @@
 ﻿@{
-    Layout = null;
-    Session["currentURL"] = @Request.Url.AbsoluteUri;
+	Layout = null;
+	Session["currentURL"] = @Request.Url.AbsoluteUri;
 
-    Squid.Users.User currentUser = null;
+	Squid.Users.User currentUser = null;
 
-    if (Request.IsAuthenticated)    
-        currentUser = Squid.Users.User.GetUserById(UserId);
-    
+	if (Request.IsAuthenticated)    
+		currentUser = Squid.Users.User.GetUserById(UserId);
+	
 }
 
 @functions {
-    public class Styles
-    {
-        public static IHtmlString Render(string cssfile)
-        {
-            return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
-        }
-    }
+	public class Styles
+	{
+		public static IHtmlString Render(string cssfile)
+		{
+			return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
+		}
+	}
 
-    public class Scripts
-    {
-        public static IHtmlString Render(string jsfile)
-        {
-            return new HtmlString("<script src=\"" + jsfile + "\"></script>");
-        }
-    }
+	public class Scripts
+	{
+		public static IHtmlString Render(string jsfile)
+		{
+			return new HtmlString("<script src=\"" + jsfile + "\"></script>");
+		}
+	}
 }
 
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" class="en">
 <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# profile: http://ogp.me/ns/profile#">    
-    @* ******** *@
-    @* Metadata *@
-    @* ******** *@
-    <!-- Core Meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="x-dns-prefetch-control" content="on">
+	@* ******** *@
+	@* Metadata *@
+	@* ******** *@
+	<!-- Core Meta -->
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta http-equiv="x-dns-prefetch-control" content="on">
 
-    <!-- Page Title -->
-    <title>@RenderSection("page", false)</title>
+	<!-- Page Title -->
+	<title>@RenderSection("page", false)</title>
 
-    <!-- Attribution -->
-    <meta name="author" content="wishlu" />
-    <meta name="copyright" content="Copyright © 2011 - @DateTime.Now.Year wishlu.  All rights reserved." />
-    
-    <!-- Unified Viewport -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<!-- Attribution -->
+	<meta name="author" content="wishlu" />
+	<meta name="copyright" content="Copyright © 2011 - @DateTime.Now.Year wishlu.  All rights reserved." />
+	
+	<!-- Unified Viewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
 
-    <!-- Referrer -->
-    <meta name="referrer" content="origin">
+	<!-- wishlu Application Script -->
+	@{ Html.RenderPartial("~/Views/Shared/_HeaderScript.cshtml"); }
 
-    <!-- Facebook Site-Level -->
-    <meta property="fb:app_id" content="296645670486904" />
-    <meta property="og:site_name" content="wishlu">
+	<!-- Referrer -->
+	<meta name="referrer" content="origin">
 
-    <!-- Alexa -->
-    <meta name="alexaVerifyID" content="Pp0cBr8gUwxE88jqPDgZ42thJCY" />
+	<!-- Facebook Site-Level -->
+	<meta property="fb:app_id" content="296645670486904" />
+	<meta property="fb:page_id" content="396888530344700" />
+	<meta property="og:site_name" content="wishlu">
 
-    <!-- Twitter -->
-    <meta name="twitter:app:url:iphone" content="wishlu://">
-    <meta name="twitter:app:url:ipad" content="wishlu://">
-    <meta name="twitter:app:android" content="com.wishlu">
-    <meta name="twitter:site" content="@("@wishlu")">
-    <meta name="twitter:app:id:ipad" content="000000000">
-    <meta name="twitter:app:url:googleplay" content="wishlu://">
-    <meta name="twitter:app:id:iphone" content="000000000">
+	<!-- Google Apps -->
+	<meta name="google-site-verification" content="Y73fytV_CTYFknYqn0EZMpWMYAenmvpyo5FWRt9_v7I" />
 
-    <!-- Pinterest -->
-    <meta name="p:domain_verify" content="e685b1d62b2c1b5ce691b2576ee28a70" />
-    <meta name="pinterest" content="nohover">
+	<!-- Alexa -->
+	<meta name="alexaVerifyID" content="Pp0cBr8gUwxE88jqPDgZ42thJCY" />
 
-    <!-- App Link -->
-    <meta name="al:android:app_name" content="wishlu">
-    <meta name="al:ios:app_name" content="wishlu">
-    <meta name="al:ios:app_store_id" content="000000000">
-    <meta name="al:android:package" content="com.wishlu">
-    <meta name="al:android:url" content="pinterest://">
-    <meta name="al:ios:url" content="wishlu://">
+	<!-- Twitter -->
+	<meta name="twitter:app:url:iphone" content="wishlu://">
+	<meta name="twitter:app:url:ipad" content="wishlu://">
+	<meta name="twitter:app:android" content="com.wishlu">
+	<meta name="twitter:site" content="@("@wishlu")">
+	<meta name="twitter:app:id:ipad" content="000000000">
+	<meta name="twitter:app:url:googleplay" content="wishlu://">
+	<meta name="twitter:app:id:iphone" content="000000000">
 
-    <!-- Microsoft Windows Metro Tiles -->
-    <meta name="application-name" content="wishlu">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="https://assets.wishlu.com/images/headerLogo.png">
+	<!-- Pinterest -->
+	<meta name="p:domain_verify" content="e685b1d62b2c1b5ce691b2576ee28a70" />
+	<meta name="pinterest" content="nohover">
 
-    <!-- Page Metadata -->
-    @RenderSection("meta", false)
+	<!-- App Link -->
+	<meta name="al:android:app_name" content="wishlu">
+	<meta name="al:ios:app_name" content="wishlu">
+	<meta name="al:ios:app_store_id" content="000000000">
+	<meta name="al:android:package" content="com.wishlu">
+	<meta name="al:android:url" content="pinterest://">
+	<meta name="al:ios:url" content="wishlu://">
 
-    @* ***** *@
-    @* Links *@
-    @* ***** *@
-    <!-- Alternate Links -->
-    <link rel="alternate" hreflang="en" href="https://www.wishlu.com/" />
+	<!-- Microsoft Windows Metro Tiles -->
+	<meta name="application-name" content="wishlu">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="https://assets.wishlu.com/images/headerLogo.png">
 
-    <!-- Chrome Webstore Link -->
-    <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/00000000000000000000">
+	<!-- Page Metadata -->
+	@RenderSection("meta", false)
 
-    <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" href="https://assets.wishlu.com/images/headerLogo.png">
+	@* ***** *@
+	@* Links *@
+	@* ***** *@
+	<!-- Alternate Links -->
+	<link rel="alternate" hreflang="en" href="https://www.wishlu.com/" />
 
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="https://assets.wishlu.com/images/favicon.ico" />
+	<!-- Chrome Webstore Link -->
+	<link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/00000000000000000000">
 
-    <!-- OpenSearch Support -->
-    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="wishlu">
+	<!-- Apple Touch Icon -->
+	<link rel="apple-touch-icon" href="https://assets.wishlu.com/images/headerLogo.png">
 
-    <!-- Publisher (Google+) -->
-    <link rel="publisher" href="https://plus.google.com/+wishluofficial">
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="https://assets.wishlu.com/images/favicon.ico" />
 
-    <!-- Page Links -->
-    @RenderSection("links", false)
+	<!-- OpenSearch Support -->
+	<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="wishlu">
 
-    @* ****** *@
-    @* Styles *@
-    @* ****** *@
-    <!-- Project Stylesheets -->
-    @Styles.Render("//assets.wishlu.com/css/WishLuStyles.css")
-    @Styles.Render("//assets.wishlu.com/css/easing.css")
-    @Styles.Render("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css")
-    @Styles.Render("//assets.wishlu.com/css/kickstart.css")
-    @Styles.Render("//assets.wishlu.com/css/sweet-alert.css")
-       
-    <!-- Page Stylesheets -->
-    @RenderSection("styles", false)
+	<!-- oexchange -->
+	<link rel="http://oexchange.org/spec/0.8/rel/related-target" type="application/xrd+xml" href="https://www.wishlu.com/oexchange.xrd" />
 
-    <!-- Subresources -->
-    <!-- TODO: Move CSS images intro sprites as a subresource for optimization -->
-       
-    @* ******* *@
-    @* Scripts *@
-    @* ******* *@
-    <!-- Project Scripts -->
-    @Scripts.Render("https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js")
-    @Scripts.Render("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js")
-    @Scripts.Render("//assets.wishlu.com/js/jquery.validate.min.js")
-    @Scripts.Render("//assets.wishlu.com/js/kickstart.js")
-    @Scripts.Render("//assets.wishlu.com/js/sweet-alert.js")
-    @Scripts.Render("//assets.wishlu.com/js/jquery-scrollToTop.min.js")
+	<!-- Publisher (Google+) -->
+	<link rel="publisher" href="https://plus.google.com/+wishluofficial">
 
-    <!-- Page Scripts -->
-    @RenderSection("scripts", false)
+	<!-- Page Links -->
+	@RenderSection("links", false)
 
-    @* ********** *@
-    @* Affiliates *@
-    @* ********** *@
-    <!-- CommissionJunction Affiliate Scripts -->
-    @{ Html.RenderPartial("~/Views/Shared/Affiliates/_CJ.cshtml"); }
+	@* ****** *@
+	@* Styles *@
+	@* ****** *@
+	<!-- Project Stylesheets -->
+	@Styles.Render("//assets.wishlu.com/css/WishLuStyles.css")
+	@Styles.Render("//assets.wishlu.com/css/easing.css")
+	@Styles.Render("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css")
+	@Styles.Render("//assets.wishlu.com/css/kickstart.css")
+	@Styles.Render("//assets.wishlu.com/css/sweet-alert.css")
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//assets.wishlu.com/css/bootstrap-select.css">
 
-    @* ********* *@
-    @* Analytics *@
-    @* ********* *@
-    <!-- Google Analytics -->
-    @{ Html.RenderPartial("~/Views/Shared/Analytics/_GoogleAnalytics.cshtml"); }
+	   
+	<!-- Page Stylesheets -->
+	@RenderSection("styles", false)
 
-    <!-- Alexa Certify -->
-    @{ Html.RenderPartial("~/Views/Shared/Analytics/_Alexa.cshtml"); }
+	<!-- Subresources -->
+	<!-- TODO: Move CSS images intro sprites as a subresource for optimization -->
+	   
+	@* ******* *@
+	@* Scripts *@
+	@* ******* *@
+	<!-- Project Scripts -->
+	@Scripts.Render("https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js")
+	@Scripts.Render("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js")
+	@Scripts.Render("//assets.wishlu.com/js/jquery.validate.min.js")
+	@Scripts.Render("//assets.wishlu.com/js/kickstart.js")
+	@Scripts.Render("//assets.wishlu.com/js/sweet-alert.js")
+	@Scripts.Render("//assets.wishlu.com/js/jquery-scrollToTop.min.js")
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+	<script src="//assets.wishlu.com/js/bootstrap-select.js"></script>
 
-    <!-- Inspectlet -->
-    @*@{ Html.RenderPartial("~/Views/Shared/Analytics/_Inspectlet.cshtml"); }*@
 
-    <!-- Scaffolding -->
-    @{ Html.RenderPartial("~/Views/Shared/Analytics/_Scaffold.cshtml"); }
+	<!-- Page Scripts -->
+	@RenderSection("scripts", false)
 
-    @* ****** *@
-    @* Social *@
-    @* ****** *@
-    <!-- Facebook SDK -->
-    @{ Html.RenderPartial("~/Views/Shared/Social/_Facebook.cshtml"); }
+	@* ********** *@
+	@* Affiliates *@
+	@* ********** *@
+	<!-- CommissionJunction Affiliate Scripts -->
+	@{ Html.RenderPartial("~/Views/Shared/Affiliates/_CJ.cshtml"); }
 
-    <!-- Google+ API -->
-    @{ Html.RenderPartial("~/Views/Shared/Social/_GooglePlus.cshtml"); }
+	@* ********* *@
+	@* Analytics *@
+	@* ********* *@
+	<!-- Google Analytics -->
+	@{ Html.RenderPartial("~/Views/Shared/Analytics/_GoogleAnalytics.cshtml"); }
 
-    <!-- Twitter -->
-    @{ Html.RenderPartial("~/Views/Shared/Social/_Twitter.cshtml"); }
+	<!-- Alexa Certify -->
+	@{ Html.RenderPartial("~/Views/Shared/Analytics/_Alexa.cshtml"); }
 
-    <!-- Pinterest -->
-    @{ Html.RenderPartial("~/Views/Shared/Social/_Pinterest.cshtml"); }
+	<!-- Inspectlet -->
+	@*@{ Html.RenderPartial("~/Views/Shared/Analytics/_Inspectlet.cshtml"); }*@
 
-    <!-- tumblr -->
-    @{ Html.RenderPartial("~/Views/Shared/Social/_Tumblr.cshtml"); }
+	<!-- Scaffolding -->
+	@{ Html.RenderPartial("~/Views/Shared/Analytics/_Scaffold.cshtml"); }
 
-    @* ******** *@
-    @* Security *@
-    @* ******** *@
-    <!-- Anti-CSRF -->
-    @{ Html.RenderPartial("~/Views/Shared/Security/_AntiCSRF.cshtml"); }
+	@* ****** *@
+	@* Social *@
+	@* ****** *@
+	<!-- Facebook SDK -->
+	@{ Html.RenderPartial("~/Views/Shared/Social/_Facebook.cshtml"); }
 
-    @* ********** *@
-    @* Extensions *@
-    @* ********** *@
-    <!-- Google Fonts -->
-    @{ Html.RenderPartial("~/Views/Shared/Extensions/_GoogleFonts.cshtml"); }
+	<!-- Google+ API -->
+	@{ Html.RenderPartial("~/Views/Shared/Social/_GooglePlus.cshtml"); }
 
-    <!-- SignalR -->
-    @{ Html.RenderPartial("~/Views/Shared/Extensions/_SignalR.cshtml"); }
+	<!-- Twitter -->
+	@{ Html.RenderPartial("~/Views/Shared/Social/_Twitter.cshtml"); }
 
-    <!-- Scroll to Top -->
-    @{ Html.RenderPartial("~/Views/Shared/Extensions/_ScrollToTop.cshtml"); }
+	<!-- Pinterest -->
+	@{ Html.RenderPartial("~/Views/Shared/Social/_Pinterest.cshtml"); }
 
-    <!-- Header Bar Scripts -->
-    <script type="text/javascript">
-        function doCheck(element) {
-            if ($(element).find('.fa').hasClass('fa-circle-o')) {
-                $(element).find('.fa').removeClass('fa-circle-o').addClass('fa-circle');
-                $(element).find('.roundCheckbox').prop('checked', true);
-                $(element).parent().addClass("selected");
-            }
-            else {
-                $(element).find('.fa').removeClass('fa-circle').addClass('fa-circle-o');
-                $(element).find('.roundCheckbox').prop('checked', false);
-                $(element).parent().removeClass("selected");
-            }
-        }
+	<!-- tumblr -->
+	@{ Html.RenderPartial("~/Views/Shared/Social/_Tumblr.cshtml"); }
 
-        $(document).ready(function () {
-            function deleteNotification(notification) {
-                var id = $(notification).data("id");
+	@* ******** *@
+	@* Security *@
+	@* ******** *@
+	<!-- Anti-CSRF -->
+	@{ Html.RenderPartial("~/Views/Shared/Security/_AntiCSRF.cshtml"); }
 
-                $.ajax({
-                    type: "POST",
-                    url: "/notifications/delete",
-                    dataType: 'json',
-                    contentType: 'application/json; charset=utf-8',
-                    traditional: true,
-                    data: JSON.stringify({ Id: id }),
-                    success: function (data, status, request) {
-                        if (data == true) {
-                            notification.remove(); // delete notification from DOM
+	@* ********** *@
+	@* Extensions *@
+	@* ********** *@
+	<!-- Google Fonts -->
+	@{ Html.RenderPartial("~/Views/Shared/Extensions/_GoogleFonts.cshtml"); }
 
-                            // update unread notification counter
-                            var count = $("#notifCount").text();
-                            count = count - 1;
-                            if (count == 0) {
-                                $("#notifCount").hide();
-                            }
-                            else {
-                                $("#notifCount").text(count);
-                            }
-                        }
-                    },
-                    error: function (data, status, request) { }
-                });
-            }
+	<!-- SignalR -->
+	@{ Html.RenderPartial("~/Views/Shared/Extensions/_SignalR.cshtml"); }
 
-            $(".del", ".notif").click(function () {
-                var notification = $(this).parents(".notif");
-                deleteNotification(notification);
-            });
+	<!-- Scroll to Top -->
+	@{ Html.RenderPartial("~/Views/Shared/Extensions/_ScrollToTop.cshtml"); }
 
-            $(".notif.unread").click(function () {
-                var notification = $(this);
-                var id = notification.data("id");
+	<!-- Header Bar Scripts -->
+	<script type="text/javascript">
+		function doCheck(element) {
+			if ($(element).find('.fa').hasClass('fa-circle-o')) {
+				$(element).find('.fa').removeClass('fa-circle-o').addClass('fa-circle');
+				$(element).find('.roundCheckbox').prop('checked', true);
+				$(element).parent().addClass("selected");
+			}
+			else {
+				$(element).find('.fa').removeClass('fa-circle').addClass('fa-circle-o');
+				$(element).find('.roundCheckbox').prop('checked', false);
+				$(element).parent().removeClass("selected");
+			}
+		}
 
-                $.ajax({
-                    type: "POST",
-                    url: "/notifications/markasread",
-                    dataType: 'json',
-                    contentType: 'application/json; charset=utf-8',
-                    traditional: true,
-                    data: JSON.stringify({ Id: id }),
-                    success: function (data, status, request) {
-                        if (data == true) {
-                            notification.removeClass("unread");
-                            notification.addClass("read");
+		$(document).ready(function () {
+			function deleteNotification(notification) {
+				var id = $(notification).data("id");
 
-                            // update unread notification counter
-                            var count = $("#notifCount").text();
-                            count = count - 1;
-                            if (count == 0) {
-                                $("#notifCount").hide();
-                            }
-                            else {
-                                $("#notifCount").text(count);
-                            }
-                        }
-                    },
-                    error: function (data, status, request) { }
-                });
-            });
+				$.ajax({
+					type: "POST",
+					url: "/notifications/delete",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify({ Id: id }),
+					success: function (data, status, request) {
+						if (data == true) {
+							notification.remove(); // delete notification from DOM
 
-            $(".friend_accept").click(function () {
-                var note = $(this).parents(".notif");
-                var link = $(this);
+							// update unread notification counter
+							var count = $("#notifCount").text();
+							count = count - 1;
+							if (count == 0) {
+								$("#notifCount").hide();
+							}
+							else {
+								$("#notifCount").text(count);
+							}
+						}
+					},
+					error: function (data, status, request) { }
+				});
+			}
 
-                $.ajax({
-                    type: "POST",
-                    url: "/friends/accept/" + $(this).data("id"),
-                    dataType: 'json',
-                    contentType: 'application/json; charset=utf-8',
-                    traditional: true,
-                    data: null,
-                    success: function (data, status, request) {
-                        if (data.result == true) {
-                            swal("Success!", "You and " + link.data("name") + " are now friends.", "success");
-                            note.remove();
-                        }
-                        else {
-                            swal("Uh oh...", data.message, "error");
-                        }
-                    },
-                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-                });
-            });
+			$(".del", ".notif").click(function () {
+				var notification = $(this).parents(".notif");
+				deleteNotification(notification);
+			});
 
-            $(".friend_decline").click(function () {
-                var note = $(this).parents(".notif");
-                var link = $(this);
+			$(".delete", ".notification").click(function () {
+				var notification = $(this).parents(".notification");
+				deleteNotification(notification);
+			});
 
-                $.ajax({
-                    type: "POST",
-                    url: "/friends/decline/" + $(this).data("id"),
-                    dataType: 'json',
-                    contentType: 'application/json; charset=utf-8',
-                    traditional: true,
-                    data: null,
-                    success: function (data, status, request) {
-                        if (data.result == true) {
-                            swal("Success!", "You and " + link.data("name") + " are now friends.", "success");
-                            deleteNotification(note);
-                        }
-                        else {
-                            swal("Uh oh...", data.message, "error");
-                        }
-                    },
-                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-                });
-            });
+			$(".notif.unread").click(function () {
+				var notification = $(this);
+				var id = notification.data("id");
 
-            $(".friend_request").click(function () {
-                var note = $(this).parents(".notif");
-                var link = $(this);
+				$.ajax({
+					type: "POST",
+					url: "/notifications/markasread",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify({ Id: id }),
+					success: function (data, status, request) {
+						if (data == true) {
+							notification.removeClass("unread");
+							notification.addClass("read");
 
-                $.ajax({
-                    type: "POST",
-                    url: $(this).data("url"),
-                    dataType: 'json',
-                    contentType: 'application/json; charset=utf-8',
-                    traditional: true,
-                    data: null,
-                    success: function (data, status, request) {
-                        if (data.result == true) {
-                            swal("Success!", "Your friend request was sent.", "success");
-                            deleteNotification(note);
-                        }
-                        else {
-                            swal("Uh oh...", data.message, "error");
-                            deleteNotification(note);
-                        }
-                    },
-                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-                });
-            });
+							// update unread notification counter
+							var count = $("#notifCount").text();
+							count = count - 1;
+							if (count == 0) {
+								$("#notifCount").hide();
+							}
+							else {
+								$("#notifCount").text(count);
+							}
+						}
+					},
+					error: function (data, status, request) { }
+				});
+			});
 
-            $("#header_browse").on("click", function () {
-                $("#notificationMenu").slideUp();
-                $("#eventsMenu").slideUp();
-                $("#header_browse_panel").fadeToggle();
-            });
+			$(".friend_accept").click(function () {
+				var note = $(this).parents(".notif");
+				var link = $(this);
 
-            $("#header_query").keyup(function (e) {
-                if (e.keyCode == 13) {
-                    if ($("#header_query").val().length > 0) {
-                        location.href = "/search?query=" + $("#header_query").val();
-                    }
-                    else {
-                        $("#header_query").focus();
-                    }
-                }
-            });
+				$.ajax({
+					type: "POST",
+					url: "/friends/accept/" + $(this).data("id"),
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: null,
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal("Success!", "You and " + link.data("name") + " are now friends.", "success");
+							note.remove();
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
 
-            $('html').on('click', function () {
-                $("#notificationMenu").slideUp();
-                $("#eventsMenu").slideUp();
-                $("#header_browse_panel").fadeOut();
-            });
+			$(".friend_decline").click(function () {
+				var note = $(this).parents(".notif");
+				var link = $(this);
 
-            $("#header_browse_container").on("click", function (e) {
-                e.stopPropagation();
-            });
+				$.ajax({
+					type: "POST",
+					url: "/friends/decline/" + $(this).data("id"),
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: null,
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal("Success!", "You and " + link.data("name") + " are now friends.", "success");
+							deleteNotification(note);
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
 
-            $("#notifications_toggle").click(function (e) {
-                $("#notificationMenu").slideToggle();
-                $("#notifCount").remove();
-                $("#eventsMenu").slideUp();
-                $("#header_browse_panel").fadeOut();
-                e.stopPropagation();
-            });
+			$(".friend_request").click(function () {
+				var note = $(this).parents(".notif");
+				var link = $(this);
 
-            $("#notificationMenu").click(function (e) {
-                e.stopPropagation();
-            });
+				$.ajax({
+					type: "POST",
+					url: $(this).data("url"),
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: null,
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal("Success!", "Your friend request was sent.", "success");
+							deleteNotification(note);
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+							deleteNotification(note);
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
 
-            $("#events_toggle").click(function (e) {
-                $("#eventsMenu").slideToggle();
-                $("#notificationMenu").slideUp();
-                $("#header_browse_panel").fadeOut();
-                e.stopPropagation();
-            });
+			$("#header_browse").on("click", function () {
+				$("#notificationMenu").slideUp();
+				$("#eventsMenu").slideUp();
+				$("#header_browse_panel").fadeToggle();
+			});
 
-            $("#eventsMenu").click(function (e) {
-                e.stopPropagation();
-            });
+			$("#header_query").keyup(function (e) {
+				if (e.keyCode == 13) {
+					if ($("#header_query").val().length > 0) {
+						location.href = "/search?query=" + $("#header_query").val();
+					}
+					else {
+						$("#header_query").focus();
+					}
+				}
+			});
 
-            $(".sweet-overlay").on("click", function (e) {
-                e.stopPropagation();
-            });
-        });
-    </script>
+			$('html').on('click', function () {
+				$("#notificationMenu").slideUp();
+				$("#eventsMenu").slideUp();
+				$("#header_browse_panel").fadeOut();
+			});
 
-    @* ****** *@
-    @* Layout *@
-    @* ****** *@
-    <!-- Notification Bars-->
-    @{ Html.RenderPartial("~/Views/Shared/Templates/_NotificationBars.cshtml"); }
+			$("#header_browse_container").on("click", function (e) {
+				e.stopPropagation();
+			});
+
+			$("#notifications_toggle").click(function (e) {
+				$("#notificationMenu").slideToggle();
+				$("#notifCount").remove();
+				$("#eventsMenu").slideUp();
+				$("#header_browse_panel").fadeOut();
+				e.stopPropagation();
+			});
+
+			$("#notificationMenu").click(function (e) {
+				e.stopPropagation();
+			});
+
+			$("#events_toggle").click(function (e) {
+				$("#eventsMenu").slideToggle();
+				$("#notificationMenu").slideUp();
+				$("#header_browse_panel").fadeOut();
+				e.stopPropagation();
+			});
+
+			$("#eventsMenu").click(function (e) {
+				e.stopPropagation();
+			});
+
+			$(".sweet-overlay").on("click", function (e) {
+				e.stopPropagation();
+			});
+
+			$(".gift_content").load("/get/gifts");
+
+			$(".notifications_content").load("/get/notifications");
+
+			$(".calendar_content").load("/get/calendar");
+		});
+	</script>
+		
+	@* ****** *@
+	@* Layout *@
+	@* ****** *@
+	<!-- Notification Bars -->
+	@{ Html.RenderPartial("~/Views/Shared/Templates/_NotificationBars.cshtml"); }
 </head>
 
 <body>
-    <div id="fb-root"></div>
-    @*<div id="PageContainer" class="WishLuPage">*@
+	<div id="fb-root"></div>
 
-    <!-- Anti-CSRF -->
-    @Html.AntiForgeryToken()
+	<!-- Anti-CSRF -->
+	@Html.AntiForgeryToken()
 
-    <!-- Information Pop-up -->
-    <div id="info_content" style="display:none;">
-        @try
-        {
-            @RenderSection("info", false)
-        }
-        catch
-        {
-            <span>No information available.</span>
-        }
-    </div>
+	<div class="outer">
+		@if (Request.Browser.IsMobileDevice)
+		{
+			<input type="checkbox" id="slide-checkbox" class="slide-checkbox" role="button" style="position: fixed; clip: rect(0, 0, 0, 0);" />
+			<label for="slide-checkbox" class="slide-toggle"></label>
 
-    <script>
-        function showInfo() {
-            swal("Information", $("#info_content").html(), "info");
-        }
-    </script>
+			<nav class="navigation">
+				<div class="text-center">
+					@if (Request.IsAuthenticated)
+					{
+						<a href="@Url.Action("view", "user", new { @id = UserId })">
+							<img class="circlefriend pop" alt='@Session["FirstName"] @Session["LastName"]' src="@Session["ImageUrl"]" style="width: 100px; height: 100px;" />
+							<h3>@Session["FirstName"] @(Session["LastName"].ToString().First()).</h3>
+						</a>
+					}
+					else
+					{
+						<a href="@Url.Action("index", "join")">
+							<img class="pop" src="https://assets.wishlu.com/images/centerLogo.png" style="width: 100px; height: 100px;" />
+							<h3>Register</h3>
+						</a>
+					}
+				</div>
 
-    <!-- Application Container -->
-    <div class="application_container">
-        <!-- Header Bar -->
-        @if (Request.IsAuthenticated)
-        {
-            Html.RenderPartial("~/Views/Shared/Templates/_HeaderLoggedIn.cshtml");
-        }
-        else
-        {
-            Html.RenderPartial("~/Views/Shared/Templates/_HeaderLanding.cshtml");
-        }
+				@if (Request.IsAuthenticated)
+				{
+					<a href="@Url.Action("index", "gift")"><i class="fa fa-gift fa-fw" style="margin-right: 10px;"></i>gifts</a>
+					<a href="@Url.Action("index", "item")"><i class="fa fa-tags fa-fw" style="margin-right: 10px;"></i>items</a>
+					<a href="@Url.Action("index", "wishlu")"><i class="fa fa-bars fa-fw" style="margin-right: 10px;"></i>wishlus</a>
+					<a href="@Url.Action("index", "wishloop")"><i class="fa fa-circle-o fa-fw" style="margin-right: 10px;"></i>wishloops</a>
+					<a href="@Url.Action("index", "friends")"><i class="fa fa-users fa-fw" style="margin-right: 10px; "></i>friends</a>
+					<a href="@Url.Action("index", "invite")"><i class="fa fa-fw fa-envelope" style="margin-right: 10px;"></i>invite</a>
+					if (!Request.Browser.IsMobileDevice) // Browser Bookmarklet is not very useful on mobile
+					{
+						<a href="@Url.Action("bookmarklet", "home")"><i class="fa fa-bookmark fa-fw" style="margin-right: 10px; color: lightblue;"></i>bookmarklet</a>
+					}
+					<a href="@Url.Action("index", "user")"><i class="fa fa-cog fa-fw" style="margin-right: 10px; color: gray;"></i>settings</a>
+					<a href="@Url.Action("index", "about")"><i class="fa fa-info-circle fa-fw" style="margin-right: 10px; color: gray;"></i>about</a>
+					<a href="@Url.Action("faqs", "about")"><i class="fa fa-question-circle fa-fw" style="margin-right: 10px; color: gray;"></i>FAQs</a>
+					<a href="@Url.Action("signout", "home")"><i class="fa fa-sign-out fa-fw" style="margin-right: 10px;"></i>sign out</a>
+				}
+				else
+				{
+					<a href="@Url.Action("signin", "home")"><i class="fa fa-sign-in fa-fw" style="margin-right: 10px;"></i>sign in</a>
+					<a href="@Url.Action("index", "invite")"><i class="fa fa-fw fa-envelope" style="margin-right: 10px;"></i>invite</a>
+					<a href="@Url.Action("index", "about")"><i class="fa fa-info-circle fa-fw" style="margin-right: 10px; color: gray;"></i>about</a>
+					<a href="@Url.Action("faqs", "about")"><i class="fa fa-question-circle fa-fw" style="margin-right: 10px; color: gray;"></i>FAQs</a>
+				}
+			</nav>
+		}
 
-        <!-- Main Content -->
-        <div class="WishLuMainSection" style="/*border: solid 2px dodgerblue;*/ /*padding-bottom: 50px; overflow-y: auto;*/">
-            <!-- Navigation Bar -->
-            <div class="WishLuNavigationBar masterWidth centerDiv clearfix" style="padding: 5px; text-transform: lowercase; z-index: 100;">
-                <div class="left">
-                    <div style="display: inline-block; margin: 5px; font-size: 1.5em; color: #a8a096">
-                        <span id="info_popup" style="position: relative; top: 2px; margin-right: 5px;" onclick="showInfo();">
-                            <i class="fa fa-info-circle sitelink" style="background-color: white; color: #706D69; border-radius: 15px; -webkit-text-stroke: #2f2f2f 1px;"></i>
-                        </span>
-                        <span>
-                            @RenderSection("title", true)
-                        </span>
-                    </div>
-                </div>
-                <div id="actionbar" class="omega right" style="margin-top: 10px;">
-                    @RenderSection("actions", false)
-                </div>
-            </div>
+		<div class="slide" style="height:100%;">
+			<!-- Header -->
+			@if (Request.Browser.IsMobileDevice)
+			{
+				Html.RenderPartial("~/Views/Shared/Templates/_HeaderMobile.cshtml");
+			}
+			else if (Request.IsAuthenticated)
+			{
+				Html.RenderPartial("~/Views/Shared/Templates/_HeaderLoggedIn.cshtml");
+			}
+			else
+			{
+				Html.RenderPartial("~/Views/Shared/Templates/_HeaderLanding.cshtml");
+			}
 
-            <div id="mainContent" class="masterWidth centerDiv clearfix" style="/*border: solid 2px pink;*/">
-                <!-- Verification -->
-                @if (currentUser != null && !currentUser.Verified)
-                {
-                    <div style="width: 100%;">
-                        <div id="NotVerified" class="notice warning">
-                            <i class="fa fa-warning fa-2x"></i>
-                            Please verify your email address. Check your email for a verification link.
-                        </div>
-                        <script type="text/javascript">
-                            $(document).ready(function () {
-                                $('#NotVerified').slideDown();
-                            });
-                        </script>
-                    </div>
-                }
+			<!-- Application Container -->
+			<div class="application_container">
+				<div class="container-fluid">
+					<div class="row">
+						<!-- Left Gutter-->
+						<div class="col-md-2 hidden-xs hidden-sm">
+							@RenderSection("leftbar", required: false)
+							<style>
+								.navi a {
+									display: block;
+									color: #fff;
+									font-size: 16px;
+									/*font-weight: bold;*/
+									text-decoration: none;
+									border-top: 1px solid #57544e;
+									border-bottom: 1px solid #312e2a;
+									padding: 10px;
+								}
 
-                <!-- Beta Bar -->
-                <div style="width: 100%;">
-                    <div id="BetaBar" class="notice nag center" style="line-height: 20px;">
-                        We are currently in beta. If you encounter any bugs, or have other feedback, please <a href="/contact">contact us</a>.
-                        <a href="#close" class="fa fa-times right"></a>
-                    </div>
-                    <script type="text/javascript">
-                        $(document).ready(function () {
-                            $('#BetaBar').slideDown();
-                        });
-                    </script>
-                </div>
+									.navi a:hover {
+										background: #258ecd;
+									}
 
-                @RenderSection("featured", required: false)
-                @RenderBody()
-            </div>
-        </div>
+									.navi a:active {
+										background: #454f5c;
+										color: #fff;
+									}
+							</style>
+							@*<nav class="navi" style="background: #3c3933;">
+									<a href="@Url.Action("index", "gift")"><i class="fa fa-gift fa-fw" style="margin-right: 10px;"></i>gifts</a>
+									<a href="@Url.Action("index", "item")"><i class="fa fa-tags fa-fw" style="margin-right: 10px;"></i>items</a>
+									<a href="@Url.Action("index", "wishlu")"><i class="fa fa-bars fa-fw" style="margin-right: 10px;"></i>wishlus</a>
+									<a href="@Url.Action("index", "wishloop")"><i class="fa fa-circle-o fa-fw" style="margin-right: 10px;"></i>wishloops</a>
+									<a href="@Url.Action("index", "friends")"><i class="fa fa-users fa-fw" style="margin-right: 10px; "></i>friends</a>
+									<a href="@Url.Action("index", "invite")"><i class="fa fa-fw fa-envelope" style="margin-right: 10px;"></i>invite</a>
+								</nav>*@
+						</div>
+						<!-- Main Content -->
+						<div id="mainContent" class="col-xs-12 col-md-8">
+							@if (!Request.Browser.IsMobileDevice)
+							{
+								<!-- Navigation Bar (Desktop) -->
+								<div class="WishLuNavigationBar masterWidth centerDiv clearfix" style="padding: 5px; text-transform: lowercase; z-index: 100;">
+									<div class="left">
+										<div style="display: inline-block; margin: 5px; font-size: 1.5em; color: #a8a096">
+											<span id="info_popup" style="position: relative; top: 2px; margin-right: 5px;" onclick="showInfo();">
+												<i class="fa fa-info-circle sitelink" style="background-color: white; color: #706D69; border-radius: 15px; -webkit-text-stroke: #2f2f2f 1px;"></i>
+											</span>
+											<span>
+												@RenderSection("title", true)
+											</span>
+										</div>
+									</div>
+									<div id="actionbar" class="omega right" style="margin-top: 10px;">
+										@RenderSection("actions", false)
+									</div>
+								</div>
+							}
+							else
+							{
+								<div style="display:none;">
+									@RenderSection("title", true)
+									@RenderSection("actions", false)
+								</div>
+							}
 
-        @if (ViewContext.Controller.GetType() == typeof(Disco.Controllers.HomeController))
-        { 
-            <!-- Footer -->
-            Html.RenderPartial("~/Views/Shared/Templates/_Footer.cshtml");
-        }
+							@if (!Request.Browser.IsMobileDevice)
+							{
+								<!-- Verification -->
+								if (currentUser != null && !currentUser.Verified)
+								{
+									<div style="width: 100%;">
+										<div id="NotVerified" class="notice warning">
+											<i class="fa fa-warning fa-2x"></i>
+											Please verify your email address. Check your email for a verification link.
+										</div>
+										<script type="text/javascript">
+											$(document).ready(function () {
+												$('#NotVerified').slideDown();
+											});
+										</script>
+									</div>
+								}
 
-        <!-- OpenSearch -->
-        @{ Html.RenderPartial("~/Views/Shared/Extensions/_OpenSearch.cshtml"); }
-    </div>
-    @*</div>*@    
+								<!-- Beta Bar -->
+								@*<div style="width: 100%;">
+										<div id="BetaBar" class="notice nag center" style="line-height: 20px;">
+											We are currently in beta. If you encounter any bugs, or have other feedback, please <a href="/contact">contact us</a>.
+											<a href="#close" class="fa fa-times right"></a>
+										</div>
+										<script type="text/javascript">
+											$(document).ready(function () {
+												$('#BetaBar').slideDown();
+											});
+										</script>
+									</div>*@
+							}
+
+							<!-- Featured -->
+							@RenderSection("featured", required: false)
+
+
+							<!-- Body -->
+							@RenderBody()
+						</div>
+						<!-- Right Gutter -->
+						<div class="col-md-2 hidden-xs hidden-sm nopadding" style="background:#fff;border-left: 1px solid #bbb; box-shadow: 0 0 5px 5px rgba(0,0,0,0.2);position:fixed;top:45px;right:0;bottom:0;">
+							@if (!Request.IsAuthenticated)
+							{
+							   <div class="row">
+								   <div class="col-xs-12 text-center">
+									   <h4 class="text-center">Only registered users can take advantage of gift activity, notifications, and calendar features.</h4>
+									   <a class="btn btn-primary btn-block" href="/join/register">
+										   Join now.
+									   </a>
+								   </div>
+							   </div>								
+							}
+							else
+							{
+								<!-- Gift Activity -->
+								<div class="gift_activity">
+									<div class="text-uppercase" style="background:#eee;color:#888;padding-left:5px;border-top:1px solid #bbb;border-bottom:1px solid #bbb;">
+										<span><i class="fa fa-fw fa-gift"></i>gift activity</span>
+									</div>
+									<div class="gift_content text-center">
+										<i class="fa fa-fw fa-spinner fa-spin fa-2x"></i>
+									</div>
+								</div>
+								<!-- Notifications -->
+								<div class="notifications_activity">
+									<div class="text-uppercase" style="background:#eee;color:#888;padding-left:5px;border-top:1px solid #bbb;border-bottom:1px solid #bbb;">
+										<span><i class="fa fa-fw fa-globe"></i>notifications</span>
+										@*<span class="label label-danger label-as-badge" style="border-radius:1em;">@Model.Count</span>*@
+										<span class="pull-right">
+											<a href="/user/notifications">
+												<i class="fa fa-fw fa-cog"></i>
+											</a>
+										</span>
+									</div>
+									<div class="notifications_content text-center">
+										<i class="fa fa-fw fa-spinner fa-spin fa-2x"></i>
+									</div>
+								</div>
+							    <!-- Calendar -->
+								<div class="calendar_activity">
+									<div class="text-uppercase" style="background:#eee;color:#888;padding-left:5px;border-top:1px solid #bbb;border-bottom:1px solid #bbb;">
+										<span><i class="fa fa-fw fa-calendar"></i>calendar</span>
+									</div>
+									<div class="calendar_content text-center">
+										<i class="fa fa-fw fa-spinner fa-spin fa-2x"></i>
+									</div>
+								</div>
+							}
+							
+							@RenderSection("rightbar", required: false)
+						</div>
+					</div>
+				</div>
+				@*<!-- Main Content -->
+					<div id="mainContent" class="masterWidth centerDiv clearfix">
+
+
+					</div>*@
+
+				<!-- OpenSearch -->
+				@{ Html.RenderPartial("~/Views/Shared/Extensions/_OpenSearch.cshtml"); }
+			</div>
+		</div>
+	</div>
+	<!-- Information Pop-up -->
+	<div id="info_content" style="display:none;">
+		@try
+		{
+			@RenderSection("info", false)
+		}
+		catch
+		{
+			<span>No information available.</span>
+		}
+	</div>
+
+	<script>
+		function showInfo() {
+			swal("Information", $("#info_content").html(), "info");
+		}
+	</script>
+
+	<!-- Overlays -->
+	@RenderSection("overlays", required: false)
+
+	<!-- wishlu Application Script -->
+	@{ Html.RenderPartial("~/Views/Shared/_FooterScript.cshtml"); }
+
+
 </body>
+
+
+
 
 </html>

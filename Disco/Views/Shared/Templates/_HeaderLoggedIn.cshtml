@@ -1,15 +1,15 @@
 ﻿@{
-	List<Squid.Messages.MappedNotification> notifications = Squid.Users.User.GetMappedNotifications(UserId);
-	int count = notifications.Count(x => x.Read == false);
+	//List<Squid.Messages.MappedNotification> notifications = Squid.Users.User.GetMappedNotifications(UserId);
+	//int count = notifications.Count(x => x.Read == false);
 
-	List<Squid.Wishes.MappedWishlu> events = Squid.Users.User.GetMappedUpcomingWishlus(UserId).OrderBy(x => x.EventDateTime.Value.Date).ToList();
-	events.RemoveAll(x => !x.EventDateTime.HasValue || x.EventDateTime.Value.Date > DateTimeOffset.Now.AddDays(30).Date);
-	int ecount = events.Count();
+	//List<Squid.Wishes.MappedWishlu> events = Squid.Users.User.GetMappedUpcomingWishlus(UserId).OrderBy(x => x.EventDateTime.Value.Date).ToList();
+	//events.RemoveAll(x => !x.EventDateTime.HasValue || x.EventDateTime.Value.Date > DateTimeOffset.Now.AddDays(30).Date);
+	//int ecount = events.Count();
 
-	int mcount = Squid.Messages.IM.GetUnreadConversationsCount(UserId);
+	//int mcount = Squid.Messages.IM.GetUnreadConversationsCount(UserId);
 }
 	
-<header class="pop" style="height: 50px; background: white; position: fixed; width: 100%; z-index: 20;">
+<header class="pop" style="height: 45px; background: white; position:fixed; width: 100%; z-index: 20;">
 	<style>
 		.profileNav ul {
 			display: none;
@@ -55,170 +55,7 @@
 			border-bottom-right-radius: 0;
 			border-bottom: 0;
 		}
-
-		/* notifications box */
-		.contain {
-			width: 500px;
-			margin: 0 auto;
-			position: relative;
-			padding: 20px;
-		}
-
-		.notifications {
-			max-width: 400px;
-			width: 400px;
-			background: #fff;
-			border: 1px solid #ccc;
-			padding: 0;
-			box-shadow: 0 0 20px #666;
-			position: absolute;
-			display: none;
-			top: 50px;
-			left: -350px;
-		}
-
-			.notifications li {
-				padding: 5px;
-				list-style-type: none;
-			}
-
-			.notifications div.titlebar {
-				border-bottom: 1px solid #ccc;
-				color: #666;
-				font-size: 12px;
-				cursor: inherit;
-				padding: 2px 5px;
-			}
-
-				.notifications div.titlebar:hover {
-					background: #fff;
-				}
-
-				.notifications div.titlebar .settings {
-					float: right;
-					cursor: pointer;
-				}
-
-			.notifications div.seeall {
-				text-align: center;
-				font-size: 12px;
-				min-height: 30px;
-				text-transform: uppercase;
-				position: relative;
-				border-top: 1px solid #ccc;
-			}
-
-				.notifications div.seeall a {
-					background: #f5f5f5;
-					position: absolute;
-					top: 0;
-					left: 0;
-					right: 0;
-					bottom: 0;
-					color: #007fff;
-					padding-top: 8px;
-				}
-
-			.notifications .notifbox {
-				max-height: 300px;
-				overflow: auto;
-			}
-
-				.notifications .notifbox div {
-					color: #666;
-				}
-
-					.notifications .notifbox div a {
-						color: #666;
-					}
-
-					.notifications .notifbox div.unread {
-						background: #e5f2ff;
-					}
-
-					.notifications .notifbox div.read {
-						background: lightgray;
-						opacity: 0.7;
-					}
-
-					.notifications .notifbox div.notif {
-						min-height: 75px;
-						height:auto;
-						border-bottom: 1px solid #ccc;
-						position: relative;
-						width: 100%;
-						overflow: hidden;
-						clear:both;
-					}
-
-						.notifications .notifbox div.notif:last-child {
-							border-bottom: none;
-						}
-
-						.notifications .notifbox div.notif .imageblock {
-							width: 20%;
-							float: left;
-							padding: 5px;
-						}
-
-							.notifications .notifbox div.notif .imageblock .notifimage {
-								height: 60px;
-								width: 60px;
-								border-radius: 50%;
-								border: 1px solid gray;
-								display: inline-block;
-								background-size:cover;
-								background-position: center;
-								background-repeat: no-repeat;
-							}
-
-						.notifications .notifbox div.notif .messageblock {
-							width: 80%;
-							float: left;
-							font-size: 12px;
-							padding-top: 15px;
-							padding-right: 10px;
-							padding-bottom: 15px;
-						}
-
-							.notifications .notifbox div.notif .messageblock .message a {
-								color: #007fff;
-							}
-
-							.notifications .notifbox div.notif .messageblock .messageaction {
-								margin-top: 5px;
-								min-height: 30px;
-							}
-
-							.notifications .notifbox div.notif .messageblock .messageinfo {
-								position: absolute;
-								bottom: 5px;
-								right: 5px;
-								/*padding-right: 5px;*/
-								text-align: right;
-								font-size: 10px;
-								color: #999;
-							}
-
-		.badge {
-			position: absolute;
-			top: 30px;
-			right: -20px;
-		}
-
-		.events {
-			max-width: 400px;
-			width: 400px;
-			background: #fff;
-			border: 1px solid #ccc;
-			padding: 0;
-			box-shadow: 0 0 20px #666;
-			position: absolute;
-			display: none;
-			top: 50px;
-			left: -350px;
-		}
-
+				
 		.dd-menu {
 			max-width: 400px;
 			width: 400px;
@@ -265,192 +102,95 @@
 		}
 	</style>
 
-	<nav class="centerDiv" style="padding-top: 2px;">
-		<div class="searchBar">
-			<a href="/dash" class="button pop" style="float: left; font-size: 8pt; margin: 5px; margin-right: 0; padding: 5px; height: 35px; border-top-right-radius: 0; border-bottom-right-radius: 0;">
-				<img src="//assets.wishlu.com/images/centerLogo.png" alt="wishlu" style="width: 25px; height: 25px;" />
-			</a>
-			<input id="header_query" type="text" class="input-like" style="float: left; padding: 2px; margin: 5px 0; border-radius: 0; width: 50%; height: 35px;" placeholder="search products, stores, and people" />
-			<div id="header_browse_container" style="float:left; position:relative; height: 35px;">
-				<button id="header_browse" class="button pop" style="float: left; font-size: 8pt; margin: 5px; margin-left: 0; padding: 5px; height: 35px; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-					<i class="fa fa-fw fa-2x fa-bars"></i>
-					<i class="fa fa-caret-down" style="position:relative; top: -3px;"></i>
-				</button>
-				<div id="header_browse_panel" class="dd-menu dd-menu-arrow">
-					<div class="dd-content">
-						<h6 class="center">browse</h6>
-						<div class="col_6 center alpha">
-							<ul style="list-style-type: none;">
-								<li><a href="/store">all stores</a></li>
-							</ul>
-						</div>
-						<div class="col_6 center omega">
-							<ul style="list-style-type: none;">
-								<li><a href="/category">all categories</a></li>
-							</ul>                            
-						</div>                        
-					</div>
-					<div class="dd-footer">
-						<div class="social-icons">
-							<a href="http://www.facebook.com/wishlu"><i class="fa fa-fw fa-facebook" style="color: #3b5998;"></i></a>
-							<a href="http://www.twitter.com/wishluofficial"><i class="fa fa-fw fa-twitter" style="color: #00aced;"></i></a>
-							<a href="http://www.google.com/+wishluofficial"><i class="fa fa-fw fa-google-plus" style="color: #dd4b39;"></i></a>
-							<a href="http://wishluofficial.tumblr.com"><i class="fa fa-fw fa-tumblr" style="color: #32506d;"></i></a>
-							<a href="http://www.pinterest.com/wishluofficial"><i class="fa fa-fw fa-pinterest" style="color: #cb2027;"></i></a>
-							<a href="http://www.instagram.com/wishluofficial"><i class="fa fa-fw fa-instagram" style="color: #517fa4;"></i></a>
-							<a href="http://www.youtube.com/wishluofficial"><i class="fa fa-fw fa-youtube" style="color: #bb0000;"></i></a>
-						</div>
-						<a href="/about">about</a>
-						<span>|</span>
-						<a href="http://blog.wishlu.com">blog</a>
-						<span>|</span>
-						<a href="http://retailers.wishlu.com">retailers</a>
-						<span>|</span>
-						<a href="http://developers.wishlu.com">developers</a>
-						<span>|</span>
-						<a href="/tos">privacy &amp; terms</a>
-						<span>|</span>
-						<a href="/contact">contact us</a>
-					</div>
-				</div>
-			</div>
-			<img src="//assets.wishlu.com/images/beta.jpg" style="float:left; position:relative;height:40px;"/>
-		</div>
-
-		<div class="profileNav" style="position: relative; display: inline-block; float: right; margin-right: 5px;">
-			<a class="button pop" href="@Url.Action("view", "user", new { @id = UserId })" style="padding: 3px; margin-top: 5px; width: 150px;">
-				<div class="circlefriend pop sitelink" style="background-image: url('@Session["ImageUrl"]'); display: inline-block; border: 1px solid gray; width: 25px; height: 25px; margin-right: 10px;">
-				</div>
-				<span id="headerProfileName" style="position: relative; top: -5px;">@Session["FirstName"]</span>
-			</a>
-			<ul class="left pop">
-				<li><a href="@Url.Action("view", "user", new { @id = UserId })"><i class="fa fa-user fa-fw" style="margin-right: 10px; "></i>profile</a></li>
-				<li><a href="@Url.Action("index", "gift")"><i class="fa fa-gift fa-fw" style="margin-right: 10px;"></i>gifts</a></li>
-				<li><a href="@Url.Action("index", "item")"><i class="fa fa-tags fa-fw" style="margin-right: 10px;"></i>items</a></li>
-				<li><a href="@Url.Action("index", "wishlu")"><i class="fa fa-bars fa-fw" style="margin-right: 10px;"></i>wishlus</a></li>
-				<li><a href="@Url.Action("index", "wishloop")"><i class="fa fa-circle-o fa-fw" style="margin-right: 10px;"></i>wishloops</a></li>
-				@*<li><a href="@Url.Action("index", "calendar")"><i class="fa fa-calendar fa-fw" style="margin-right: 10px; "></i>calendar</a></li>*@
-				<li><a href="@Url.Action("index", "friends")"><i class="fa fa-users fa-fw" style="margin-right: 10px; "></i>friends</a></li>
-				<li><a href="@Url.Action("index", "invite")"><i class="fa fa-fw fa-envelope" style="margin-right: 10px;"></i>invite</a></li>
-				<li><a href="@Url.Action("bookmarklet", "home")"><i class="fa fa-bookmark fa-fw" style="margin-right: 10px; color: lightblue;"></i>bookmarklet</a></li>
-				@*<li><a href="@Url.Action("index", "inbox")"><i class="fa fa-envelope fa-fw" style="margin-right: 10px; "></i>inbox</a></li>*@				
-				<li><a href="@Url.Action("index", "user")"><i class="fa fa-cog fa-fw" style="margin-right: 10px; color: gray;"></i>settings</a></li>
-				<li><a href="@Url.Action("index", "about")"><i class="fa fa-info-circle fa-fw" style="margin-right: 10px; color: gray;"></i>about</a></li>
-				<li><a href="@Url.Action("faqs", "about")"><i class="fa fa-question-circle fa-fw" style="margin-right: 10px; color: gray;"></i>FAQs</a></li>
-				<li><a href="@Url.Action("signout", "home")"><i class="fa fa-sign-out fa-fw" style="margin-right: 10px;"></i>sign out</a></li>
-			</ul>
-		</div>
-
-		<div style="position: relative; display: inline-block; float: right; margin-right: 5px;">
-			@*@Url.Action("index", "notifications", new { @id = UserId })*@
-			<a id="notifications_toggle" class="button pop tooltip-left notificationicon on" title="my notifications" style="padding: 3px; margin-top: 5px;">
-				<i class="fa fa-fw fa-2x fa-globe"></i>
-				@*@{int count = @Squid.Users.User.GetUnreadNotificationsCount(UserId);}*@
-				@if (count > 0)
-				{
-					<span id="notifCount" style="font-size: 8pt; color: white; background-color: red; border-radius: 50%; padding: 3px; position: absolute; top: -4px; right: -3px;">
-						@count
-					</span>
-				}
-			</a>
-			<!-- Notifications Pop-Up -->
-			<div id="notificationMenu" class="notifications">
-				<div class="titlebar">
-					<span class="title">Notifications</span>
-					<span class="settings">
-						<a href="/user/notifications">
-							<i class="fa fa-cog"></i>
-						</a>
-					</span>
-				</div>
-
-				<div class="notifbox">
-					@{
-						foreach (Squid.Messages.MappedNotification note in notifications.Take(20).ToList())
-						{
-							<div class="notif @(!note.Read ? "unread" : "read")" data-id="@note.Id">
-								<div class="imageblock">
-									@if (note.SenderId != Guid.Empty)
-									{
-										<a href="/u/@note.SenderId">
-											<div class="notifimage pop sitelink" style="background-image: url('@note.SenderProfileImage');">
-											</div>
-										</a>
-									}
-									else
-									{
-										<a href="/u/@note.SenderId">
-											<div class="notifimage pop sitelink" style="background-image: url('//assets.wishlu.com/images/DefaultWish.jpg');">
-											</div>
-										</a>
-									}
-								</div>
-								<div class="messageblock">
-									<a class="del sitelink" style="position:absolute; top: 0; right: 5px;">
-										<i class="fa fa-times"></i>
-									</a>
-									<a href="@note.Url">
-										<div class="message center">
-											@note.Content
-										</div>
-									</a>
-									@if (note.NotificationType == Squid.Messages.NotificationType.FriendRequest)
-									{
-										<div class="messageaction center">
-											<a class="button pop friend_accept" data-id="@note.SenderId" data-name="@note.SenderFullName" style="padding:5px;"><i class="fa fa-check fa-fw" style="color:#79e0c3;"></i></a>
-											<a class="button pop friend_decline" data-id="@note.SenderId" data-name="@note.SenderFullName" style="padding:5px;"><i class="fa fa-times fa-fw" style="color:#b5919b;"></i></a>
-										</div>
-									}
-									else if (note.NotificationType == Squid.Messages.NotificationType.SuggestedFriend)
-									{
-										<div class="messageaction center">
-											<a class="button pop friend_request" data-id="@note.SenderId" data-url="@note.Url" style="padding:1px;">send friend request</a>
-										</div>
-									}
-									else if (note.NotificationType == Squid.Messages.NotificationType.SuggestedWish)
-									{
-										<div class="messageaction center">
-											<a class="button pop" href="@note.Url" style="padding:1px;">view item</a>
-										</div>
-									}
-									<div class="messageinfo">
-										<i class="fa fa-clock-o"></i>
-										@{
-									TimeSpan ts = DateTimeOffset.Now.Subtract(note.SendTime);
-
-									if (ts.Days == 0)
-									{
-										if (ts.Hours == 0)
-										{
-											if (ts.Minutes == 0)
-											{ <span>@ts.Seconds seconds ago</span> }
-											else
-											{ <span>@ts.Minutes minutes ago</span> }
-										}
-										else if (ts.Hours == 1)
-										{ <span>About an hour ago</span> }
-										else
-										{ <span>About @ts.Hours hours ago</span> }
-									}
-									else if (ts.Days == 1)
-									{ <span>Yesterday</span> }
-									else
-									{ <span>@ts.Days days ago</span> }
-										}
-									</div>
-								</div>
+	<nav class="header">
+		<div class="col-xs-12 col-md-8 col-md-offset-2">
+			<div class="searchBar">
+				<a href="/dash" class="button pop" style="float: left; font-size: 8pt; margin: 5px; margin-right: 0; padding: 5px; height: 35px; border-top-right-radius: 0; border-bottom-right-radius: 0;">
+					<img src="//assets.wishlu.com/images/centerLogo.png" alt="wishlu" style="width: 25px; height: 25px;" />
+				</a>
+				<input id="header_query" type="text" class="input-like" style="float: left; padding: 2px; margin: 5px 0; border-radius: 0; width: 50%; height: 35px;" placeholder="search products, stores, and people" />
+				<div id="header_browse_container" style="float:left; position:relative; height: 35px;">
+					<button id="header_browse" class="button pop" style="float: left; font-size: 8pt; margin: 5px; margin-left: 0; padding: 5px; height: 35px; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+						<i class="fa fa-fw fa-2x fa-bars"></i>
+						<i class="fa fa-caret-down" style="position:relative; top: -3px;"></i>
+					</button>
+					<div id="header_browse_panel" class="dd-menu dd-menu-arrow">
+						<div class="dd-content">
+							<h6 class="center">browse</h6>
+							<div class="col_6 center alpha">
+								<ul style="list-style-type: none;">
+									<li><a href="/store">all stores</a></li>
+								</ul>
 							</div>
-						}
-					}
+							<div class="col_6 center omega">
+								<ul style="list-style-type: none;">
+									<li><a href="/category">all categories</a></li>
+								</ul>
+							</div>
+						</div>
+						<div class="dd-footer">
+							<div class="social-icons">
+								<a alt="wishlu on Facebook" target="_blank" href="https://www.facebook.com/wishlu"><i class="fa fa-fw fa-facebook" style="color: #3b5998;"></i></a>
+								<a alt="wishlu on Twitter" target="_blank" href="http://www.twitter.com/wishluofficial"><i class="fa fa-fw fa-twitter" style="color: #00aced;"></i></a>
+								<a alt="wishlu on Google+" target="_blank" href="http://www.google.com/+wishluapp"><i class="fa fa-fw fa-google-plus" style="color: #dd4b39;"></i></a>
+								<a alt="wishlu on Tumblr" target="_blank" href="http://wishluofficial.tumblr.com"><i class="fa fa-fw fa-tumblr" style="color: #32506d;"></i></a>
+								<a alt="wishlu on Pinterest" target="_blank" href="http://www.pinterest.com/wishluofficial"><i class="fa fa-fw fa-pinterest" style="color: #cb2027;"></i></a>
+								<a alt="wishlu on Instagram" target="_blank" href="http://www.instagram.com/wishluofficial"><i class="fa fa-fw fa-instagram" style="color: #517fa4;"></i></a>
+								<a alt="wishlu on YouTube" target="_blank" href="http://www.youtube.com/c/wishluapp"><i class="fa fa-fw fa-youtube" style="color: #bb0000;"></i></a>
+							</div>
+							<a href="/about">about</a>
+							<span>|</span>
+							<a target="_blank" href="https://blog.wishlu.com">blog</a>
+							<span>|</span>
+							<a target="_blank" href="https://retailers.wishlu.com">retailers</a>
+							<span>|</span>
+							<a target="_blank" href="https://developers.wishlu.com">developers</a>
+							<span>|</span>
+							<a href="/tos">privacy &amp; terms</a>
+							<span>|</span>
+							<a href="/contact">contact us</a>
+						</div>
+					</div>
 				</div>
-				<div class="seeall">
-					<a href="/notifications">See All</a>
-				</div>
+				<img src="//assets.wishlu.com/images/beta.jpg" style="float:left; position:relative;height:40px;" />
+			</div>
+
+			<div class="profileNav" style="position: relative; display: inline-block; float: right; margin-right: 5px;">
+				<a class="button pop" href="@Url.Action("view", "user", new { @id = UserId })" style="padding: 3px; margin-top: 5px; width: 150px;">
+					<div class="circlefriend pop sitelink" style="background-image: url('@Session["ImageUrl"]'); display: inline-block; border: 1px solid gray; width: 25px; height: 25px; margin-right: 10px;">
+					</div>
+					<span id="headerProfileName" style="position: relative; top: -5px;">@Session["FirstName"]</span>
+				</a>
+				<ul class="left pop">
+					<li><a href="@Url.Action("view", "user", new { @id = UserId })"><i class="fa fa-user fa-fw" style="margin-right: 10px; "></i>profile</a></li>
+					<li><a href="@Url.Action("index", "gift")"><i class="fa fa-gift fa-fw" style="margin-right: 10px;"></i>gifts</a></li>
+					<li><a href="@Url.Action("index", "item")"><i class="fa fa-tags fa-fw" style="margin-right: 10px;"></i>items</a></li>
+					<li><a href="@Url.Action("index", "wishlu")"><i class="fa fa-bars fa-fw" style="margin-right: 10px;"></i>wishlus</a></li>
+					<li><a href="@Url.Action("index", "wishloop")"><i class="fa fa-circle-o fa-fw" style="margin-right: 10px;"></i>wishloops</a></li>
+					@*<li><a href="@Url.Action("index", "calendar")"><i class="fa fa-calendar fa-fw" style="margin-right: 10px; "></i>calendar</a></li>*@
+					<li><a href="@Url.Action("index", "friends")"><i class="fa fa-users fa-fw" style="margin-right: 10px; "></i>friends</a></li>
+					<li><a href="@Url.Action("index", "invite")"><i class="fa fa-fw fa-envelope" style="margin-right: 10px;"></i>invite</a></li>
+					<li><a href="@Url.Action("bookmarklet", "home")"><i class="fa fa-bookmark fa-fw" style="margin-right: 10px; color: lightblue;"></i>bookmarklet</a></li>
+					@*<li><a href="@Url.Action("index", "inbox")"><i class="fa fa-envelope fa-fw" style="margin-right: 10px; "></i>inbox</a></li>*@
+					<li><a href="@Url.Action("index", "user")"><i class="fa fa-cog fa-fw" style="margin-right: 10px; color: gray;"></i>settings</a></li>
+					<li><a href="@Url.Action("index", "about")"><i class="fa fa-info-circle fa-fw" style="margin-right: 10px; color: gray;"></i>about</a></li>
+					<li><a href="@Url.Action("see", "tutorial")"><i class="fa fa-lightbulb-o fa-fw" style="margin-right: 10px; color: gray;"></i>tutorial</a></li>
+					<li><a href="@Url.Action("faqs", "about")"><i class="fa fa-question-circle fa-fw" style="margin-right: 10px; color: gray;"></i>FAQs</a></li>
+					<li><a href="@Url.Action("signout", "home")"><i class="fa fa-sign-out fa-fw" style="margin-right: 10px;"></i>sign out</a></li>
+				</ul>
+			</div>
+
+			<!-- Add Wish -->
+			<div style="position: relative; display: inline-block; float: right; margin-right: 5px;">
+				<a class="button pop" href="@Url.Action("hunt", "item")" style="padding: 3px; margin-top: 5px;">
+					<i class="fa fa-2x fa-fw fa-plus-circle" style="color: #CFDF51;"></i>
+				</a>
 			</div>
 		</div>
-
+		
+				
 		<!-- Inbox -->
-		<div style="position: relative; display: inline-block; float: right; margin-right: 5px;">
+		@*<div style="position: relative; display: inline-block; float: right; margin-right: 5px;">
 			<a class="button pop tooltip-left" title="my inbox" href="@Url.Action("index", "inbox")" style="padding: 3px; margin-top: 5px;">
 				<i class="fa fa-fw fa-2x fa-inbox"></i>
 				@if (mcount > 0)
@@ -460,88 +200,15 @@
 					</span>
 				}				
 			</a>
-		</div>
-
-		<!-- Calendar -->
-		<div style="position: relative; display: inline-block; float: right; margin-right: 5px;">
-			<a id="events_toggle" class="button pop tooltip-left" title="my calendar" style="padding: 3px; margin-top: 5px;">
-				<i class="fa fa-fw fa-2x fa-calendar"></i>
-				@if (ecount > 0)
-				{
-					<span id="eventCount" style="font-size: 8pt; color: white; background-color: lightblue; border-radius: 50%; padding: 3px; position: absolute; top: -4px; right: -3px;">
-						@ecount
-					</span>
-				}
-			</a>
-			<!-- Calendar Pop-Up -->
-			<div id="eventsMenu" class="notifications">
-				<div class="titlebar">
-					<span class="title">Calendar</span>
-				</div>
-
-				<div class="notifbox">
-					@foreach (Squid.Wishes.MappedWishlu e in events)
-					{
-						<div class="col_12 pop" style="position:relative; border: 2px solid gray; border-radius: 15px; min-height: 75px;">
-							<div class="circlefriend pop sitelink" style="position: absolute; left: 5px; top: 10px; background-image: url('@e.UserProfileImage'); display: inline-block; border: 1px solid gray; width: 50px; height: 50px;">
-							</div>
-							<div class="col_12 center">
-								
-								@if (e.WishLuType == Squid.Wishes.WishluType.Birthday)
-								{
-									<a href="/l/@e.Id">
-										<b>@e.UserFullName's birthday!</b>
-										<i class="fa fa-birthday-cake"></i>
-									</a>
-								}
-								else
-								{
-									<a href="/l/@e.Id">
-										<b>@e.Name</b>
-										<br />
-										<span style="font-size: 8pt;">@e.UserFullName</span>
-									</a>
-								}
-							</div>
-							<div class="right" style="position:absolute; bottom: 10px; right: 10px;">
-								@if (e.EventDateTime.Value.Date.Date == DateTime.Now.Date)
-								{
-									<span style="background: green; border-radius: 5px; padding:5px;font-size: 10pt;color:white;">TODAY</span>
-								}
-								else if (e.EventDateTime.Value.Date.Date == DateTime.Now.Date.AddDays(1))
-								{
-									<span style="background: lightgreen; border-radius: 5px; padding:5px;font-size: 10pt;">TOMORROW</span>
-								}
-								else
-								{
-									double days = e.EventDateTime.Value.Date.Date.Subtract(DateTime.Now.Date).TotalDays;
-
-									<span style="background: pink; border-radius: 5px; padding:5px; font-size: 10pt;">IN @days DAYS</span>
-								}
-							</div>
-						</div>
-					}
-				</div>
-				<div class="seeall">
-					<a href="/calendar">See All</a>
-				</div>
-			</div>
-		</div>
-
-		<!-- Friends -->
+		</div>*@
+				
+		@*<!-- Friends -->
 		<div style="position: relative; display: inline-block; float: right; margin-right: 5px;">
 			<a class="button pop tooltip-left" title="my friends" href="@Url.Action("index", "friends")" style="padding: 3px; margin-top: 5px;">
 				<i class="fa fa-fw fa-2x fa-users"></i>
 			</a>
-		</div>
-
-		<!-- Add Wish -->
-		<div style="position: relative; display: inline-block; float: right; margin-right: 5px;">
-			<a class="button pop" href="@Url.Action("hunt", "item")" style="padding: 3px; margin-top: 5px;">
-				<i class="fa fa-2x fa-fw fa-plus-circle" style="color: #CFDF51;"></i>
-			</a>
-		</div>
-
+		</div>*@
+				
 		@*<ul class="menu center">
 					<li class="left" >
 						<a href="">
@@ -570,7 +237,7 @@
 
 				<li class="right" style="border-left: 1px solid silver;">
 						<a href="@Url.Action("signout", "home")">
-							<i class="fa fa-2x fa-sign-out fa-fw tooltip" title="sign out" data-delay="50" style="text-shadow: none; /*margin-right: 10px;*/"></i>
+							<i class="fa fa-2x fa-sign-out fa-fw tooltip-top" title="sign out" data-delay="50" style="text-shadow: none; /*margin-right: 10px;*/"></i>
 							<span style="font-size: 18pt;">sign out</span>
 						</a>
 					</li>

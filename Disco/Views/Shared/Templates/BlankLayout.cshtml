@@ -50,6 +50,9 @@
     <meta property="fb:app_id" content="296645670486904" />
     <meta property="og:site_name" content="wishlu">
 
+    <!-- Google Apps -->
+    <meta name="google-site-verification" content="Y73fytV_CTYFknYqn0EZMpWMYAenmvpyo5FWRt9_v7I" />
+
     <!-- Alexa -->
     <meta name="alexaVerifyID" content="Pp0cBr8gUwxE88jqPDgZ42thJCY" />
 
@@ -110,11 +113,13 @@
     @* Styles *@
     @* ****** *@
     <!-- Project Stylesheets -->
+   @Styles.Render("//assets.wishlu.com/css/WishLuStyles.css")
     @Styles.Render("//assets.wishlu.com/css/easing.css")
     @Styles.Render("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css")
     @Styles.Render("//assets.wishlu.com/css/kickstart.css")
-    @Styles.Render("//assets.wishlu.com/css/WishLuStyles.css")
     @Styles.Render("//assets.wishlu.com/css/sweet-alert.css")
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//assets.wishlu.com/css/bootstrap-select.css">
 
     <!-- Page Stylesheets -->
     @RenderSection("styles", false)
@@ -132,10 +137,9 @@
     @Scripts.Render("//assets.wishlu.com/js/kickstart.js")
     @Scripts.Render("//assets.wishlu.com/js/sweet-alert.js")
     @Scripts.Render("//assets.wishlu.com/js/jquery-scrollToTop.min.js")
-
-    <!-- Page Scripts -->
-    @RenderSection("scripts", false)
-
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <script src="//assets.wishlu.com/js/bootstrap-select.js"></script>
+        
     @* ********** *@
     @* Affiliates *@
     @* ********** *@
@@ -198,6 +202,9 @@
     @* ****** *@
     <!-- Notification Bars-->
     @{ Html.RenderPartial("~/Views/Shared/Templates/_NotificationBars.cshtml"); }
+
+    <!-- Page Scripts -->
+    @RenderSection("scripts", false)
 </head>
 
 <body>
