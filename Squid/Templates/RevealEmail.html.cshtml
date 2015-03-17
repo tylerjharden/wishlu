@@ -19,21 +19,23 @@
     Squid.Wishes.Wish wish = Model.GetWish();
     Squid.Wishes.Wishlu wishlu = Squid.Wishes.Wishlu.GetWishLuById(wish.GetAssignmentId());
 }
-<!DOCTYPE HTML>
-
-<div style="text-align:center;">
-    <img src="http://assets.wishlu.com/images/email/logo.png" />
-</div>
-
-<h2>Hello @to.FirstName,</h2>
-
-<br />
+<!DOCTYPE html>
 
 <div class="col_12" style="border: 2px solid lightblue; background: white; border-radius: 15px; padding:10px;">
-   <span>@promiser.FullName has gifted an item from your @wishlu.Name wishlu. Once you have received this gift, please go to the item detail screen and confirm receipt, or click the button below.</span>
+    <div style="text-align:center;">
+        <img src="http://assets.wishlu.com/images/email/logo.png" />
+    </div>
+
+    <h2>Hello @to.FirstName,</h2>
+
+    <br />
+
+    <span>@promiser.FullName has gifted an item from your @wishlu.Name wishlu. Once you have received this gift, please go to the item detail screen and confirm receipt, or click the button below.</span>
     <br />
     <br />
-    <h5>@wish.Name</h5>
+    <h3 style="text-align:center;">@wish.Name</h3>
+    @Button("http://www.wishlu.com/i/" + wish.Id, "view item & confirm")
+    <br />
     <div style="text-align:center;">
         <img style="width:50%;" src="@wish.ImageUrl" />
     </div>

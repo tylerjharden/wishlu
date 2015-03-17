@@ -104,19 +104,19 @@ namespace Squid.Mail
                 case 2: // Day 2
                     MailAttributes.Subject = "A few smart ways to use wishlu.";
                     return Email<User>("Day2", model);
-                    
+
                 case 3: // Day 3
-                    MailAttributes.Subject = "The new way to give (and to get).";
+                    MailAttributes.Subject = "The secret to buying the most perfect present for anyone.";
                     return Email<User>("Day3", model);
 
                 case 5: // Day 5
-                    MailAttributes.Subject = "wishloops 101";
+                    MailAttributes.Subject = "The new way to give (and to get).";
                     return Email<User>("Day5", model);
 
                 case 8: // Day 8
-                    MailAttributes.Subject = "The secret to buying the most perfect present for anyone.";
+                    MailAttributes.Subject = "gifting & wishloops 101";
                     return Email<User>("Day8", model);
-
+                                   
                 case 13: // Day 13
                     MailAttributes.Subject = "Get gifted.";
                     return Email<User>("Day13", model);

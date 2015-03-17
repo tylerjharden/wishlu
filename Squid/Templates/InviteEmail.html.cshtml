@@ -5,28 +5,18 @@
 }
 <!DOCTYPE HTML>
 
-<div style="text-align:center;">
-    <img src="http://assets.wishlu.com/images/email/logo.png" />
-</div>
-
-<h2>Hello,</h2>
-
-<span style="text-align:center;">@user.FullName would like you to join @(user.Gender == 'f' ? "her" : "him") on wishlu.</span>
-
-<br />
-
-<div class="col_4">
-    <h4>
-        <a href="#what_is_wishlu">what is wishlu?</a>
-    </h4>
-    <h4>
-        <a href="#how_do_i_get_started">how do I get started?</a>
-    </h4>
-</div>
-<div class="col_8">
-
-</div>
 <div class="col_12" style="border: 2px solid lightblue; background: white; border-radius: 15px; padding:10px;">
+    <div style="text-align:center;">
+        <img src="https://assets.wishlu.com/images/email/logo.png" />
+    </div>
+
+    <h2>Hello,</h2>
+
+    <span style="text-align:center;">@user.FullName would like you to join @(user.Gender == 'f' ? "her" : "him") on wishlu.</span>
+
+    <br />
+
+
     <h2 id="what_is_wishlu">
         what is wishlu?
     </h2>
@@ -48,9 +38,9 @@
             People like to give each other gifts for lots of different reasons. But we don’t like to stress, guess, re-gift, or give people we care about things they don’t want or need. We also like to receive the things we really want or need. wishlu makes giving and receiving the perfect present a snap. The tradition of giving has been around forever, and it’s true: it has worked OK. But now, with wishlu, it works better.
         </span>
     </div>
+
+    <a class="button pop center" href="https://www.wishlu.com/join/invite?code=@code">join wishlu now.</a>
+
+    <p>If the button isn't working paste the link below in your browser</p>
+    <p>https://www.wishlu.com/join/invite?code=@code</p>
 </div>
-
-<a class="button pop center" href="http://www.wishlu.com/join/invite?code=@code">join wishlu now.</a>
-
-<p>If the button isn't working paste the link below in your browser</p>
-<p>http://www.wishlu.com/join/invite?code=@code</p>
