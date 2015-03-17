@@ -6,6 +6,7 @@ using Squid.Validation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Squid.Messages
 {
@@ -65,6 +66,9 @@ namespace Squid.Messages
         [JsonProperty("UserId")]
         public Guid UserId { get; set; }
 
+        [JsonIgnore]
+        public List<Guid> Recipients { get; set; }
+
         [JsonProperty("Content")]
         public String Content { get; set; }
 
@@ -91,6 +95,7 @@ namespace Squid.Messages
             SenderId = Guid.Empty;
             SendTime = DateTimeOffset.MinValue;
             NotificationType = NotificationType.Invalid;
+            Recipients = new List<Guid>();
             Read = false;
             Url = "#";
         }
@@ -117,25 +122,39 @@ namespace Squid.Messages
 
             this.Create();
 
-            this.Push();
+            //this.Push();
+        }
+
+        public void AddRecipient(Guid recipient)
+        {
+            if (recipient == null || recipient == Guid.Empty)
+                return;
+
+            this.Recipients.Add(recipient);
+        }
+
+        public void AddRecipients(List<Guid> recipients)
+        {
+            if (recipients == null || recipients.Count == 0)
+                return;
+
+            this.Recipients.AddRange(recipients);
         }
 
         public void Push()
         {
-            Logger.Log("Notifications:Push() for " + this.Id);
+            if (NotificationType == NotificationType.Invalid)
+                throw new Exception("Invalid notifications cannot be sent!");
+
+            Logger.Log(string.Format("Pushing notification {0} to {1} recipients.", Id, Recipients.Count));
 
             this.SendTime = DateTimeOffset.Now;
-
             this.Set("SendTime", DateTimeOffset.Now);
 
-            User.PushNotification(this);
+            Parallel.ForEach(Recipients, x => User.Push(x, Id));
+            //User.PushNotification(this);
         }
-
-        private void UpdateMessage()
-        {
-            this.Update();
-        }
-
+                
         public void MarkAsRead()
         {
             Logger.Log("Message:MarkAsRead() for " + this.Id);
@@ -162,6 +181,25 @@ namespace Squid.Messages
             catch
             {
                 return null;
+            }
+        }
+
+        public static bool Delete(Guid userId, Guid notificationId)
+        {
+            try
+            {
+                Graph.Instance.Cypher
+                    .Match("(n:Notification {Id:{nid}})-[r]-(u:User {Id:{uid}})")
+                    .WithParam("nid", notificationId)
+                    .WithParam("uid", userId)                    
+                    .Delete("r")
+                    .ExecuteWithoutResults();
+
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 
