@@ -1,5 +1,10 @@
 ﻿@{
-    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";    
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";
+
+    // Facebook
+    string clientId = "296645670486904";
+    string redirectUrl = "https://www.wishlu.com/facebook/register";
+    string scope = "email,public_profile,user_birthday,user_friends,user_likes";
 }
 
 @section page {
@@ -27,133 +32,217 @@
 }
 
 @section styles {
-<style>
-    #WelcomePopup {
-        position: fixed;
-        z-index: 200;
-        line-height: normal;
-        /*top: 0;
-    left: 0;*/
-        /*height: auto;*/ /* 400px */
-        height: 520px;
-        width: 720px; /* 400px */
-        /*display: none;*/
-        margin: 100px auto;
-        /*padding: 25px;*/
-        color: #918b7d;
-        font-family: Lato, Helvetica, Arial, Sans-Serif;
-        background: #FFFFFF;
-        font-size: 1.2em;
-        border: 5px solid #D3EEF2;        
-        border-radius: 15px;
-    }
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 
-#WelcomeMask
-{
-   /*display: none;*/
-   background: #000;
-   position: fixed; 
-   left: 0; 
-   top: 0;
-   width: 100%;
-   height: 100%;
-   opacity: 0.6;
-   z-index: 100;    
-}
+    <style>        
+        #WelcomeMask {
+            /*display: none;*/
+            background: #000;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+            z-index: 100;
+        }
+        
+        .loginButton {
+            font-size: 18px !important;
+        }
 
-.ontop {
-    position: relative;
-}
+        .loginText {
+            /*color: #fff;*/
+            /*text-shadow: 0 -1px 4px rgba(0, 0, 0, 0.25);*/
+            font-weight: bold;
+        }
 
-.ontop > span {
-    position: absolute;
-    top: -3px;
-    left: 5px;
-}
-</style>
+        .headerCaption {
+            font-family: 'Lato'/*, arial, Helvetica, sans-serif*/;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            color: #fff;            
+            text-align: center;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: -1px;            
+            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+        }
+
+        .subtitle {
+            font-size: 16px;
+            font-weight: 500;              
+            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+        }
+
+        .registrationButtons {
+            margin-top:10px;
+        }
+
+        .facebookConnectButton {
+            font-size: 18px !important;
+            padding: 10px 30px;
+            background: linear-gradient(#2953ad, #234ca2) !important;
+            width: 100%;
+        }
+
+            .facebookConnectButton:hover {
+                background: linear-gradient(#3660BA, #3059AF) !important;
+            }
+
+        .facebookIcon {
+            color: #fff;
+            margin-right: 15px;
+            font-size: 24px !important;
+        }
+
+        .facebookText {
+            color: #fff;
+            text-shadow: 0 -1px rgba(0, 0, 0, 0.25);
+            font-weight: bold;
+            text-align:center;
+        }
+
+        .guestContinueButton {             
+            font-size: 18px !important;
+            padding: 10px 30px;
+            width: 100%;
+        }
+
+            .guestContinueButton:hover {
+            }
+
+        /*.guestIcon {
+            color: #999;
+            margin-right: 15px;
+            font-size: 24px;
+        }*/
+
+        .guestText {
+            color: #fff;
+            text-shadow: 0 -1px 4px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+        }
+
+        .joinButton {
+            font-size: 18px !important;
+            padding: 10px 30px;
+            width: 100%;
+            text-align:center;
+        }
+
+            .joinButton:hover {
+            }
+
+        /*.joinIcon {
+            color: #999;
+            margin-right: 15px;
+            font-size: 24px;
+        }*/
+
+        .joinText {
+            color: #fff;
+            text-shadow: 0 -1px 4px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+        }
+    </style>
 }
 
 @section scripts {
-<script type="text/javascript">
-    $(document).ready(function () {
-       // $("#WelcomeMask").fadeIn();
-
-        //var h = $(window).height();
-        var w = $(window).width();
-
-        //var h2 = $(this).height() + 200;
-        var w2 = $("#WelcomePopup").width();
-
-        //var top = (h / 2) - (h2 / 2);
-        var left = (w / 2) - (w2 / 2);
-
-        //if (top < 0)
-        //    top = 0;
-
-        if (left < 0)
-            left = 0;
-
-        $("#WelcomePopup").css('left', left + 'px');
-        //$(this).css('top', top + 'px');
-
-        //$("#WelcomePopup").fadeIn();                
-    });
-        
-    $(window).resize(function () {
-        var element = $("#WelcomePopup");
-
-        //var h = $(window).height();
-        var w = $(window).width();
-
-        //var h2 = $(element).height() + 200;
-        var w2 = $(element).width();
-
-        //var top = (h / 2) - (h2 / 2);
-        var left = (w / 2) - (w2 / 2);
-
-        //if (top < 0)
-        //    top = 0;
-
-        if (left < 0)
-            left = 0;
-
-        $(element).css('left', left + 'px');
-        //$(element).css('top', top + 'px');
-    });
-</script>
+    <script type="text/javascript">        
+        fbEnsureInit(function () { checkLoginState() });
+    </script>
 }
 
-@if (Request.Browser.IsMobileDevice)
-{
-    <div class="center" style="padding:5px;">        
-        <img src="//assets.wishlu.com/images/logobeta.jpg" alt="wishlu logo" style="max-width:30%;max-height:30%;" />
-        <h6>the new way to give (and to get).</h6>
-        <p>create shareable, shoppable collections of the gifts you want and buy your family &amp; friends exactly what they want.</p>
-        <a class="button pop full" style="font-size:24pt;" href="@Url.Action("index","join")">join.</a>
-        <a class="button pop full" style="font-size:24pt; margin-top: 10px;" href="@Url.Action("signin")">sign in.</a>
-    </div>
+@if (!Request.Browser.IsMobileDevice)
+{ 
+<div class="center" style="position:absolute; top:0;bottom:0;left:0;right:0;/*-webkit-filter:blur(5px);filter:blur(5px);*/">
+    @{Html.RenderAction("shops", "get");}
+</div>
 }
-else
-{
-    <div class="center" style="position:absolute; top:0;bottom:0;left:0;right:0;">
-        @{Html.RenderAction("shops", "get");}
-    </div>
-    
-    <div id="WelcomeMask"></div>
 
-    <div id="WelcomePopup" class="pop inset center">
-        <div id="container" class="center" style="position: absolute; width:100%;">
-            <h1 style="width:395px;height:236px; background: url('//assets.wishlu.com/images/logobeta.jpg') no-repeat; background-size:contain; color:transparent; font-size:0; display:inline-block;">
-                <span>wishlu</span>
-            </h1>
-            @*<img src="//assets.wishlu.com/images/logobeta.jpg" alt="wishlu logo" style="max-width:50%;max-height:50%;" />*@
-            <h4>the new way to give (and to get).</h4>
-            <p>create shareable, shoppable collections of the gifts you want and buy your family &amp; friends exactly what they want.</p>
-            <hr style="margin: 10px;" />
-            <a class="btn button large pop" href="@Url.Action("index","join")">join.</a>
-            <br />
-            <br />
-            <p>Already have an account? <a href="@Url.Action("signin")">Sign in now</a></p>
+<div id="WelcomeMask"></div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-md-6 col-md-offset-3" style="z-index:200;">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <a href="https://www.wishlu.com" alt="wishlu" title="wishlu">
+                        <img title="wishlu" alt="wishlu" src="//assets.wishlu.com/images/headerLogo.png" />
+                    </a>                    
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="headerCaption">
+                        <h1 class="title">
+                            the new way to give (and to get).
+                        </h1>
+                        <div class="subtitle">
+                            create shareable, shoppable collections of the gifts you want and buy your family &amp; friends exactly what they want.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-8 col-md-offset-2">
+                    <div class="registrationButtons row">
+                        <div class="col-xs-12">
+                            <a class="button full pop facebookConnectButton" @*onclick="doFbLogin();"*@ href="@(string.Format("https://graph.facebook.com/oauth/authorize?client_id={0}&redirect_uri={1}&scope={2}", clientId, redirectUrl, scope))">
+                                <span class="facebookIcon"><i class="fa fa-facebook"></i></span>
+                                <span class="facebookText">Continue with Facebook</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="registrationButtons row">
+                        <div class="col-xs-12">
+                            <a class="button full pop guestContinueButton" href="/dash">
+                                <span class="guestText">Continue as guest</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <hr class="or" />
+                    @*<input type="email" name="email" id="userEmail" placeholder="Email" class="full" style="padding:5px;font-weight:bold;" autofocus />
+            <input type="password" name="password" id="userPassword" placeholder="Password" class="full" style="padding:5px;font-weight:bold;" />*@
+
+                    <div class="registrationButtons row">
+                        <div class="col-xs-12">
+                            <a class="button full pop joinButton" href="@Url.Action("index","join")">
+                                <span class="joinText">join.</span>
+                            </a>
+                        </div>
+                    </div>
+                    <hr />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <div class="loginButtonContainer">
+                        <a class="button pop loginButton" href="/signin">
+                            <span class="loginText">Sign in</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-}
+    </div>    
+</div>
+
+@*Facepile from Facebook*@
+@*<div>
+        <fb:facepile app_id="296645670486904" max_rows="2" colorscheme="light" size="medium" show_count="true"></fb:facepile>
+    </div>*@
+
+<div itemscope="" itemtype="http://schema.org/WebSite" class="hidden">
+    <meta itemprop="url" content="https://www.wishlu.com/">
+    <form itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+        <meta itemprop="target" content="https://www.wishlu.com/search/?query={search_term}">
+        <input itemprop="query-input" type="text" name="search_term" required="">
+        <input type="submit">
+    </form>
+</div>
