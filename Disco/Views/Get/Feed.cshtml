@@ -1,15 +1,15 @@
 ﻿<style>
-    .item div .info {
+    .item a .info {
         visibility: hidden;
     }
 
-    .item:hover div .info {
+    .item:hover a .info {
         visibility: visible;
     }
 </style>
 <script>
     $(document).ready(function () {
-        $(".thumbs").on("click", ".thumbs_up, .thumbs_down", function (e) {            
+        $(".thumbs").on("click", ".thumbs_up, .thumbs_down", function (e) {
             var thumb = $(this);
 
             if (thumb.hasClass('thumbs_up')) {
@@ -60,10 +60,39 @@
 </script>
 @foreach (Squid.Users.FeedItem item in Model)
 {
-    try { 
-    <div class="pop item" style="height: auto !important; width: 150px; overflow: hidden; border: 1px solid lightgray; border-radius: 15px; position:relative; background-color: white;">
-        <a href="/i/@item.Wish.Id">
-            <div class="full" style="float: none; display: inline-block; position: relative; background-size: cover; background-position: center; background-image: url('@(item.Wish.Image)'); background-color: white; width:100%; min-height: 250px; height: auto;">
+    try
+    {
+        <div class="pop item" style="position:relative; visibility:hidden; width: 236px; overflow: hidden; border: 1px solid lightgray; border-radius: 15px; background-color: white; margin:14px 7px 0 7px;">
+            <a href="/i/@item.Wish.Id" style="display: inline-block; position:relative;">
+                @*<div class="full" style="float: none; display: inline-block; position: relative; background-size: cover; background-position: center; background-image: url('@(item.Wish.Image)'); background-color: white; width:100%; min-height: 250px; height: auto;">*@
+                @if (item.Wish.Status == Squid.Wishes.WishStatus.Revealed)
+                {
+                    <div class="giftStatus">
+                        <span class="rectangle-text granted">gifted (@item.Wish.GetRevealedGifts().Count of @item.Wish.Quantity)</span>
+                    </div>
+                }
+                else if (Request.IsAuthenticated && item.Wish.Status == Squid.Wishes.WishStatus.Confirmed)
+                {
+                    <div class="giftStatus">
+                        <span class="rectangle-text granted">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i> (@item.Wish.GetConfirmedGifts().Count of @item.Wish.Quantity)</span>
+                    </div>
+                }
+                else if (Request.IsAuthenticated && item.Wish.Status == Squid.Wishes.WishStatus.Reserved && item.Wish.UserId != UserId)
+                {
+                    if (item.Wish.GetPurchasedGifts().Count > 0)
+                    {
+                        <div class="giftStatus">
+                            <span class="rectangle-text granted">purchased (@item.Wish.GetPurchasedGifts().Count of @item.Wish.Quantity)</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="giftStatus">
+                            <span class="rectangle-text granted">reserved (@item.Wish.GetReservedGifts().Count of @item.Wish.Quantity)</span>
+                        </div>
+                    }
+                }                
+                <img src="@item.Wish.Image" style="width:100%;" />
                 <div class="info full left" style="padding: 5px; position: absolute; bottom: 0; color: white; background: rgba(0,0,0,0.6);">
                     <span style="color: white;">@item.Wish.Name.TruncateAtWord(25)</span>
                     <br />
@@ -81,7 +110,7 @@
                         <button class="button pop thumbs_up" style="padding:5px; color:#c1dd5c" data-id="@item.Wish.Id">
                             <i class="fa fa-fw fa-thumbs-up"></i>
                         </button>
-                    }                   
+                    }
                     @*<button class="button pop thumbs_down" style="padding:5px; color:#f2cec5" data-id="@item.Wish.Id">
                             <i class="fa fa-fw fa-thumbs-down"></i>
                         </button>*@
@@ -89,47 +118,29 @@
                             <i class="fa fa-fw fa-share-alt"></i>
                         </button>*@
                 </div>
-            </div>
-            @if (item.Wish.WishStatus == Squid.Wishes.WishStatus.Revealed)
-            {
-                <div class="rectangle" style="position: absolute; top: 0;height: 30px;">
-                    <span class="rectangle-text granted" style="font-size: 16pt; font-weight: 100; height: 30px; text-transform: lowercase;">gifted</span>
-                </div>
-            }
-            else if (item.Wish.WishStatus == Squid.Wishes.WishStatus.Confirmed)
-            {
-                <div class="rectangle" style="position: absolute; top: 0; height: 30px;">
-                    <span class="rectangle-text granted" style="font-size: 16pt; font-weight: 100; height: 30px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
-                </div>
-            }
-            else if (item.Wish.WishStatus != Squid.Wishes.WishStatus.Requested)
-            {
-                <div class="rectangle" style="position: absolute; top: 0;height: 30px;">
-                    <span class="rectangle-text granted" style="font-size: 16pt; font-weight: 100; height: 30px; text-transform: lowercase;">@item.Wish.WishStatus</span>
-                </div>
-            }
-        </a>
-        <div class="full" style="float: left; padding: 5px; border-top: 1px solid lightgray; line-height: 100%;">
-            <div class="col_3 nomargin nopadding">
-                <a href="/u/@item.User.Id">
-                    <div class="circlefriend pop sitelink" style="background-image: url('@item.User.Image'); background-position: center; display: inline-block; border: 1px solid gray; width: 35px; height: 35px; margin-right: 5px;">
-                    </div>
-                </a>
-            </div>
-            <div class="col_9 nomargin nopadding">
-                <div class="col_12 nomargin nopadding left">
+                @*</div>*@
+            </a>
+            <div class="full" style="padding: 5px; border-top: 1px solid lightgray; line-height: 100%;">
+                <div class="col_3 nomargin nopadding">
                     <a href="/u/@item.User.Id">
-                        <span style="font-size: 8pt; color: gray;"><b>@item.User.FullName</b></span>
+                        <div class="circlefriend pop sitelink" style="background-image: url('@item.User.Image'); background-position: center; display: inline-block; border: 1px solid gray; width: 35px; height: 35px; margin-right: 5px;">
+                        </div>
                     </a>
                 </div>
-                <div class="col_12 nomargin nopadding left">
-                    <a href="/l/@item.WishLu.Id">
-                        <span style="font-size: 8pt; color: lightgray;"><b>@item.WishLu.Name</b></span>
-                    </a>
+                <div class="col_9 nomargin nopadding">
+                    <div class="col_12 nomargin nopadding left">
+                        <a href="/u/@item.User.Id">
+                            <span style="font-size: 8pt; color: gray;"><b>@item.User.FullName</b></span>
+                        </a>
+                    </div>
+                    <div class="col_12 nomargin nopadding left">
+                        <a href="/l/@item.WishLu.Id">
+                            <span style="font-size: 8pt; color: lightgray;"><b>@item.WishLu.Name</b></span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-}
+    }
     catch { }
 }
