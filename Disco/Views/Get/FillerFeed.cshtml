@@ -1,17 +1,21 @@
 ﻿@model List<Milkshake.Product>
-<script>
-    $(document).ready(function () {
-        swal("Welcome!", "You have not yet followed or friended anyone, so here is a selection of items from 10 stores on wishlu for inspiration.");
-    });    
-</script>
+@if (!Request.IsAuthenticated)
+{
+    <script>
+        $(document).ready(function () {
+            swal("Welcome!", "If you were registered, you would see friend activity here. As a guest, here is a selection of items from 10 stores on wishlu for inspiration.");
+        });
+    </script>
+}
 @foreach (Milkshake.Product item in Model.OrderBy(x => x.Name))
 {
     Milkshake.Offer o = item.GetLowestOffer();
     
-    <div class="pop item" style="height: auto !important; width: 150px; margin: 2px; overflow: hidden; padding-top: 0; border: 1px solid lightgray; border-radius: 15px; position:relative; background-color: white;">
+    <div class="pop item" style="width: 19%; overflow: hidden; border: 1px solid lightgray; border-radius: 15px; position:relative; background-color: white; margin-left:5px;margin-right:5px; margin-bottom:10px;">
         <a href="@Url.Action("view", "product", new { @id = item.Id })">
-            <div class="col_12" style="float: none; display: inline-block; position: relative; margin: 0; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(item.Image)'); background-color: white; width: 100%; height: 200px;">
-            </div>
+            <img src="@item.Image" style="width:100%;" />
+            @*<div class="col_12" style="float: none; display: inline-block; position: relative; margin: 0; color: #a8a096; background-size: cover; background-position: center; background-image: url('@(item.Image)'); background-color: white; width: 100%; height: 200px;">
+            </div>*@
             <div style="padding-left: 10px; padding-top: 5px; padding-bottom: 5px; font-size: 10pt; width: 100%; border-top: 1px solid lightgray;">
                 <b>@WebUtility.HtmlDecode(item.Name)</b>
             </div>
