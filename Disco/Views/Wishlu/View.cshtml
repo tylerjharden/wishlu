@@ -545,16 +545,16 @@
             </div>
         }
         <div class="col_4 pop wish" data-id="@wish.Id" style="position: relative; padding: 10px; height: 300px; border: 2px solid lightgray; border-radius: 15px; background: white;" onclick="doCheck($('#visible@(wish.Id.ToString())'));">
-            @if (wish.WishStatus == Squid.Wishes.WishStatus.Revealed)
-            {
-                <div class="rectangle" style="height:50px;">
-                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height:50px; text-transform: lowercase; ">gifted</span>
-                </div>
-            }
-            else if (wish.WishStatus == Squid.Wishes.WishStatus.Confirmed)
+            @if (wish.Status == Squid.Wishes.WishStatus.Revealed)
             {
                 <div class="rectangle" style="height: 50px;">
-                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
+                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted (@wish.GetRevealedGifts().Count of @wish.Quantity)</span>
+                </div>
+            }
+            else if (Request.IsAuthenticated && wish.Status == Squid.Wishes.WishStatus.Confirmed)
+            {
+                <div class="rectangle" style="height: 50px;">
+                    <span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i> (@wish.GetConfirmedGifts().Count of @wish.Quantity)</span>
                 </div>
             }
             <span id="visible@(wish.Id)" class="sitelink" style="position:absolute;top:10px;right:10px;">
@@ -563,7 +563,7 @@
             </span>
             <div class="col_12 nomargin" style="font-size: 12pt;">
                 <span class="sitelink tooltip-top" data-delay="0" title="@wish.Name" style="color: #998B7D; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; width: 95%; display: block;">
-                    @wish.Name@*.TruncateAtWord(25)*@
+                    @wish.Name
                 </span>
             </div>
             <a href="@("/i/" + wish.Id.ToString())">
@@ -603,7 +603,7 @@
         <!-- Wishlu Name -->
         <div class="col_12">
             <input id="wishlu_name" class="input-like lowercase" style="width:80%;" value="@ViewBag.WishLu.Name" />
-            <a id="wishlu_save" class="button pop right" style="padding:8px;"><i class="fa fa-save"></i></a>
+            <a id="wishlu_save" class="button pop right" style="padding:3px;height:30px;line-height:20px;">save</a>
         </div>
     }
     <!-- Wishlu Color -->
@@ -622,7 +622,7 @@
     @if (ViewBag.WishLu.WishLuType != Squid.Wishes.WishluType.JustMe)
     {
         <!-- Wishlu Date -->
-        <div class="col_12 nomargin" style="color:#9a8b7d;"><b>date:</b></div>
+        <div class="col_12 nomargin" style="color:#9a8b7d;"><b>event date:</b></div>
         <div class="col_12">
             @if (ViewBag.WishLu.EventDateTime != null)
             {
@@ -632,7 +632,7 @@
             {
                 <input class="input-like" style="width: 80%;" type="text" name="wishlu_date" id="wishlu_date" />
             }
-            <a id="wishlu_date_save" class="button pop right" style="padding:8px;"><i class="fa fa-save"></i></a>
+            <a id="wishlu_date_save" class="button pop right" style="padding:3px;height:30px;line-height:20px;">save</a>
         </div>
     }
 
@@ -647,21 +647,21 @@
             {
                 default:
                 case Squid.Wishes.WishluVisibility.Friends:
-                    <button id="wishlu_public" class="button pop tooltip" title="This wishlu will be visible to all wishlu users, based on your privacy settings." data-delay="0" data-value="Public" style="padding:5px;font-size:10pt;">public</button>
-                    <button id="wishlu_shared" class="button pop disabled tooltip" title="This wishlu will be visible to members of its assigned wishloops or you can share it with individual friends." data-value="Friends" data-delay="0" style="padding:5px;font-size:10pt;">shared</button>
-                    <button id="wishlu_private" class="button pop tooltip" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:5px;font-size:10pt;">private</button>
+                    <button id="wishlu_public" class="button pop tooltip-top" title="This wishlu will be visible to all wishlu users, based on your privacy settings." data-delay="0" data-value="Public" style="padding:5px;font-size:10pt;">public</button>
+                    <button id="wishlu_shared" class="button pop disabled tooltip-top" title="This wishlu will be visible to members of its assigned wishloops or you can share it with individual friends." data-value="Friends" data-delay="0" style="padding:5px;font-size:10pt;">shared</button>
+                    <button id="wishlu_private" class="button pop tooltip-top" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:5px;font-size:10pt;">private</button>
                     break;
 
                 case Squid.Wishes.WishluVisibility.Private:
-                <button id="wishlu_public" class="button pop tooltip" title="This wishlu will be visible to all wishlu users, based on your privacy settings." data-delay="0" data-value="Public" style="padding:5px;font-size:10pt;">public</button>
-                <button id="wishlu_shared" class="button pop tooltip" title="This wishlu will be visible to members of its assigned wishloops or you can share it with individual friends." data-value="Friends" data-delay="0" style="padding:5px;font-size:10pt;">shared</button>
-                <button id="wishlu_private" class="button pop tooltip disabled" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:5px;font-size:10pt;">private</button>
+                    <button id="wishlu_public" class="button pop tooltip-top" title="This wishlu will be visible to all wishlu users, based on your privacy settings." data-delay="0" data-value="Public" style="padding:5px;font-size:10pt;">public</button>
+                    <button id="wishlu_shared" class="button pop tooltip-top" title="This wishlu will be visible to members of its assigned wishloops or you can share it with individual friends." data-value="Friends" data-delay="0" style="padding:5px;font-size:10pt;">shared</button>
+                    <button id="wishlu_private" class="button pop tooltip-top disabled" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:5px;font-size:10pt;">private</button>
                     break;
 
                 case Squid.Wishes.WishluVisibility.Public:
-                <button id="wishlu_public" class="button pop tooltip disabled" title="This wishlu will be visible to all wishlu users, based on your privacy settings." data-delay="0" data-value="Public" style="padding:5px;font-size:10pt;">public</button>
-                <button id="wishlu_shared" class="button pop tooltip" title="This wishlu will be visible to members of its assigned wishloops or you can share it with individual friends." data-value="Friends" data-delay="0" style="padding:5px;font-size:10pt;">shared</button>
-                <button id="wishlu_private" class="button pop tooltip" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:5px;font-size:10pt;">private</button>
+                    <button id="wishlu_public" class="button pop tooltip-top disabled" title="This wishlu will be visible to all wishlu users, based on your privacy settings." data-delay="0" data-value="Public" style="padding:5px;font-size:10pt;">public</button>
+                    <button id="wishlu_shared" class="button pop tooltip-top" title="This wishlu will be visible to members of its assigned wishloops or you can share it with individual friends." data-value="Friends" data-delay="0" style="padding:5px;font-size:10pt;">shared</button>
+                    <button id="wishlu_private" class="button pop tooltip-top" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:5px;font-size:10pt;">private</button>
                     break;
             }
         </div>
@@ -672,8 +672,8 @@
     <!-- Wishloops -->
     <div class="center" id="wishloops_panel" style="display: @(ViewBag.WishLu.Visibility == Squid.Wishes.WishluVisibility.Friends ? "block" : "none");">
         <div class="col_12" style="margin-top:0; color:#9a8b7d;"><b>who can see this wishlu?</b></div>
-        <button class="button pop center" id="wishlu_assign" style="padding:5px;font-size:10pt;">wishloops</button>
         <button class="button pop center" id="wishlu_friends" style="padding:5px;font-size:10pt;">friends</button>
+        <button class="button pop center" id="wishlu_assign" style="padding:5px;font-size:10pt;">wishloops</button>        
         <div class="col_12 center full" id="wishlu_assign_container" style="display:none;">
             <div class="col_12 full nomargin nopadding" style="overflow-y:auto; min-height: 75px; max-height: 100px;">
                 @{List<Guid> wishloops = ViewBag.WishLu.GetWishloopIds();}

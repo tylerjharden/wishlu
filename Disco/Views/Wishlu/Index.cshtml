@@ -2,7 +2,7 @@
 @{
     Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
 
-    var all_friends = Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(UserId);
+    //var all_friends = Squid.Wishes.Wishloop.GetAllFriendsWishloopByUserId(UserId);
 }
 
 @section page {
@@ -141,7 +141,7 @@
                     $("#wishlu_name").val("");
                     $("#wishlu_date").val("");
                     clickFriends();
-                    $("#@all_friends.Id").prop("checked", true);
+                    //@*$("#@all_friends.Id").prop("checked", true);*@
                         $("input:checked").prop("checked", false);
                         $("#wishlu_panel").slideDown();
                     }
@@ -149,7 +149,7 @@
                         $("#wishlu_name").val("");
                         $("#wishlu_date").val("");
                         clickFriends();
-                        $("#@all_friends.Id").prop("checked", true);
+                        //@*$("#@all_friends.Id").prop("checked", true);*@
                         $("#wishlu_panel").slideToggle();
                     }
                 });
@@ -183,34 +183,40 @@
                     var wishlu = $(this).parents(".wishlu");
                     wishlu.addClass("selected");
 
-                    if ($("#wishlu_submit").text() == "create") {
-                        $("#wishlu_panel").slideUp();
+                    $("#wishlu_panel").slideUp();
 
-                        $("#wishlu_name").val(wishlu.data("name"));
-                        $(".splotch.selected").removeClass("selected");
-                        $(".splotch[data-color='" + wishlu.data("color") + "']").addClass("selected");
-                        $("input:checked").prop("checked", false);
+                    $("#wishlu_name").val(wishlu.data("name"));
+                    $(".splotch.selected").removeClass("selected");
+                    $(".splotch[data-color='" + wishlu.data("color") + "']").addClass("selected");
+                    $("input:checked").prop("checked", false);
 
-                        if (wishlu.data("date") != "01/01/0001") {
-                            $("#wishlu_date").val(wishlu.data("date"));
-                        }
+                    if (wishlu.data("date") != "01/01/0001") {
+                        $("#wishlu_date").val(wishlu.data("date"));
+                    }
 
-                        if (wishlu.data("visibility") == "Public") {
-                            clickPublic();
-                        }
-                        else if (wishlu.data("visibility") == "Friends") {
-                            clickFriends();
-                        }
-                        else if (wishlu.data("visibility") == "Private") {
-                            clickPrivate();
-                        }
+                    if (wishlu.data("visibility") == "Public") {
+                        clickPublic();
+                    }
+                    else if (wishlu.data("visibility") == "Friends") {
+                        clickFriends();
+                    }
+                    else if (wishlu.data("visibility") == "Private") {
+                        clickPrivate();
+                    }
 
-                        wishlu.data("wishloops").split(",").forEach(function (e) {
+                    wishlu.data("wishloops").split(",").forEach(function (e) {
+                        $("#" + e).prop("checked", true);
+
+                        wishlu.data("friends").split(",").forEach(function (e) {
                             $("#" + e).prop("checked", true);
                         });
+                    });
 
-                        $("#wishlu_submit").text("update");
-                        $("#wishlu_panel").slideDown();
+                    $("#wishlu_submit").text("update");
+                    $("#wishlu_panel").slideDown();
+
+                    /*if ($("#wishlu_submit").text() == "create") {
+                        
                     }
                     else {
                         $("#wishlu_panel").slideUp();
@@ -238,8 +244,12 @@
                             $("#" + e).prop("checked", true);
                         });
 
+                        wishlu.data("friends").split(",").forEach(function (e) {
+                            $("#" + e).prop("checked", true);
+                        });
+
                         $("#wishlu_panel").slideDown();
-                    }
+                    }*/
                 }
 
                 var isRunning = false;
@@ -260,19 +270,25 @@
                             data: JSON.stringify(getCreateWishlu()),
                             success: function (data, status, request) {
                                 if (data.result == true) {
-                                    swal("Success!", data.message, "success");
                                     $("#wishlu_name").val("");
                                     $("#wishlu_date").val("");
                                     $("input:checked").prop("checked", false);
                                     $("#wishlu_panel").slideUp();
-                                                                        
-                                    isRunning = false;
 
-                                    setTimeout(function () { location.href = "/l/" + data.id }, 3000)
+                                    $.get("/get/wishlus", null, function (result) {
+                                        $("#wishlus_container").html(result);
+                                    });
+
+                                    swal({
+                                        title: "Success!", 
+                                        text: data.message, 
+                                        type: "success"                                       
+                                    },function () {
+                                        isRunning = false;                                        
+                                    });   
                                 }
                                 else {
-                                    swal("Uh oh...", data.message, "error");
-                                    isRunning = false;
+                                    swal({ title: "Uh oh...", text: data.message, type: "error" }, function () { isRunning = false; });
                                 }
                             },
                             error: function (data, status, request) { swal("Uh oh...", data.message, "error"); isRunning = false; }
@@ -306,19 +322,24 @@
                                     wishlu.children("a.name").html(data.name);
 
                                     $(".wishlu.selected").removeClass("selected");
-
-                                    isRunning = false;
-
+                                                                        
                                     $.get("/get/wishlus", null, function (result) {
                                         $("#wishlus_container").html(result);                                                                                
                                     });
+
+                                    swal({
+                                        title: "Success!",
+                                        text: data.message,
+                                        type: "success"
+                                    }, function () {
+                                        isRunning = false;
+                                    });
                                 }
                                 else {
-                                    swal("Uh oh...", data.message, "error");
-                                    isRunning = false;
+                                    swal({ title: "Uh oh...", text: data.message, type: "error" }, function () { isRunning = false; });
                                 }
                             },
-                            error: function (data, status, request) { swal("Uh oh...", data.message, "error"); isRunning = false; }
+                            error: function (data, status, request) { swal({ title: "Uh oh...", text: data.message, type: "error" }, function () { isRunning = false; }); }
                         });
                     }
                 });
@@ -340,7 +361,14 @@
 
                     data.Name = $("#wishlu_name").val();
                     data.Color = $(".splotch.selected").data("color");
-                    data.Wishloops = $.map($("input:checked"), function (element) { return $(element).val(); });
+
+                    if ($("#friends_tab").hasClass("active")) {
+                        data.Friends = $.map($(".friend:checked"), function (element) { return $(element).val(); });
+                    }
+                    else if ($("#wishloops_tab").hasClass("active")) {
+                        data.Wishloops = $.map($(".wishloop:checked"), function (element) { return $(element).val(); });
+                    }                    
+                    
                     data.Id = $(".wishlu.selected").data("id");
                     data.EventDate = $("#wishlu_date").val();
                     data.Visibility = $(".disabled").data("value");
@@ -360,6 +388,11 @@
                 $("#wishlu_ideas").click(function () {
                     swal("wishlu ideas", "baby • dear Easter bunny • tying the knot • anniversary • golf • my trip to Belize • my bookshelf • graduation • dorm décor • care package requests • Father’s Day • Mother’s Day • my first house • Chloe’s 5th birthday party • spot and whisker • Valentine’s Day • my vintage kimono collection • j.crew  • spa services • fly fishing • my bah mitzvah • shoes! shoes! shoes! • ideas for Phil", "info");
                 });
+
+                $('#wishlu_tabs a').click(function (e) {
+                    e.preventDefault();
+                    $(this).tab('show');
+                })
             });
         });
     </script>
@@ -373,7 +406,7 @@
         <br />
         <br />
         <span>
-            <b>create a new wishlu</b> lets you make and name an infinite number of unique wishlus, link them to important dates, color code them and share them with selected wishloops, individual friends, or everyone. Click on the <b>light bulb icon</b> for some wishlu ideas.
+            <b>create a new wishlu</b> lets you make and name an infinite number of unique wishlus, link them to important dates, color code them and share them with individual friends, selected wishloops, or everyone. Click on the <b>light bulb icon</b> for some wishlu ideas.
         </span>
         <br />
         <br />
@@ -399,7 +432,7 @@
 <div id="wishlu_panel" class="col_12 pop nomargin full" style="display: none; border: 2px solid lightblue; border-radius: 15px; background: white;">
     <div class="col_6">
         <div class="col_12">
-            <input type="text" id="wishlu_name" class="full small-input input-like tooltip" data-delay="0" title="Enter a memorable name for your wishlu. This can be as broad or specific as you would like. Longer names may be shortened where necessary, so keep it resonable." placeholder="enter wishlu name" />
+            <input type="text" id="wishlu_name" class="full small-input input-like tooltip-top" data-delay="0" title="Enter a memorable name for your wishlu. This can be as broad or specific as you would like. Longer names may be shortened where necessary, so keep it resonable." placeholder="enter wishlu name" />
         </div>
         <div class="col_12 center">
             <div class="sitelink splotch selected" style="display:inline-block; background-color: #95D5E1;" data-color="95D5E1"></div>
@@ -417,7 +450,7 @@
             <span style="color: #9A8B7D;"><b>select date (optional):</b></span>
         </div>
         <div class="col_12 center">
-            <input class="input-like input-small tooltip" data-delay="0" title="Associate this wishlu with an upcoming date." type="text" name="wishlu_date" id="wishlu_date" placeholder="select a date" value="select a date" />
+            <input class="input-like input-small tooltip-top" data-delay="0" title="Associate this wishlu with an upcoming date." type="text" name="wishlu_date" id="wishlu_date" placeholder="select a date" value="select a date" />
         </div>
     </div>
     <div class="col_6">
@@ -425,26 +458,53 @@
             <span style="color: #9A8B7D;"><b>select wishlu visibility:</b></span>
         </div>
         <div class="col_6 right">
-            <button id="wishlu_public" class="button pop disabled tooltip" title="This wishlu will be visible to all wishlu users, including anonymous visitors." data-delay="0" data-value="Public" style="padding:8px;">public</button>
-            <button id="wishlu_friends" class="button pop tooltip" title="This wishlu will be visible to members of the wishloops you choose." data-value="Friends" data-delay="0" style="padding:8px;">shared</button>
-            <button id="wishlu_private" class="button pop tooltip" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:8px;">private</button>
+            <button id="wishlu_public" class="button pop disabled tooltip-top" title="This wishlu will be visible to all wishlu users, including anonymous visitors." data-delay="0" data-value="Public" style="padding:8px;">public</button>
+            <button id="wishlu_friends" class="button pop tooltip-top" title="This wishlu will be visible to members of the wishloops you choose." data-value="Friends" data-delay="0" style="padding:8px;">shared</button>
+            <button id="wishlu_private" class="button pop tooltip-top" title="This wishlu will only be visible to you." data-delay="0" data-value="Private" style="padding:8px;">private</button>
         </div>
-        <div class="col_12 hide" id="wishlu_friends_container">
+        <div class="col_12" id="wishlu_friends_container" style="display:none;">
             <div class="col_12">
-                <span style="color: #9A8B7D;"><b>who can see this wishlu? (my wishloops)</b></span>
+                <span style="color: #9A8B7D;"><b>who can see this wishlu?</b></span>
             </div>
-            <div class="col_12 nomargin nopadding" style="overflow-y:auto; max-height: 100px;">
-                @foreach (Squid.Wishes.Wishloop wishloop in Squid.Wishes.Wishloop.GetUsersWishloops(UserId))
-                {
-                    <div class="col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
-                        <span style="float: left; padding-left: 10px; ">
-                            @wishloop.Name
-                        </span>
-                        <span style="float: right; padding-right: 10px; ">
-                            <input type="checkbox" name="@wishloop.Id" id="@wishloop.Id" value="@wishloop.Id" />
-                        </span>
+            
+            <div role="tabpanel">
+                <ul class="nav nav-tabs nomargin" role="tablist" id="wishlu_tabs">
+                    <li role="presentation" class="active"><a href="#friends_tab" aria-controls="friends" role="tab" data-toggle="tab"><i class="fa fa-users fa-fw"></i> friends</a></li>
+                    <li role="presentation"><a href="#wishloops_tab" aria-controls="wishloops" role="tab" data-toggle="tab"><i class="fa fa-circle-o fa-fw"></i> wishloops</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="friends_tab">
+                        <div class="full nomargin nopadding" style="overflow-y:auto; max-height: 100px;">
+                            @foreach (Squid.Users.User user in Squid.Users.User.GetUsersFriends(UserId).OrderBy(x => x.FullName))
+                            {
+                                <div class="col_12 full lowercase nomargin" style="min-height: 25px; color: #9A8B7D;">
+                                    <span style="font-size:10pt;">
+                                        @user.FullName
+                                    </span>
+                                    <span style="float:right;padding-right:10px;">
+                                        <input class="friend" type="checkbox" name="@user.Id" id="@user.Id" value="@user.Id" />
+                                    </span>
+                                </div>
+                            }
+                        </div>
                     </div>
-                }
+                    <div role="tabpanel" class="tab-pane" id="wishloops_tab">
+                        <div class="full nomargin nopadding" style="overflow-y:auto; max-height: 100px;">
+                            @foreach (Squid.Wishes.Wishloop wishloop in Squid.Wishes.Wishloop.GetUsersWishloops(UserId))
+                            {
+                                <div class="col_12 full lowercase nomargin" style="min-height: 25px; color: #9A8B7D;">
+                                    <span style="font-size:10pt;">
+                                        @wishloop.Name
+                                    </span>
+                                    <span style="float:right;padding-right:10px;">
+                                        <input class="wishloop" type="checkbox" name="@wishloop.Id" id="@wishloop.Id" value="@wishloop.Id" />
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
