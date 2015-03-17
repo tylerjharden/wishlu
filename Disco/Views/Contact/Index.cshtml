@@ -13,8 +13,8 @@
 @section scripts {
 <script>
     $(document).ready(function () {
-        $("#contact_submit").click(function () {
-            $(this).html("<i class='fa fa-spinner fa-spin'></i>")
+        $("#contactForm").submit(function (e) {
+            e.preventDefault();
 
             $.ajax({
                 type: "POST",
@@ -26,7 +26,9 @@
                 success: function (data, status, request) {
                     if (data.result == true) {
                         $("#contact_submit").html("<i class='fa fa-check'></i>");
-                        swal("Success!", data.message, "success");                        
+                        swal("Success!", data.message, "success");
+                        $("#contact_subject").val("");
+                        $("#contact_message").val("");
                     }
                     else {
                         swal("Uh oh...", data.message, "error");                        
@@ -48,23 +50,25 @@
 </script>
 }
 
-<div class="col_12 pop" style="border: 2px solid lightblue; border-radius: 15px; background:white;">
-    <h5 style="margin-left: 10px; color: #a8a096;">We'd love to hear from you.</h5>
-    <div class="col_6" style="float:none; margin: 0 auto;">
-        <form class="center">
-            <fieldset>
-                <legend>Subject</legend>
-                <input id="contact_subject" class="full" value="" />
-            </fieldset>
-            <fieldset>
-                <legend>Message</legend>
-                <textarea id="contact_message" class="full" rows="5"></textarea>
-            </fieldset>
-            <div class="col_12">
-                <a id="contact_submit" class="col_4 button pop" style="margin: 0 auto; float: none;">
-                    Submit
-                </a>
-            </div>
-        </form>
-    </div>    
-</div>
+<form class="form-horizontal col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4" id="contactForm" name="contactForm" method="post" action="" role="form">
+    <h3>We'd love to hear from you.</h3>
+    <div class="form-group">
+        <div class="col-xs-12">
+            <h4>Subject</h4>
+            <input id="contact_subject" class="form-control full" value="" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-12">
+            <h4>Message</h4>
+            <textarea id="contact_message" class="form-control full" rows="5"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-12">
+            <button class="btn btn-primary full" type="submit">
+                Submit
+            </button>
+        </div>
+    </div>
+</form>
