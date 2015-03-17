@@ -106,16 +106,22 @@ namespace Squid.Wishes
             };
 
             gift.Create();
+
             return gift;
         }
                                
         public static Gift GetGiftById(Guid giftId)
         {
-            Gift gift = Graph.Instance.Cypher
-                 .Match("(g:Gift)")
-                 .Where((Gift g) => g.Id == giftId)
-                 .Return(g => g.As<Gift>())
-                 .Results.First();
+            Gift gift = null;
+            try
+            {
+                gift = Graph.Instance.Cypher
+                     .Match("(g:Gift)")
+                     .Where((Gift g) => g.Id == giftId)
+                     .Return(g => g.As<Gift>())
+                     .Results.Single();
+            }
+            catch { }
 
             if (gift != null)
                 return gift;
@@ -153,20 +159,34 @@ namespace Squid.Wishes
 
             this.Update();
 
-            // Push Notification
-            Wish wish = this.GetWish();
-            Wishlu wishlu = Wishlu.GetWishLuById(wish.GetAssignmentId());
+            User receiver = this.GetReceiver();
             User giver = this.GetGiver();
+            
+            // Push Notification            
+            if (receiver.ShouldSendPush("activity_item_gifted"))
+            {                
+                Notification n = new Notification();
+                n.UserId = this.ReceiverId;
+                n.SenderId = this.GiverId;
+                n.NotificationType = NotificationType.Info;
+                n.Content = "<b>" + giver.FullName + "</b> has gifted you one of your items."; // +wish.Name + ". When you receive it, go to your " + wishlu.Name + " wishlu to confirm as received, or click this notification.";
+                n.Url = "/i/" + this.WishId;
+                n.AddRecipient(this.ReceiverId);
+                n.CreateNotification();
+                n.Push();
+            }
 
-            Notification n = new Notification();
-            n.UserId = this.ReceiverId;
-            n.SenderId = this.GiverId;
-            n.NotificationType = NotificationType.Info;
-            n.Content = giver.FullName + " has gifted you " + wish.Name + ". When you receive it, go to your " + wishlu.Name + " wishlu to confirm as received, or click this notification.";
-            n.Url = "/i/" + this.WishId;
-            n.CreateNotification();
+            // Email
+            if (receiver.ShouldSendEmail("activity_item_gifted"))
+            {
+                new Mail.MailController().RevealEmail(this).Deliver();
+            }
 
-            new Mail.MailController().RevealEmail(this).Deliver();
+            // Mobile
+            if (receiver.ShouldSendMobile("activity_item_gifted"))
+            {
+                receiver.SendText(giver.FullName + " has gifted you one of your items. Click here for details: " + string.Format("https://www.wishlu.com/i/{0}", this.WishId));
+            }
         }
 
         public void Confirm()
@@ -176,7 +196,7 @@ namespace Squid.Wishes
                 throw new OperationNotAllowedException("A gift can only be confirmed if it is currently revealed. Gifts that have not been reserved, purchased, and revealed, or gifts that have been canceled or are already confirmed cannot be confirmed again.");
             }
 
-            this.Status = GiftStatus.Confirmed;                        
+            this.Status = GiftStatus.Confirmed;
             this.Update();
 
             Wish w = this.GetWish();
@@ -188,9 +208,11 @@ namespace Squid.Wishes
             n.UserId = this.GiverId;
             n.SenderId = this.ReceiverId;
             n.NotificationType = NotificationType.Info;
-            n.Content = User.GetUserFullName(this.ReceiverId) + " has confirmed receiving your gift of " + w.Name + ".";
+            n.Content = "<b>" + User.GetUserFullName(this.ReceiverId) + "</b> has confirmed receiving your gift."; // of " + w.Name + ".";
             n.Url = "/i/" + this.WishId;
+            n.AddRecipient(this.GiverId);
             n.CreateNotification();
+            n.Push();
         }
 
         public void Cancel()
@@ -216,9 +238,11 @@ namespace Squid.Wishes
             n.UserId = this.ReceiverId;
             n.SenderId = this.GiverId;
             n.NotificationType = NotificationType.Info;
-            n.Content = giver.FullName + " has canceled their promise to give you " + w.Name + ".";
+            n.Content = "<b>" + giver.FullName + "</b> has canceled their gift."; // promise to give you " + w.Name + ".";
             n.Url = "/i/" + this.WishId;
+            n.AddRecipient(this.ReceiverId);
             n.CreateNotification();
+            n.Push();
         }
                 
         public Wish GetWish()
