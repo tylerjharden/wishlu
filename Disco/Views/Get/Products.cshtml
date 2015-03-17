@@ -2,9 +2,7 @@
 @using Disco.Common
 @using System.Text.RegularExpressions
 @using Milkshake
-@{
-    int prodcount = 0;
-
+@{    
     List<Milkshake.Product> results = Model.Documents.ToList();
     if (ViewBag.Limit != null && ViewBag.Limit > 0)
     {
@@ -14,7 +12,11 @@
 
 <div class="tooltip-content hide" id="tooltip_product_save">
     <h5>save this product</h5>
-    <p>Save this product to an existing or new wishlu and share it with others.</p>
+    <p>Quickly save this product to your just me wishlu. If you would like to share it later, simply move it to another wishlu.</p>
+</div>
+<div class="tooltip-content hide" id="tooltip_product_view">
+    <h5>view product details</h5>
+    <p>See up-to-date product details including name, description, and price; save this product to a new or existing wishlu.</p>
 </div>
 
 @*
@@ -104,17 +106,20 @@
     }
 
     <div class="col_4 pop product square @(product.IsMilkshake ? "milkshake" : "")" style="padding: 5px; border: 1px solid lightgray; background: white; border-radius: 15px;">
-        <div>
-            <div class="col_12 center tooltip" title="@name" data-delay="0" style="margin-top: 0; margin-bottom: 0; font-size: 14pt;">
-                <span style="color: #998B7D">
+        <div itemscope itemtype="http://schema.org/Product">
+            <meta content="https://www.wishlu.com/p/@product.Id" itemprop="url" />
+            <div class="col_12 center tooltip-top" title="@name" data-delay="0" style="margin-top: 0; margin-bottom: 0; font-size: 14pt;">
+                <span style="color: #998B7D" itemprop="name">
                     @(name.Length <= 35 ? name : name.Substring(0, 32) + "...")
                 </span>
             </div>
-            <div class="col_12 center" style="color: #998B7D">
+            <div class="col_12 center" style="color: #998B7D" itemprop="manufacturer">
                 @(!String.IsNullOrEmpty(product.Manufacturer) ? product.Manufacturer : "N/A")
             </div>
-            <div class="col_12 center">
-                <span style="margin-top: 0; color: #998B7D; font-size: 12pt;">
+            <div class="col_12 center" itemscope itemtype="http://schema.org/Offer">
+                <meta content="http://schema.org/InStock" itemprop="availability" itemscope itemtype="http://schema.org/ItemAvailability" />
+                <meta content="USD" itemprop="priceCurrency" />
+                <span style="margin-top: 0; color: #998B7D; font-size: 12pt;" itemprop="price">
                     @(!String.IsNullOrEmpty(product.Price) ? String.Format("{0:C}", Decimal.Parse(product.Price)) : "$0.00")
                 </span>
             </div>
@@ -126,7 +131,7 @@
                     </div>
                 </a>
             }
-            else if (product.Store == "BestBuy")
+            @*else if (product.Store == "BestBuy")
             {
                 <a href="/product/bby/@product.SKU" target="_blank">
                     <div class="col_12 sitelink" style="text-align: center;">
@@ -141,28 +146,28 @@
                         <div style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('@(product.Image != null ? product.Image : "//assets.wishlu.com/images/DefaultWish.jpg")'); width: 175px; height: 175px; text-align: center;"></div>
                     </div>
                 </a>
-            }
+            }*@
             <div class="col_12 center" style="color: #998B7D">
-                <span><b>@product.Store</b></span>
+                <span itemprop="seller"><b>@product.Store</b></span>
             </div>
             <div class="col_12 center">
                 @if (product.IsMilkshake)
                 {
                     if (Request.IsAuthenticated)
                     {
-                        <button class="button pop product_save tooltip" style="padding:5px;" data-content="#tooltip_product_save" data-delay="0" data-product-type="milkshake" data-id="@product.Id" data-count="@prodcount">
+                        <button class="button pop product_save tooltip-top" style="padding:5px;" data-content="#tooltip_product_save" data-delay="0" data-product-type="milkshake" data-id="@product.Id" data-count="">
                             save
                         </button>
                     }
-                    <a class="button pop product_view" style="padding:5px;" href="/p/@product.Id" target="_blank">
+                    <a class="button pop product_view tooltip-top" data-content="#tooltip_product_view" data-delay="0" style="padding:5px;" href="/p/@product.Id" target="_blank">
                         view
                     </a>
                 }
-                else if (product.Store == "BestBuy")
+                @*else if (product.Store == "BestBuy")
                 {
                     if (Request.IsAuthenticated)
                     {
-                        <button class="button pop product_save tooltip" style="padding:5px;" data-content="#tooltip_product_save" data-delay="0" data-product-type="bby" data-sku="@product.SKU" data-count="@prodcount">
+                        <button class="button pop product_save tooltip-top" style="padding:5px;" data-content="#tooltip_product_save" data-delay="0" data-product-type="bby" data-sku="@product.SKU" data-count="@prodcount">
                             save
                         </button>
                     }
@@ -174,7 +179,7 @@
                 {
                     if (Request.IsAuthenticated)
                     {
-                        <button class="button pop product_save tooltip" style="padding:5px;" data-content="#tooltip_product_save" data-delay="0" data-product-type="amazon" data-asin="@product.ASIN" data-count="@prodcount">
+                        <button class="button pop product_save tooltip-top" style="padding:5px;" data-content="#tooltip_product_save" data-delay="0" data-product-type="amazon" data-asin="@product.ASIN" data-count="@prodcount">
                             save
                         </button>
                     }
@@ -189,9 +194,8 @@
                 else
                 {
                     // TODO: We should never really end up here, but we need a fallback
-                }
+                }*@
             </div>
         </div>
     </div>
-                prodcount++;
 }
