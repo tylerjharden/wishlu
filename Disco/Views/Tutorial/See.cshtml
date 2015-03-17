@@ -66,28 +66,10 @@
     $(document).ready(function () {
         $("#SeeMask").fadeIn();
 
-        $("#SeePopup").waitForImages(function () {
-            var h = $(window).height();
-            var w = $(window).width();
-
-            var h2 = $(this).height() + 200;
-            var w2 = $(this).width();
-
-            var top = (h / 2) - (h2 / 2);
-            var left = (w / 2) - (w2 / 2);
-
-            if (top < 0)
-                top = 0;
-
-            if (left < 0)
-                left = 0;
-
-            $(this).css('left', left + 'px');
-            $(this).css('top', top + 'px');
-                        
-            $(this).fadeIn();                        
-        });
-                
+        centerPopup();
+        $("#SeePopup").fadeIn();
+        centerPopup();
+                         
         $(".fancybox").fancybox({
             openEffect: 'elastic',
             closeEffect: 'elastic'
@@ -133,7 +115,10 @@
         });
     });
         
-    $(window).resize(function () {
+    $(window).resize(centerPopup);
+
+    function centerPopup()
+    {
         var element = $("#SeePopup");
 
         var h = $(window).height();
@@ -153,7 +138,7 @@
 
         $(element).css('left', left + 'px');
         $(element).css('top', top + 'px');
-    });
+    }
 </script>
 }
 
@@ -182,24 +167,23 @@
             <hr />
             <div class="gallery">
                 <a class="fancybox" rel="gal1" href="//assets.wishlu.com/images/tutorial/wishlus/graduation.png">
-                    <div class="tooltip" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/wishlus/graduation.png'); width: 250px; height: 250px;"></div>                    
+                    <div class="tooltip-top" title="click to enlarge" data-delay="25" style="display:inline-block; margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/wishlus/graduation.png'); width: 250px; height: 250px;"></div>                    
                 </a>
                 <a class="fancybox" rel="gal1" href="//assets.wishlu.com/images/tutorial/wishes/christmas.png">
-                    <div class="tooltip" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/wishes/christmas.png'); width: 250px; height: 250px;"></div>
+                    <div class="tooltip-top" title="click to enlarge" data-delay="25" style="display:inline-block; margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/wishes/christmas.png'); width: 250px; height: 250px;"></div>
                 </a>
                 <a class="fancybox" rel="gal1" href="//assets.wishlu.com/images/tutorial/wishlus/resolution.png">
-                    <div class="tooltip" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/wishlus/resolution.png'); width: 250px; height: 250px;"></div>
+                    <div class="tooltip-top" title="click to enlarge" data-delay="25" style="display:inline-block; margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/wishlus/resolution.png'); width: 250px; height: 250px;"></div>
                 </a>      
             </div>
         </div>
         <div class="tutorial" data-step="2" style="display: none;">
-            <h3>Personal gift registries for all:</h3>
-            <h3>the possibilities are infinite.</h3>
+            <h3>Personal gift registries for all: the possibilities are infinite.</h3>
             <p>Add things you want to your wishlus for any celebratory occasion, hobby, want, or need.</p>
             <hr />
             <div class="gallery">
                 <a class="fancybox" rel="gal2" href="//assets.wishlu.com/images/tutorial/my/wishlus.png" title="Whether it's your birthday, a holid, a life event, or just some things that don't anywhere else, you can build a wishlu for it.">
-                    <div class="tooltip" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/my/wishlus.png'); width: 250px; height: 250px;"></div>
+                    <div class="tooltip-top" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/my/wishlus.png'); width: 250px; height: 250px;"></div>
                 </a>
             </div>
         </div>
@@ -209,7 +193,7 @@
             <hr />
             <div class="gallery">
                 <a class="fancybox" rel="gal1" href="//assets.wishlu.com/images/tutorial/my/wishloops.png" title="Whether you like to share with all your friends, or the guys in *cough* poker club, or your co-workers, wishloops organize it all.">
-                    <div class="tooltip" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/my/wishloops.png.png'); width: 250px; height: 250px;"></div>
+                    <div class="tooltip-top" title="click to enlarge" data-delay="25" style="margin: 0 auto; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: transparent; background-image: url('//assets.wishlu.com/images/tutorial/my/wishloops.png'); width: 250px; height: 250px;"></div>
                 </a>  
             </div>
         </div>
@@ -224,7 +208,7 @@
             </a>            
         </div>
     </div>    
-    <a class="right" style="position: absolute; bottom: 10px; right: 15px;" href="/tutorial/skip">
+    <a class="right" style="position: absolute; bottom: 10px; right: 15px;" href="/tutorial/wishlu">
         skip
     </a>
 </div>

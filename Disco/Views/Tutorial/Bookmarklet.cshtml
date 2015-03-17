@@ -1,0 +1,77 @@
+﻿@{
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";
+
+    var user = Squid.Users.User.GetUserById(UserId);
+}
+
+@functions {
+    public class Styles
+    {
+        public static IHtmlString Render(string cssfile)
+        {
+            return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
+        }
+    }
+
+    public class Scripts
+    {
+        public static IHtmlString Render(string jsfile)
+        {
+            return new HtmlString("<script src=\"" + jsfile + "\"></script>");
+        }
+    }
+}
+
+@section styles {
+    @Styles.Render("//assets.wishlu.com/css/themes/base/all.css")
+
+    <style>
+        #DoPopup {
+            position: relative;
+            z-index: 200;
+            line-height: normal;
+            height: auto;
+            min-height: 320px;
+            width: 100%;
+            min-width: 320px;
+            max-width: 1240px;
+            display: none;
+            margin: 100px auto;
+            padding: 10px;
+            color: #918b7d;
+            font-family: Lato, Helvetica, Arial, Sans-Serif;
+            background: white;
+            border: 5px solid #D3EEF2;
+            border-radius: 15px;
+            overflow: visible;
+        }
+    </style>
+}
+
+@section page {
+    tutorial (step 7) - bookmarklet
+}
+
+@section scripts {
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery-ui.min-1.11.1.js"></script>
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery.validate.js"></script>
+
+<script type="text/javascript">    
+    $(document).ready(function () {
+        $("#DoPopup").fadeIn();        
+    });
+</script>
+}
+
+<div id="DoPopup" class="pop inset clearfix">    
+    <a class="right" style="position: absolute; top: 10px; right: 15px;" href="@Url.Action("skip","tutorial")">
+        skip
+    </a>    
+    <div class="col_12 center" style="margin-top: 50px;">        
+        <h1 style="font-size: 24pt;">Did you know you can add items from almost any website to your wishlus?</h1>
+        <br />
+        <a class="button large pop" href="/home/bookmarklet">
+            Click here to add the wishlu button to your browser.
+        </a>
+    </div>   
+</div>

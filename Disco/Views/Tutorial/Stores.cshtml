@@ -66,7 +66,7 @@
 }
 
 @section page {
-    tutorial (step 4) - wishlu
+    tutorial (step 5) - stores
 }
 
 @section scripts {
@@ -75,10 +75,8 @@
 
 <script type="text/javascript">    
     $(document).ready(function () {
-        $("#DoPopup").waitForImages(function () {
-            $(this).fadeIn();
-        });
-
+        $("#DoPopup").fadeIn();
+        
         $.get("/get/shops", null, function (result) {
             $("#shopslist").html(result);
 
@@ -117,7 +115,7 @@
                 success: function (data) {
                     if (data.result == true) {                        
                         swal("Success!", data.message, "success");    
-                        setTimeout(function() { location.href = "/dash"; }, 4000);
+                        setTimeout(function() { location.href = "/tutorial/profile"; }, 4000);
                     }
                     else {
                         swal("Uh oh...", data.message, "error");
@@ -134,7 +132,7 @@
 
 <div id="DoPopup" class="pop inset clearfix">
     <h5 id="titleHeader">step 4: choose your favorite stores and get started</h5>
-    <a class="right" style="position: absolute; top: 10px; right: 15px;" href="@Url.Action("skip","tutorial")">
+    <a class="right" style="position: absolute; top: 10px; right: 15px;" href="@Url.Action("profile","tutorial")">
         skip
     </a>
     <div class="col_12 center">

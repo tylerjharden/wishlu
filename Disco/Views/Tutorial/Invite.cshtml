@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";
-    
+
     var user = Squid.Users.User.GetUserById(UserId);
 
     string code = Squid.Users.User.GetInvitationCode(UserId);
@@ -8,34 +8,34 @@
 }
 
 @section styles {
-    
+
     <style>
-    #DoPopup {
-        position: relative;
-        z-index: 200;
-        line-height: normal;
-        height: auto;
-        min-height: 320px;
-        width: 100%;
-        min-width: 320px;
-        max-width: 1240px;
-        display: none;
-        margin: 100px auto;
-        padding: 10px;
-        color: #918b7d;
-        font-family: Lato, Helvetica, Arial, Sans-Serif;
-        background: white;
-        border: 5px solid #D3EEF2;        
-        border-radius: 15px;
-        overflow: visible;
-    }
+        #DoPopup {
+            position: relative;
+            z-index: 200;
+            line-height: normal;
+            height: auto;
+            min-height: 320px;
+            width: 100%;
+            min-width: 320px;
+            max-width: 1240px;
+            display: none;
+            margin: 100px auto;
+            padding: 10px;
+            color: #918b7d;
+            font-family: Lato, Helvetica, Arial, Sans-Serif;
+            background: white;
+            border: 5px solid #D3EEF2;
+            border-radius: 15px;
+            overflow: visible;
+        }
     </style>
 
     <style>
         .requestUser {
             -webkit-transition: all 0.25s ease;
             -moz-transition: all 0.25s ease;
-            -o-transition: all 0.25s ease;            
+            -o-transition: all 0.25s ease;
             transition: all 0.25s ease;
         }
 
@@ -56,11 +56,11 @@
         }
     </style>
 
-<style>
-    .twitter-share-button {
-        vertical-align: top;
-    }
-</style>
+    <style>
+        .twitter-share-button {
+            vertical-align: top;
+        }
+    </style>
 }
 
 @section page {
@@ -71,7 +71,7 @@
     <script type="text/javascript" src="//assets.wishlu.com/js/jquery-ui.min-1.11.1.js"></script>
     <script type="text/javascript" src="//assets.wishlu.com/js/jquery.validate.js"></script>
     <script src="//js.live.net/v5.0/wl.js"></script>
-    
+
     <script>
         WL.init({
             client_id: "000000004C131849",
@@ -84,9 +84,9 @@
     <script type="text/javascript">
         var clientId = '179975171701-a6fj6lqiep4gh0rcg5djst80h6meqd06.apps.googleusercontent.com';
         var apiKey = 'AIzaSyA3Hp3MenbJYLiWs4O8OFWGyjhCw_N_irY';
-        var scopes = ['https://www.googleapis.com/auth/plus.me','https://www.google.com/m8/feeds'];
+        var scopes = ['https://www.googleapis.com/auth/plus.me', 'https://www.google.com/m8/feeds'];
 
-        function handleClientLoad() {            
+        function handleClientLoad() {
             gapi.client.setApiKey(apiKey);
             window.setTimeout(checkAuth, 1);
         }
@@ -105,18 +105,18 @@
             }
         }
 
-        function handleAuthClick(event) {            
+        function handleAuthClick(event) {
             gapi.auth.authorize({ client_id: clientId, scope: scopes, immediate: false }, handleAuthResult);
             return false;
         }
 
         function getGmailContacts() {
             $("#find_gmail").html("<i class='fa fa-spin fa-spinner'></i>");
-            gapi.client.load('plus', 'v1').then(function () {                
+            gapi.client.load('plus', 'v1').then(function () {
                 var request = gapi.client.plus.people.get({
                     'userId': 'me'
                 });
-                
+
                 request.then(function (response) {
                     console.log(response);
                     var panel = $("#gmail_panel");
@@ -137,7 +137,7 @@
                     authParams.alt = 'json';
                     $.ajax({
                         method: 'GET',
-                        url: 'http://www.google.com/m8/feeds/contacts/@user.LoginId/full',
+                        url: 'https://www.google.com/m8/feeds/contacts/@user.LoginId/full',
                         dataType: 'jsonp',
                         data: authParams,
                         success: function (data) { console.log('Success'); }
@@ -164,7 +164,7 @@
 
                 var button = $(this);
 
-                FB.getLoginStatus(function(response) {
+                FB.getLoginStatus(function (response) {
                     if (response.authResponse) {
                         FB.ui({
                             method: 'send',
@@ -184,7 +184,7 @@
                             }
                         });
                     }
-                });                
+                });
             });
 
             $(".requestUser").click(addfriend);
@@ -245,14 +245,12 @@
         var wish_count = 0;
 
         $(document).ready(function () {
-            $("#DoPopup").waitForImages(function () {
-                $(this).fadeIn();
-            });
+            $("#DoPopup").fadeIn();
 
             $("#invite_facebook").click(function () {
                 $("#email_panel").fadeOut();
                 $("#contacts_panel").fadeOut();
-                
+
                 FB.ui({
                     method: 'apprequests',
                     filters: ['app_non_users'],
@@ -263,13 +261,13 @@
                     console.log(response);
                 });
             });
-                        
-            $("#invite_email").click(function () {                
-                $("#contacts_panel").fadeOut();                
+
+            $("#invite_email").click(function () {
+                $("#contacts_panel").fadeOut();
                 $("#email_panel").fadeIn();
             });
 
-            $("#invite_contacts").click(function () {                
+            $("#invite_contacts").click(function () {
                 $("#email_panel").fadeOut();
                 $("#contacts_panel").fadeIn();
             });
@@ -285,16 +283,16 @@
             $("#find_live").click(function () {
                 var button = $(this);
                 button.html("<i class='fa fa-spin fa-spinner'></i>");
-                
+
                 WL.login({
                     scope: "wl.basic,wl.contacts_emails,wl.emails"
                 }).then(
                     function (response) {
                         WL.api({
                             path: "me/contacts",
-                            method: "GET"                            
+                            method: "GET"
                         }).then(
-                            function(response) {
+                            function (response) {
                                 console.log(response);
                                 var panel = $("#live_panel");
                                 panel.html("");
@@ -325,7 +323,7 @@
                                         });
                                     });
                                 });
-                            }, 
+                            },
                             function (responseFailed) {
                                 console.error(responseFailed);
                             }
@@ -334,7 +332,7 @@
                     function (responseFailed) {
                         console.error(responseFailed);
                     }
-                );    
+                );
             });
 
             $("#facebook_connect").click(function () {
@@ -415,7 +413,7 @@
 
 <div id="DoPopup" class="pop inset clearfix">
     <h5 id="titleHeader">step 3: invite friends to join you &amp; share</h5>
-    <a class="right" style="position: absolute; top: 10px; right: 15px;" href="@Url.Action("skip","tutorial")">
+    <a class="right" style="position: absolute; top: 10px; right: 15px;" href="@Url.Action("stores","tutorial")">
         skip
     </a>
     <div class="col_12 pop" style="color: gray; border: 2px solid lightblue; border-radius: 15px; background: white;">
@@ -429,6 +427,9 @@
             <fb:send href="@join_url" colorscheme="light" style="vertical-align: top !important;"></fb:send>
             <div class="g-plus" data-action="share" data-annotation="none" data-href="@join_url"></div>
             <a href="https://twitter.com/share" class="twitter-share-button" data-related="wishlu:The official Wishlu Twitter" data-via="wishlu" data-url="@join_url" data-text="Join me on wishlu" data-lang="en" data-size="medium" data-count="none">Tweet</a>
+            <div>
+                <p style="font-size:12px;">You can access this code any time from the invite page via the link under your name and photo in the upper right hand corner of wishlu.</p>
+            </div>
         </div>
     </div>
     <div class="col_6">
@@ -442,7 +443,7 @@
                     if (Model.user.FriendRequestExists(friend.Id))
                     {
                         <a class="col_2 requestedUser center" data-id="@friend.Id" href="#" style="position:relative;">
-                            <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-position: center; background-image: url('http://graph.facebook.com/@friend.FacebookPageId/picture'); width: 75px; height: 75px;">
+                            <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-position: center; background-image: url('https://graph.facebook.com/@friend.FacebookPageId/picture'); width: 75px; height: 75px;">
                             </div>
                             <div class="col_12 nomargin" style="font-size: 8pt;">
                                 <b>@friend.FullName</b>
@@ -455,7 +456,7 @@
                     else
                     {
                         <a class="col_2 requestUser center" data-id="@friend.Id" href="#" style="position:relative;">
-                            <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-position: center; background-image: url('http://graph.facebook.com/@friend.FacebookPageId/picture'); width: 75px; height: 75px;">
+                            <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-position: center; background-image: url('https://graph.facebook.com/@friend.FacebookPageId/picture'); width: 75px; height: 75px;">
                             </div>
                             <div class="col_12 nomargin" style="font-size: 8pt;">
                                 <b>@friend.FullName</b>
@@ -493,22 +494,22 @@
         @if (user.IsFacebookSynced)
         {
             @*<div id="facebook_panel" class="col_12" style="overflow-y: scroll; max-height: 320px;">
-                @foreach (var friend in Model.missing)
-                {
-                    <div class="col_12 nomargin" style="border-bottom: 1px solid lightgray; padding-left: 15px;">                       
-                        <div class="col_3">
-                            <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-image: url('http://graph.facebook.com/@friend.id/picture'); width: 50px; height: 50px;">
+                    @foreach (var friend in Model.missing)
+                    {
+                        <div class="col_12 nomargin" style="border-bottom: 1px solid lightgray; padding-left: 15px;">
+                            <div class="col_3">
+                                <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-image: url('http://graph.facebook.com/@friend.id/picture'); width: 50px; height: 50px;">
+                                </div>
+                            </div>
+                            <div class="col_6" style="line-height: 50px;">
+                                <b>@friend.name</b>
+                            </div>
+                            <div class="col_3" style="line-height: 50px;">
+                                <a class="button pop inviteUser" data-id="@friend.id" href="#">invite</a>
                             </div>
                         </div>
-                        <div class="col_6" style="line-height: 50px;">
-                            <b>@friend.name</b>
-                        </div>
-                        <div class="col_3" style="line-height: 50px;">
-                            <a class="button pop inviteUser" data-id="@friend.id" href="#">invite</a>
-                        </div>
-                    </div>
-                }
-            </div>*@
+                    }
+                </div>*@
             <div id="contacts_panel" class="col_12 hide">
                 <div id="gmail_panel" class="col_12" style="border-bottom: 1px solid gray;">
                     <div class="col_9">
@@ -523,16 +524,16 @@
                 </div>
                 @* TODO: Yahoo Developer Portal will not verify out domain name, known error in their community that is being ignored AFAIK. Last checked 12/31/2014. *@
                 @*<div id="yahoo_panel" class="col_12" style="border-bottom: 1px solid gray;">
-                    <div class="col_9">
-                        <i class="fa fa-2x fa-fw fa-yahoo" style="color:#780099;"></i>
-                        <b>Yahoo</b>
-                    </div>
-                    <div class="col_3 right">
-                        <a id="find_yahoo" class="button pop">
-                            find contacts
-                        </a>
-                    </div>
-                </div>*@
+                        <div class="col_9">
+                            <i class="fa fa-2x fa-fw fa-yahoo" style="color:#780099;"></i>
+                            <b>Yahoo</b>
+                        </div>
+                        <div class="col_3 right">
+                            <a id="find_yahoo" class="button pop">
+                                find contacts
+                            </a>
+                        </div>
+                    </div>*@
                 <div id="live_panel" class="col_12" style="border-bottom: 1px solid gray;">
                     <div class="col_9">
                         <i class="fa fa-2x fa-fw fa-windows" style="color: #1BA1E2;"></i>
@@ -543,7 +544,7 @@
                             find contacts
                         </a>
                     </div>
-                </div>                
+                </div>
             </div>
             <div id="email_panel" class="col_12 center hide">
                 <input id="email_address" class="input-like small-input" style="float: left; width: 80%; border-top-right-radius: 0; border-bottom-right-radius: 0;" placeholder="email address" />

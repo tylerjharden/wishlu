@@ -1,0 +1,659 @@
+﻿@model Squid.Users.User
+@{
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";
+
+    List<Squid.Wishes.Wishloop> wishloops = Squid.Wishes.Wishloop.GetUsersWishloops(UserId);
+}
+
+@functions {
+    public class Styles
+    {
+        public static IHtmlString Render(string cssfile)
+        {
+            return new HtmlString("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssfile + "\" />");
+        }
+    }
+
+    public class Scripts
+    {
+        public static IHtmlString Render(string jsfile)
+        {
+            return new HtmlString("<script src=\"" + jsfile + "\"></script>");
+        }
+    }
+}
+
+@section styles {
+    @Styles.Render("//assets.wishlu.com/css/themes/base/all.css")
+
+    <style>
+        #DoPopup {
+            position: relative;
+            z-index: 200;
+            line-height: normal;
+            height: auto;
+            min-height: 320px;
+            width: 100%;
+            min-width: 320px;
+            max-width: 1240px;
+            display: none;
+            margin: 100px auto;
+            padding: 10px;
+            color: #918b7d;
+            font-family: Lato, Helvetica, Arial, Sans-Serif;
+            background: white;
+            border: 5px solid #D3EEF2;
+            border-radius: 15px;
+            overflow: visible;
+        }
+    </style>
+}
+
+@section page {
+    tutorial (step 6) - profile
+}
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#DoPopup").fadeIn();
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function ($) {
+            $(".working, .success, .error").hide();
+
+            // Profile Stat Settings
+            $(".setting").on("change", function (e) {
+                var opt = $(this).find("option:selected");
+                var key = $(this).attr("id");
+                var val = opt.text();
+
+                var selector = $(this);
+
+                $(".working").fadeIn();
+                $(".error,.success").fadeOut();
+
+                $.get("/user/set?key=" + encodeURIComponent(key) + "&value=" + encodeURIComponent(val) + "&group=1", null, function (result) {
+                    $(".working").fadeOut();
+                    if (result === true) {
+                        $(".success").fadeIn();
+                    }
+                    else {
+                        $(".error").fadeIn();
+                    }
+                });
+            });
+
+            // Privacy Settings
+            $(".privacy").on("change", function (e) {
+                var opt = $(this).find("option:selected");
+                var key = $(this).data("id");
+                var val = opt.text();
+
+                var selector = $(this);
+
+                $(".working").fadeIn();
+                $(".error,.success").fadeOut();
+
+                $.get("/user/set?key=" + encodeURIComponent(key) + "&value=" + encodeURIComponent(val), null, function (result) {
+                    $(".working").fadeOut();
+                    if (result === true) {
+                        $(".success").fadeIn();
+                    }
+                    else {
+                        $(".error").fadeIn();
+                    }
+                });
+            });
+
+            $(".profile_finished").click(function () {
+                // a few of my favorite things
+                $.ajax({
+                    type: "POST",
+                    url: "/tutorial/profile",
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    data: JSON.stringify(getProfile()),
+                    success: function (data, status, request) {
+                        if (data.result == true) {
+                            swal("Success!", data.message, "success");
+                            setTimeout(function () { location.href = "/tutorial/bookmarklet"; }, 4000);
+                        }
+                        else {
+                            swal("Uh oh...", data.message, "error");
+                        }
+                    },
+                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+                });                                
+            });
+
+            function getProfile() {
+                var data = {}
+
+                data.FavoriteThings = $("#favorites").val();
+
+                data.AddressLine1 = $("#address_line1").val();
+                data.AddressLine2 = $("#address_line2").val();
+                data.City = $("#address_city").val();
+                data.State = $("#address_state").val();
+                data.ZipCode = $("#address_zip").val();
+
+                return data;
+            }
+            
+            $(".states").selectpicker({ mobile: mobilecheck() });
+            $(".setting").selectpicker({ mobile: mobilecheck() });
+            $('.selectpicker').selectpicker({ mobile: mobilecheck(), showNothing: true, nothingContent: "<i class='fa fa-fw fa-cog'></i>" });
+        });
+
+        window.mobilecheck = function () {
+            var check = false;
+            (function (a, b) { if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) check = true })(navigator.userAgent || navigator.vendor || window.opera);
+            return check;
+        }
+    </script>
+
+}
+
+@helper PrivacySelector(string id, List<Squid.Wishes.Wishloop> wishloops, string value)
+{
+    <select data-id="@id" class="selectpicker privacy" data-width="100%" value="@value">
+        <optgroup label="Global">
+            <option data-content="@("<span><i class='fa fa-fw fa-globe'></i>public</span>")" @(value == "Everyone" ? "selected='selected'" : "")>Everyone</option>
+            <option data-content="@("<span><i class='fa fa-fw fa-users'></i>friends of friends</span>")" @(value == "FriendsOfFriends" ? "selected='selected'" : "")>FriendsOfFriends</option>
+            <option data-content="@("<span><i class='fa fa-fw fa-user'></i>friends</span>")" @(value == "Friends" ? "selected='selected'" : "")>Friends</option>
+            <option data-content="@("<span><i class='fa fa-fw fa-lock'></i>only me</span>")" @(value == "OnlyMe" ? "selected='selected'" : "")>OnlyMe</option>
+        </optgroup>
+        <optgroup label="Wishloops">
+            @foreach (Squid.Wishes.Wishloop wishloop in wishloops)
+            {
+                <option data-content="@wishloop.Name.ToLower()" @(value == wishloop.Id.ToString() ? "selected='selected'" : "")>@wishloop.Id</option>
+            }
+        </optgroup>
+    </select>
+}
+
+<div id="DoPopup" class="pop inset clearfix">
+    <a class="right" style="position: absolute; top: 10px; right: 15px;" href="@Url.Action("bookmarklet","tutorial")">
+        skip
+    </a>
+    <div class="col_12 center" style="margin-top: 50px;">
+        <h1 style="font-size: 24pt;">Help your friends buy you the perfect gift.</h1>
+        <h3>Add some details about your favorite things, sizes, and your shipping address to your wishlu profile.</h3>
+        <br />
+    </div>
+    <div class="col_12 center">
+        <a class="button large pop profile_finished">
+            finished
+        </a>
+    </div>
+    <div class="col_4">
+        <h4 class="text-center">a few of my favorite things</h4>
+        <div class="col_12">
+            <textarea class="form-control full" name="favorites" id="favorites" rows="5">@Model.Favorites</textarea>
+        </div>
+    </div>
+    <div class="col_4" style="position:relative;">
+        <h4 class="text-center">stats</h4>
+        <i class="fa fa-spinner fa-spin working" style="color:gray; position:absolute;top:10px;right:15px;font-size:18px;"></i>
+        <i class="fa fa-check success" style="color:#c1dd5c; position:absolute;top:10px;right:15px;font-size:18px;"></i>
+        <i class="fa fa-times error" style="color:#f2cec5; position:absolute;top:10px;right:15px;font-size:18px;"></i>
+        <div class="form-group-sm">
+            <!-- Shirt Size -->
+            <div class="col_4">
+                <select id="Shirt" class="setting full">
+                    <option selected="selected" value="">t-shirt size</option>
+                    <option value="XXS">XXS</option>
+                    <option value="XS">XS</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="2XL">2XL</option>
+                    <option value="3XL">3XL</option>
+                    <option value="4XL">4XL</option>
+                    <option value="5XL">5XL</option>
+                </select>
+            </div>
+            <div class="col_2">
+                @PrivacySelector("Shirt", wishloops, Model.Privacy_Shirt)
+            </div>
+            <!-- Shoe Size -->
+            <div class="col_4">
+                <select id="Shoe" class="setting full">
+                    <option selected value="">shoe size</option>
+                    @if (Model.Gender == 'f')
+                    {
+                        <option>4</option>
+                        <option>4.5</option>
+                        <option>5</option>
+                        <option>5.5</option>
+                    }
+                    <option>6</option>
+                    <option>6.5</option>
+                    <option>7</option>
+                    <option>7.5</option>
+                    <option>8</option>
+                    <option>8.5</option>
+                    <option>9</option>
+                    <option>9.5</option>
+                    <option>10</option>
+                    <option>10.5</option>
+                    <option>11</option>
+                    <option>11.5</option>
+                    <option>12</option>
+                    @if (Model.Gender == 'm')
+                    {
+                        <option>12</option>
+                        <option>13</option>
+                        <option>14</option>
+                        <option>15</option>
+                        <option>16</option>
+                    }
+                </select>
+            </div>
+            <div class="col_2">
+                @PrivacySelector("Shoe", wishloops, Model.Privacy_Shoe)
+            </div>
+        </div>
+        <div class="form-group-sm">
+            @if (Model.Gender == 'f')
+            {
+                            <!-- Top Size -->
+                <div class="col_4">
+                    <select id="Top" class="setting full">
+                        <option selected value="">top size</option>
+                        <option value="XXS">XXS</option>
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="2XL">2XL</option>
+                        <option value="3XL">3XL</option>
+                        <option value="4XL">4XL</option>
+                        <option value="5XL">5XL</option>
+                    </select>
+                </div>
+                <div class="col_2">
+                    @PrivacySelector("Top", wishloops, Model.Privacy_Top)
+                </div>
+            }
+            else
+            {
+                            <!-- Sportcoat Size -->
+                <div class="col_4">
+                    <select id="SportCoat" class="setting full">
+                        <option selected value="">sportcoat size</option>
+                        <option value="38 Short">38 Short</option>
+                        <option value="40 Short">40 Short</option>
+                        <option value="40 Regular">40 Regular</option>
+                        <option value="42 Short">42 Short</option>
+                        <option value="42 Regular">42 Regular</option>
+                        <option value="42 Long">42 Long</option>
+                        <option value="44 Short">44 Short</option>
+                        <option value="44 Regular">44 Regular</option>
+                        <option value="44 Long">44 Long</option>
+                        <option value="46 Regular">46 Regular</option>
+                        <option value="46 Long">46 Long</option>
+                        <option value="48 Regular">48 Regular</option>
+                        <option value="48 Long">48 Long</option>
+                        <option value="50 Regular">50 Regular</option>
+                    </select>
+                </div>
+                <div class="col_2">
+                    @PrivacySelector("SportCoat", wishloops, Model.Privacy_SportCoat)
+                </div>
+            }
+            <!-- Outerwear Size -->
+            <div class="col_4">
+                <select id="Outerwear" class="setting full">
+                    <option selected value="">outerwear size</option>
+                    <option value="XXS">XXS</option>
+                    <option value="XS">XS</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="2XL">2XL</option>
+                    <option value="3XL">3XL</option>
+                    <option value="4XL">4XL</option>
+                    <option value="5XL">5XL</option>
+                </select>
+            </div>
+            <div class="col_2">
+                @PrivacySelector("Outerwear", wishloops, Model.Privacy_Outerwear)
+            </div>
+        </div>
+        @if (Model.Gender == 'm')
+        {
+                            <!-- Suit/Jacket Size -->
+            <div class="form-group-sm">
+                <div class="col_3">
+                    <select id="SuitChest" class="setting full">
+                        <option selected value="">suit chest</option>
+                        <option>34</option>
+                        <option>36</option>
+                        <option>38</option>
+                        <option>40</option>
+                        <option>42</option>
+                        <option>44</option>
+                        <option>46</option>
+                        <option>48</option>
+                        <option>50</option>
+                        <option>52</option>
+                        <option>54</option>
+                        <option>56</option>
+                    </select>
+                </div>
+                <div class="col_4">
+                    <select id="SuitSleeve" class="setting full">
+                        <option selected value="">suit length</option>
+                        <option>Short</option>
+                        <option>Regular</option>
+                        <option>Long</option>
+                        <option>X-Long</option>
+                    </select>
+                </div>
+                <div class="col_3">
+                    <select id="Collar" class="setting full">
+                        <option selected value="">collar</option>
+                        <option>14</option>
+                        <option>14.5</option>
+                        <option>15</option>
+                        <option>15.5</option>
+                        <option>16</option>
+                        <option>16.5</option>
+                        <option>17</option>
+                        <option>17.5</option>
+                        <option>18</option>
+                        <option>18.5</option>
+                        <option>19</option>
+                    </select>
+                </div>
+                <div class="col_2">
+                    @PrivacySelector("Suit", wishloops, Model.Privacy_Suit)
+                </div>
+            </div>
+        }
+        <!-- Jeans / Pant Size -->
+        <div class="form-group-sm">
+            <!-- Waist -->
+            <div class="col_5">
+                <select id="Waist" class="setting full">
+                    <option selected value="">pant waist</option>
+                    @if (Model.Gender == 'f')
+                    {
+                        <option>25W</option>
+                        <option>26W</option>
+                        <option>27W</option>
+                    }
+                    <option>28W</option>
+                    <option>29W</option>
+                    <option>30W</option>
+                    <option>31W</option>
+                    <option>32W</option>
+                    <option>33W</option>
+                    <option>34W</option>
+                    <option>35W</option>
+                    <option>36W</option>
+                    <option>38W</option>
+                    <option>40W</option>
+                    @if (Model.Gender == 'm')
+                    {
+                        <option>42W</option>
+                        <option>44W</option>
+                        <option>46W</option>
+                        <option>48W</option>
+                        <option>50W</option>
+                        <option>52W</option>
+                        <option>54W</option>
+                        <option>56W</option>
+                        <option>58W</option>
+                    }
+                </select>
+            </div>
+            <!-- Inseam -->
+            <div class="col_5">
+                @if (Model.Gender == 'm')
+                {
+                    <select id="Inseam" class="setting full">
+                        <option selected value="">pant inseam</option>
+                        <option>28L</option>
+                        <option>30L</option>
+                        <option>31L</option>
+                        <option>32L</option>
+                        <option>33L</option>
+                        <option>34L</option>
+                        <option>36L</option>
+                        <option>38L</option>
+                        <option>40L</option>
+                    </select>
+                }
+                @if (Model.Gender == 'f')
+                {
+                    <select id="Skirt" class="setting full">
+                        <option selected value="">pants / skirt</option>
+                        <option>00</option>
+                        <option>0</option>
+                        <option>2</option>
+                        <option>4</option>
+                        <option>6</option>
+                        <option>8</option>
+                        <option>10</option>
+                        <option>12</option>
+                        <option>14</option>
+                        <option>16</option>
+                        <option>18</option>
+                        <option>20</option>
+                    </select>
+                }
+            </div>
+            <div class="col_2">
+                @PrivacySelector("Pant", wishloops, Model.Privacy_Pant)
+            </div>
+        </div>
+        @if (Model.Gender == 'm')
+        {
+                    <!-- Hat/Belt Size -->
+            <div class="form-group-sm">
+                <div class="col_4">
+                    <select id="Hat" class="setting full">
+                        <option selected value="">hat size</option>
+                        <option>6 3/4</option>
+                        <option>6 7/8</option>
+                        <option>7</option>
+                        <option>7 1/8</option>
+                        <option>7 1/4</option>
+                        <option>7 3/8</option>
+                        <option>7 1/2</option>
+                        <option>7 5/8</option>
+                        <option>7 3/4</option>
+                        <option>7 7/8</option>
+                        <option>8</option>
+                    </select>
+                </div>
+                <div class="col_2">
+                    @PrivacySelector("Hat", wishloops, Model.Privacy_Hat)
+                </div>
+                <div class="col_4">
+                    <select id="Belt" class="setting full">
+                        <option selected value="">belt length</option>
+                        <option>38</option>
+                        <option>39</option>
+                        <option>40</option>
+                        <option>41</option>
+                        <option>42</option>
+                        <option>43</option>
+                        <option>44</option>
+                        <option>45</option>
+                        <option>46</option>
+                        <option>47</option>
+                        <option>48</option>
+                        <option>49</option>
+                        <option>50</option>
+                        <option>51</option>
+                        <option>52</option>
+                        <option>53</option>
+                        <option>54</option>
+                        <option>55</option>
+                        <option>56</option>
+                        <option>57</option>
+                        <option>58</option>
+                        <option>59</option>
+                        <option>60</option>
+                        <option>61</option>
+                        <option>62</option>
+                        <option>63</option>
+                    </select>
+                </div>
+                <div class="col_2">
+                    @PrivacySelector("Belt", wishloops, Model.Privacy_Belt)
+                </div>
+            </div>
+        }
+        @if (Model.Gender == 'f')
+        {
+                    <!-- Band/Cup Size -->
+            <div class="form-group-sm">
+                <div class="col_5">
+                    <select id="BraBand" class="setting full">
+                        <option selected value="">bra band</option>
+                        <option>28</option>
+                        <option>30</option>
+                        <option>32</option>
+                        <option>34</option>
+                        <option>36</option>
+                        <option>38</option>
+                        <option>40</option>
+                        <option>42</option>
+                        <option>44</option>
+                        <option>46</option>
+                        <option>48</option>
+                        <option>50</option>
+                        <option>52</option>
+                        <option>54</option>
+                        <option>56</option>
+                        <option>58</option>
+                        <option>60</option>
+                    </select>
+                </div>
+                <div class="col_5">
+                    <select id="BraCup" class="setting full">
+                        <option selected value="">bra cup</option>
+                        <option>AA</option>
+                        <option>A</option>
+                        <option>B</option>
+                        <option>C</option>
+                        <option>D</option>
+                        <option>DD (E)</option>
+                        <option>DDD (F)</option>
+                        <option>G</option>
+                        <option>H</option>
+                        <option>I</option>
+                        <option>J</option>
+                    </select>
+                </div>
+                <div class="col_2">
+                    @PrivacySelector("Bra", wishloops, Model.Privacy_Bra)
+                </div>
+            </div>
+        }
+        <div class="col_12 nomargin nopadding form-group-sm">
+            <!-- Ring Size -->
+            <div class="col_4">
+                <select id="Ring" class="setting full">
+                    <option selected value="">ring size</option>
+                    <option>3</option>
+                    <option>3.5</option>
+                    <option>4</option>
+                    <option>4.5</option>
+                    <option>5</option>
+                    <option>5.5</option>
+                    <option>6</option>
+                    <option>6.5</option>
+                    <option>7</option>
+                    <option>7.5</option>
+                    <option>8</option>
+                    <option>8.5</option>
+                    <option>9</option>
+                    <option>9.5</option>
+                    <option>10</option>
+                    <option>10.5</option>
+                    <option>11</option>
+                    <option>11.5</option>
+                    <option>12</option>
+                    <option>12.5</option>
+                    <option>13</option>
+                    <option>13.5</option>
+                </select>
+            </div>
+            <div class="col_2">
+                @PrivacySelector("Ring", wishloops, Model.Privacy_Ring)
+            </div>
+        </div>
+    </div>
+    <div class="col_4">
+        <h4 class="text-center">shipping address</h4>
+        <div class="col_12">
+            <form class="form-horizontal">
+                <!-- Address Line 1 -->
+                <div class="form-group">
+                    <div class="col-sm-offset-1 col-sm-10">
+                        @Html.TextBox("addressLine1", Model.ShipAddress1, new { @id = "address_line1", @class = "form-control", placeholder = "address line 1" })
+                    </div>
+                </div>
+                <!-- Address Line 2 -->
+                <div class="form-group">
+                    <div class="col-sm-offset-1 col-sm-10">
+                        @Html.TextBox("addressLine2", Model.ShipAddress2, new { @id = "address_line2", @class = "form-control", placeholder = "address line 2" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <!-- City -->
+                    <div class="col-sm-offset-1 col-sm-5">
+                        @Html.TextBox("addressCity", Model.ShipCity, new { @id = "address_city", @class = "form-control", placeholder = "city" })
+                    </div>
+                    <!-- State -->
+                    <div class="col-sm-5">
+                        <select name="addressState" id="address_state" class="form-control states">
+                            @if (String.IsNullOrWhiteSpace(Model.ShipStateOrProvince))
+                            {
+                                <option selected value="">state</option>
+                            }
+                            @foreach (var state in (SelectList)ViewData["states"])
+                            {
+                                if (state.Value == Model.ShipStateOrProvince)
+                                {
+                                    <option selected value="@state.Value">@state.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@state.Value">@state.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <!-- ZIP/Postal Code -->
+                    <div class="col-sm-offset-1 col-sm-5">
+                        @Html.TextBox("addressZip", Model.ShipZipOrPostalCode, new { @id = "address_zip", @class = "form-control", placeholder = "zip code" })
+                    </div>
+                    <!-- Privacy -->
+                    <div class="col-sm-5">
+                        @PrivacySelector("Address", wishloops, Model.Privacy_Address)
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col_12 center">
+        <a class="button large pop profile_finished">
+            finished
+        </a>
+    </div>    
+</div>
