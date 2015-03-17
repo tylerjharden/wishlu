@@ -1,0 +1,63 @@
+﻿<script>
+    window.isMainSite = true; // we are on the main wishlu website (mobile, tablet, laptop, desktop)
+
+    var wishluConstants = {
+        "FEEDITEM_MARGIN": 14, // the left/right margins for an item in the feed
+        "FEEDITEM_WIDTH": 236, // the width of an item in the feed
+        "MAX_COLUMNS": 10,  // the maximum number of feed items in one row
+        "MIN_COLUMNS": 3 // the minimum number of feed items in one row
+    };
+
+    
+    var wishlu = {};
+    wishlu.strings = {};
+    wishlu.feedColumns = {
+        _itemWidth: 0,
+        _itemMargin: 0,
+        _minColumns: 0,
+        _maxColumns: 0,
+        getFeedWidth: function () {
+            return document.getElementById("mainContent").clientWidth; // || window.innerWidth
+        },
+        getFeedColumnsNeeded: function () {
+            var a = wishlu.feedColumns._itemWidth + wishlu.feedColumns._itemMargin,
+                b = wishlu.feedColumns.getFeedWidth();
+            return Math.min(Math.max(Math.floor(b / a), wishlu.feedColumns._minColumns), wishlu.feedColumns._maxColumns)
+        },
+        setNumColumns: function (a) {
+            var b = document.documentElement;
+            a = a ? a : wishlu.feedColumns.getFeedColumnsNeeded();
+            var c = b.className.replace(/ feed-\d+/, "");
+            b.className = c + (" feed-" + a)
+        },
+        initialize: function (a, b, c, e) {
+            wishlu.feedColumns._itemWidth = a;
+            wishlu.feedColumns._itemMargin = b;
+            wishlu.feedColumns._minColumns = c;
+            wishlu.feedColumns._maxColumns = e;
+            wishlu.feedColumns.setNumColumns()
+        }
+    };
+    // TODO: Do we need viewport scaling?
+
+    var callbacks = [];
+    wishlu.start = {};
+    wishlu.start.ready = function (a) {
+        if (null === callbacks) throw Error("wishlu.start.ready was called too late");
+        callbacks.push(a);
+    };
+    wishlu.start.start = function (a) {
+        function b() {
+            console.log("wishlu.start")
+            for (var b = 0; b < callbacks.length; b++) callbacks[b](a);
+            callbacks = null
+        }
+        document.addEventListener ? document.addEventListener("DOMContentLoaded", b) : document.attachEvent("onreadystatechange", function () {
+            "complete" === document.readyState && b()
+        })
+    }
+    
+    wishlu.start.ready(function () {
+        wishlu.feedColumns.initialize(wishluConstants.FEEDITEM_WIDTH, wishluConstants.FEEDITEM_MARGIN, wishluConstants.MIN_COLUMNS, wishluConstants.MAX_COLUMNS);
+    })
+</script>
