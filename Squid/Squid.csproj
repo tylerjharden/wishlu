@@ -138,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database\SocialGraphObject.cs" />
+    <Compile Include="Database\UserJsonConverter.cs" />
     <Compile Include="Events\CalendarDate.cs" />
     <Compile Include="Database\Cache.cs" />
     <Compile Include="Database\Graph.cs" />
@@ -275,13 +276,13 @@
     <Content Include="Templates\Day2.html.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Templates\Day3.html.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Templates\Day5.html.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\Day8.html.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\Day3.html.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\Day13.html.cshtml">
