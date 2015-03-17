@@ -37,13 +37,35 @@ namespace Squid.Wishes
         Custom
     }
 
+    public enum WishPrivacy
+    {
+        @public,
+        @private
+    }
+
+    public enum WishMethod
+    {
+        bookmarklet,
+        chrome_extension,
+        firefox_extension,
+        safari_extension,
+        search,
+        upload,
+        copy,
+        theft
+    }
+
     public class Wish : SocialGraphObject
     {
+        // Properties                
         [JsonProperty("Name")]
         public String Name { get; set; }
 
         [JsonProperty("Description")]
         public String Description { get; set; }
+
+        [JsonProperty("description_html")]
+        public string DescriptionHtml { get; set; }
 
         [JsonProperty("UserId")]
         public Guid UserId { get; set; }
@@ -68,9 +90,18 @@ namespace Squid.Wishes
         {
             get
             {
+                if (string.IsNullOrEmpty(ImageUrl))
+                    return "https://assets.wishlu.com/images/DefaultWish.jpg";
+
                 return ImageUrl.Replace("http://", "https://");
             }
         }
+
+        [JsonProperty("privacy")]
+        public WishPrivacy Privacy { get; set; }
+
+        [JsonProperty("domain")]
+        public string Domain { get; set; }
                 
         [JsonProperty("WishUrl")]
         public String WishUrl { get; set; }
@@ -95,7 +126,7 @@ namespace Squid.Wishes
                 if (this.GetRevealedGifts().Count >= 1)
                     return WishStatus.Revealed;
 
-                if (this.GetReservedGifts().Count >= this.Quantity || this.GetPurchasedGifts().Count >= this.Quantity)
+                if (this.GetReservedGifts().Count > 0 || this.GetPurchasedGifts().Count > 0)
                     return WishStatus.Reserved;
 
                 return WishStatus.Requested; // default valid wish status
@@ -107,10 +138,11 @@ namespace Squid.Wishes
         {
             get
             {
-                Wishlu lu = Wishlu.GetWishLuById(this.GetAssignmentId());
+                // TODO: Convince Molly & Patrick that this is a good idea.
+                //Wishlu lu = Wishlu.GetWishLuById(this.GetAssignmentId());
 
-                if (lu.EventDateTime.HasValue && lu.EventDateTime.Value.AddDays(1) < DateTimeOffset.Now)
-                    return false; // this wish is in a wishlu whose event gifting window has already passed
+                //if (lu.EventDateTime.HasValue && lu.EventDateTime.Value.AddDays(1) < DateTimeOffset.Now)
+                //    return false; // this wish is in a wishlu whose event gifting window has already passed
 
                 // gifting window has not passed, or wishlu does not have a specified date
                 // wish is giftable is the number of confirmed gifts is less than the requested quantity
@@ -129,6 +161,12 @@ namespace Squid.Wishes
 
         [JsonProperty("Color")]
         public string Color { get; set; }
+
+        [JsonProperty("is_uploaded")]
+        public bool IsUploaded { get; set; }
+
+        [JsonProperty("is_rewish")]
+        public bool IsRewish { get; set; }
         
         [JsonProperty("IsStolen")]
         public bool IsStolen { get; set; }
@@ -178,6 +216,15 @@ namespace Squid.Wishes
         // =================== //
         // Internal Statistics //
         // =================== //
+        [JsonProperty("like_count")]
+        public int LikeCount { get; set; }
+
+        [JsonProperty("comment_count")]
+        public int CommentCount { get; set; }
+
+        [JsonProperty("rewish_count")]
+        public int RewishCount { get; set; }
+
         [JsonProperty("TimesCopied")]
         public int TimesCopied { get; set; }
 
@@ -191,11 +238,22 @@ namespace Squid.Wishes
         [JsonIgnore]
         private static Regex GtinCodeRegex { get; set; }
 
+        // Static COnstructor
         static Wish()
         {
             GtinCodeRegex = new Regex("^((\\d{8})|(\\d{12,14}))$");
         }
 
+        // Events        
+        public event EventHandler Created; // item is initially created
+        public event EventHandler Deleted; // item is deleted
+        public event EventHandler Updated; // item is updated
+        public event EventHandler Copied; // item is copied
+        public event EventHandler Stolen; // item is stolen by another user
+        public event EventHandler Rewished; // item is copied/grabbed/rewished by another user
+        public event EventHandler Assigned; // item is assigned to a wishlu
+
+        // Public Constructor
         public Wish()
         {
             // Empty Ids
@@ -205,14 +263,14 @@ namespace Squid.Wishes
             WishLuId = Guid.Empty;
             SourceUserId = Guid.Empty;            
             GtinCode = "000000000000";
-
+            
             // Empty/Default Attributes            
             Rating = 0;
             RatingCount = 0;
             Quantity = 1;
             Purchased = 0;
             Color = "";            
-            Description = "";            
+            Description = "";
             Name = "";
             Price = 0.00m;
             Size = "";
@@ -495,16 +553,31 @@ namespace Squid.Wishes
              .CreateUnique("(w2)-[:GRABBED_FROM]->(w1)")
              .ExecuteWithoutResults();
 
-            // Push Notification
-            Notification n = new Notification();
-            n.SenderId = userId;
-            n.UserId = this.UserId;
-            n.Id = Guid.NewGuid();
-            n.NotificationType = NotificationType.Info;
-            n.Url = "/i/" + newWish.Id;
-            n.Content = User.GetUserFullName(userId) + " has copied your wish for " + this.Name;
-            n.CreateNotification();
+            var u = User.GetUserById(this.UserId);
 
+            if (u.ShouldSendPush("activity_item_copied"))
+            {
+                // Push Notification
+                Notification n = new Notification();
+                n.SenderId = userId;                
+                n.NotificationType = NotificationType.Info;
+                n.Url = "/i/" + newWish.Id;
+                n.Content = "<b>" + User.GetUserFullName(userId) + "</b> has copied your wish.";
+                n.CreateNotification();
+                n.AddRecipient(this.UserId);
+                n.Push();
+            }
+
+            if (u.ShouldSendEmail("activity_item_copied"))
+            {
+                // TODO: Item copied email notification
+            }
+
+            if (u.ShouldSendMobile("activity_item_copied"))
+            {
+                u.SendText(User.GetUserFullName(userId) + " has copied your wish.");
+            }
+                        
             return newWish;
         }
 
@@ -542,7 +615,7 @@ namespace Squid.Wishes
 
                 this.WishLuId = wishluId;
                 this.Set("WishLuId", this.WishLuId);
-
+                                
                 Graph.Instance.Cypher
                     .Match("(wish:Wish)")
                     .Where((Wish wish) => wish.Id == this.Id)
@@ -550,6 +623,18 @@ namespace Squid.Wishes
                     .Where((Wishlu wishlu) => wishlu.Id == wishluId)
                     .Create("(wishlu)-[:CONTAINS_WISH]->(wish)")
                     .ExecuteWithoutResults();
+                                
+                // Notify wishlu subscribers
+                Notification n = new Notification();
+                //n.UserId = this.ReceiverId;
+                n.SenderId = this.UserId;
+                n.NotificationType = NotificationType.Info;
+                n.Content = "<b>" + User.GetUserFullName(this.UserId) + "</b> has added a new item to their wishlu <b>" + Wishlu.GetWishLuName(wishluId) + "</b>."; // promise to give you " + w.Name + ".";
+                n.Url = "/i/" + this.Id;
+                n.CreateNotification();
+
+                n.AddRecipients(Wishlu.GetFollowerIds(wishluId)); // add all users subscribed to notifications for this wishlu
+                n.Push(); // push out the notificationpublic
                 
                 return true;
             }
