@@ -1,0 +1,87 @@
+﻿<link rel="stylesheet" href="https://assets.wishlu.com/css/twotap/animate.css" />
+<link rel="stylesheet" href="https://assets.wishlu.com/css/twotap/twotap.css" />
+
+<script>
+    $(document).ready(function () {
+        $("#product_buy").click(function () {
+            var sel = $(this);
+            sel.addClass("disabled");
+            sel.html("<i class='fa fa-spinner fa-spin'></i>");
+
+            var addtocart = {};
+            addtocart.ProductId = $("#product_id").val();
+
+            $.ajax({
+                type: "POST",
+                url: "/purchase/addtocart",
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                traditional: true,
+                data: JSON.stringify(addtocart),
+                success: function (data) {
+                    if (data.result == true) {
+                        //swal("Success!", data.message, "success");
+                        //sel.html("<i class='fa fa-check'></i>");
+                        addToCart(data.cart_id);
+                    }
+                    else {
+                        swal("Uh oh...", data.message, "error");
+                        sel.removeClass("disabled");
+                        sel.text("save");
+                    }
+                },
+                error: function (data) {
+                    swal("Uh oh...", data.message, "error");
+                }
+            });
+        });
+    });
+</script>
+
+<!-- TwoTap Integration -->
+<div class='tt-side' data-cardid="">
+    <a href='#' onclick='showCart(); return false'><i class="fa fa-cart fa-fw"></i>1 item</a>
+</div>
+
+<div class='tt-overlayer'></div>
+
+<div class='tt-iframe-container'>
+    <div class='tt-iframe'>
+        <div class='tt-iframe-close'><a href='#' onclick='closeCart(); return false;'>close</a></div>
+        <iframe id='ttIframe' src='about:blank' width='400px' height='100%'></iframe>
+    </div>
+</div>
+
+<script type='text/javascript'>
+    function addToCart(cart_id) {
+        $('.add-to-cart-container').hide();
+        $('.tt-side').show().addClass('animated bounceInRight');
+        $('.tt-side').data("cartid", cart_id);
+        showCart();
+    }
+
+    function showCart() {
+        $('.tt-side').removeClass('bounceInRight').addClass('bounceOutRight');
+
+        // product urls must be escaped and separated by ','        
+        //var productUrl = encodeURIComponent('https://www.nastygal.com/clothes-dresses/reverse-havana-lace-dress--black');
+        //var productUrl = encodeURIComponent('https://www.adorama.com/HOGMP467.html');
+        //var iframeSrc = 'https://www.wishlu.com/home/twotap?product=' + productUrl;
+        //var iframeSrc = 'https://checkout.twotap.com/?public_token=147b1eed7550448a6d435c98975322&unique_token=123&confirm_url=https://www.wishlu.com/home/twotap_confirm&products=' + productUrl + '&affiliate_links=' + encodeURIComponent('@*Offers[0].Url*@');
+
+        var iframeSrc = 'https://www.wishlu.com/purchase/cart?cart_id=' + $('.tt-side').data("cartid");
+
+        $('#ttIframe').attr('src', iframeSrc);
+
+        $('.tt-iframe').show().removeClass("slideOutRight").addClass('animated slideInRight');
+        $('.tt-overlayer').fadeIn();
+    }
+
+    function closeCart() {
+        $('.tt-iframe').removeClass('slideInRight').addClass('slideOutRight');
+        $('.tt-overlayer').fadeOut();
+
+        $('.tt-side').removeClass('bounceOutRight').addClass('bounceInRight');
+    }
+</script>
+<!-- End TwoTap Integration -->
