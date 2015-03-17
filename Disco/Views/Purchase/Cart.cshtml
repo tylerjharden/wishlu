@@ -3,9 +3,14 @@
 @{
     Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";
 
-    var currentUser = Squid.Users.User.GetUserById(UserId);
-
-    List<Squid.Users.User> friends = Squid.Users.User.GetUsersFriends(UserId);
+    var currentUser = new Squid.Users.User();
+    List<Squid.Users.User> friends = new List<Squid.Users.User>();
+    
+    if (Request.IsAuthenticated)
+    {
+        currentUser = Squid.Users.User.GetUserById(UserId);
+        friends = Squid.Users.User.GetUsersFriends(UserId);
+    }
 
     bool siteExists = false;
     bool productExists = false;
@@ -653,43 +658,61 @@ else if (Model.Data.Message == "done")
                 <div class="col_12">
                     <fieldset>
                         <legend>Email</legend>
-                        <input id="tt-email" class="input-like input-small full" placeholder="email" value="@currentUser.LoginId" disabled="disabled" />
+                        @if (Request.IsAuthenticated)
+                        {
+                            <input id="tt-email" class="input-like input-small full" placeholder="email" value="@currentUser.LoginId" disabled="disabled" />
+                        }
+                        else
+                        {
+                            <input id="tt-email" class="input-like input-small full" placeholder="email" value="" />
+                        }
                     </fieldset>
+
                 </div>
 
-                <div class="col_12" style="text-align: left;">
-                    <fieldset>
-                        <legend>I am purchasing for...</legend>
-                        <div class="center">
-                            <button class="button" id="receive_myself" href="#" style="padding:5px;">Myself</button>
-                            <button class="button" id="receive_wishlu" href="#" style="padding:5px;">Someone on wishlu</button>
-                            <button class="button" id="receive_other" href="#" style="padding:5px;">Someone else</button>
-                        </div>
-                    </fieldset>
-                </div>
+                @if (Request.IsAuthenticated)
+                { 
+                    <div class="col_12" style="text-align: left;">
+                        <fieldset>
+                            <legend>I am purchasing for...</legend>
+                            <div class="center">
+                                <button class="button" id="receive_myself" href="#" style="padding:5px;">Myself</button>
+                                <button class="button" id="receive_wishlu" href="#" style="padding:5px;">Someone on wishlu</button>
+                                <button class="button" id="receive_other" href="#" style="padding:5px;">Someone else</button>
+                            </div>
+                        </fieldset>
+                    </div>
+                }
+                else
+                {
+                    <button class="button pop full" id="receive_other" href="#" style="padding:5px;">Continue to Shipping Information</button>
+                }
             </div>
         </div>
     </div>
 
-    <!-- Select a Friend (Someone on wishlu) Page -->
-    <div class="animated" id="cart_friends" style="display:none;">
-        <div class="col_12 container center">
-            @foreach (var friend in friends.Where(x => !String.IsNullOrEmpty(x.ShipAddress1)).OrderBy(x => x.FullName))
-            {
-                try
+    if (Request.IsAuthenticated)
+    { 
+        <!-- Select a Friend (Someone on wishlu) Page -->
+        <div class="animated" id="cart_friends" style="display:none;">
+            <div class="col_12 container center">
+                @foreach (var friend in friends.Where(x => !String.IsNullOrEmpty(x.ShipAddress1)).OrderBy(x => x.FullName))
                 {
-                    <a class="col_4 friend_address center" data-id="@friend.Id" data-email="@friend.LoginId" data-firstname="@friend.FirstName" data-lastname="@friend.LastName" data-address="@friend.ShipAddress1" data-city="@friend.ShipCity" data-state="@friend.ShipStateOrProvince" data-zip="@friend.ShipZipOrPostalCode" href="#" style="position:relative;">
-                        <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-position: center; background-image: url('@friend.Image'); width: 75px; height: 75px;">
-                        </div>
-                        <div class="col_12 nomargin" style="font-size: 8pt;">
-                            <b>@friend.FullName</b>
-                        </div>
-                    </a>
+                    try
+                    {
+                        <a class="col_4 friend_address center" data-id="@friend.Id" data-email="@friend.LoginId" data-firstname="@friend.FirstName" data-lastname="@friend.LastName" data-address="@friend.ShipAddress1" data-city="@friend.ShipCity" data-state="@friend.ShipStateOrProvince" data-zip="@friend.ShipZipOrPostalCode" href="#" style="position:relative;">
+                            <div class="col_12 circlefriend" style="float: none; display: inline-block; margin: 0; background-position: center; background-image: url('@friend.Image'); width: 75px; height: 75px;">
+                            </div>
+                            <div class="col_12 nomargin" style="font-size: 8pt;">
+                                <b>@friend.FullName</b>
+                            </div>
+                        </a>
+                    }
+                    catch { }
                 }
-                catch { }
-            }
+            </div>
         </div>
-    </div>
+    }
 
     <!-- Shipping Information Page -->
     <div class="animated" id="cart_shipping" style="display:none;">
