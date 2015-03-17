@@ -35,13 +35,4 @@ namespace Disco.Controllers
 
             return View("Share", model);
         }        
-    }
-
-    public class ButtonModel
-    {
-        public string Url;
-        public string Image;
-        public string Name;
-        public string Description;
-    }    
-}
+    }}
