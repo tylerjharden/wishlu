@@ -21,6 +21,34 @@
 	Squid.Wishes.Wishlu wishlu = Squid.Wishes.Wishlu.GetWishLuById(Model.GetAssignmentId());
 
 	string wishlucolor = (((int)wishlu.DisplayColor).ToString("X6"));
+		
+	// Milkshake
+	Milkshake.Product p = new Milkshake.Product();
+	List<Milkshake.Offer> Offers = new List<Milkshake.Offer>();
+	Milkshake.Offer o = new Milkshake.Offer();    
+	Milkshake.Store s = new Milkshake.Store();    
+	
+	if (Model.IsMilkshake)
+	{
+		p = Milkshake.Search.ProductId(Model.MilkshakeProductId);
+		Offers = p.Offers;
+		o = Offers.First();        
+		s = Milkshake.Store.GetById(o.StoreId);
+
+		if (!String.IsNullOrEmpty(o.AffiliateUrl))
+		{
+			if (o.AffiliateUrl != o.Url)
+			{
+				o.Url = o.AffiliateUrl;
+				Model.WishUrl = o.Url;
+			}
+		}
+		
+		if (s == null)
+		{
+			s = Milkshake.Store.Get(o.Store, true);
+		}
+	}
 }
 @section page {
 	@wishName
@@ -29,411 +57,470 @@
 @section title {
 	@if (Request.IsAuthenticated)
 	{
-		<span id="headerlink"><a href="/friends" style="color: #DED9D3;">my friends</a></span>
-		<span class="fa fa-angle-right"></span>
-		<span id="headerlink"><a href="/u/@creator.Id" style="color: #DED9D3;">@(creator.FirstName + " " + creator.LastName[0] + ".")</a></span>
-		<span class="fa fa-angle-right"></span>
-		<span id="headerlink"><a href="@Url.Action("indexother", "wishlu", new { @id = creator.Id })" style="color: #DED9D3;">wishlus</a></span>
-		<span class="fa fa-angle-right"></span>
-		<span id="headerlink"><a href="/l/@wishlu.Id" style="color: #@(wishlucolor)">@wishlu.Name</a></span>
-		<span class="fa fa-angle-right"></span>
-		<span>view item</span>
+<span id="headerlink"><a href="/friends" style="color: #DED9D3;">my friends</a></span>
+<span class="fa fa-angle-right"></span>
+<span id="headerlink"><a href="/u/@creator.Id" style="color: #DED9D3;">@(creator.FirstName + " " + creator.LastName[0] + ".")</a></span>
+<span class="fa fa-angle-right"></span>
+<span id="headerlink"><a href="@Url.Action("indexother", "wishlu", new { @id = creator.Id })" style="color: #DED9D3;">wishlus</a></span>
+<span class="fa fa-angle-right"></span>
+<span id="headerlink"><a href="/l/@wishlu.Id" style="color: #@(wishlucolor)">@wishlu.Name</a></span>
+<span class="fa fa-angle-right"></span>
+<span>view item</span>
 	}
 	else
 	{
-		<span>view item</span>
+<span>view item</span>
 	}
 }
 
 @section meta
 {
-	<link rel="canonical" href="//www.wishlu.com/i/@Model.Id" />
+<link rel="canonical" href="//www.wishlu.com/i/@Model.Id" />
 
-	<!-- Google -->
-	<meta name="description" content="@Model.Description" />
-	<meta name="keywords" content="wishlu wish @Model.Name @Model.Color" />
+<!-- Google -->
+<meta name="description" content="@Model.Description" />
+<meta name="keywords" content="wishlu wish @Model.Name @Model.Color" />
 
-	<meta name="author" content="" />
-	<meta name="copyright" content="" />
-	<meta name="application-name" content="" />
+<meta name="author" content="" />
+<meta name="copyright" content="" />
+<meta name="application-name" content="" />
 
-	<!-- Facebook / Pinterest (Rich Pin - Product) -->
-	<meta property="og:type" content="og:product" />
-	<meta property="og:site_name" content="wishlu" />
-	<meta property="og:title" content="@wishName" />
-	<meta property="og:image" content="@Model.Image" />
-	<meta property="og:url" content="http://www.wishlu.com/i/@Model.Id" />
+<!-- Facebook / Pinterest (Rich Pin - Product) -->
+<meta property="og:type" content="og:product" />
+<meta property="og:site_name" content="wishlu" />
+<meta property="og:title" content="@wishName" />
+<meta property="og:image" content="@Model.Image" />
+<meta property="og:url" content="http://www.wishlu.com/i/@Model.Id" />
 	@if (String.IsNullOrEmpty(Model.Description))
 	{
-		<meta property="og:description" content="@wishName" />
+<meta property="og:description" content="@wishName" />
 	}
 	else
 	{
-		<meta property="og:description" content="@Model.Description" />
+<meta property="og:description" content="@Model.Description" />
 	}
-	<meta property="product:price:amount" content="@Model.Price" />
-	<meta property="product:price:currency" content="USD" />
-	<meta property="og:brand" content="" />
+<meta property="product:price:amount" content="@Model.Price" />
+<meta property="product:price:currency" content="USD" />
+<meta property="og:brand" content="" />
 	@if (String.IsNullOrEmpty(Model.GtinCode))
 	{
-		<meta property="og:upc" content="000000000000" />
-		<meta property="product:upc" content="000000000000" />
+<meta property="og:upc" content="000000000000" />
+<meta property="product:upc" content="000000000000" />
 	}
 	else
 	{
-		<meta property="og:upc" content="@Model.GtinCode" />
-		<meta property="product:upc" content="@Model.GtinCode" />
+<meta property="og:upc" content="@Model.GtinCode" />
+<meta property="product:upc" content="@Model.GtinCode" />
 	}
-	<meta property="og:availability" content="" />
-	<meta property="product:gender" content="" />
-	<meta property="product:color" content="@Model.Color" />
-	<meta property="product:color:map" content="" />
+<meta property="og:availability" content="" />
+<meta property="product:gender" content="" />
+<meta property="product:color" content="@Model.Color" />
+<meta property="product:color:map" content="" />
 
-	<!-- Ratings (Pinterest) -->
-	<meta property="og:rating" content="@Model.Rating" />
-	<meta property="og:rating_scale" content="5" />
-	<meta property="og:rating_count" content="@Model.RatingCount" />
+<!-- Ratings (Pinterest) -->
+<meta property="og:rating" content="@Model.Rating" />
+<meta property="og:rating_scale" content="5" />
+<meta property="og:rating_count" content="@Model.RatingCount" />
 
-	<!-- Twitter -->
-	<meta name="twitter:card" content="product" />
-	<meta name="twitter:site" content="@("@wishluofficial")">
-	<meta name="twitter:creator" content="@("@" + creator.TwitterUserId)">
-	<meta name="twitter:title" content="@wishName" />
-	<meta name="twitter:description" content="@Model.Description" />
-	<meta name="twitter:image:src" content="@Model.Image" />
-	<meta name="twitter:data1" content="@(wishPrice) USD" />
-	<meta name="twitter:label1" content="PRICE" />
-	<meta name="twitter:data2" content="Available at " />
-	<meta name="twitter:label2" content="SHOP" />
-	<meta name="twitter:domain" content="wishlu.com" />
+<!-- Twitter -->
+<meta name="twitter:card" content="product" />
+<meta name="twitter:site" content="@("@wishluofficial")">
+<meta name="twitter:creator" content="@("@" + creator.TwitterUserId)">
+<meta name="twitter:title" content="@wishName" />
+<meta name="twitter:description" content="@Model.Description" />
+<meta name="twitter:image:src" content="@Model.Image" />
+<meta name="twitter:data1" content="@(wishPrice) USD" />
+<meta name="twitter:label1" content="PRICE" />
+<meta name="twitter:data2" content="Available at " />
+<meta name="twitter:label2" content="SHOP" />
+<meta name="twitter:domain" content="wishlu.com" />
 
-	<!-- Pinterest -->
-	<!-- Privacy -->
+<!-- Pinterest -->
+<!-- Privacy -->
 	@if (!creator.AllowIndexing)
 	{
-		<meta name="robots" content="noindex" />
+<meta name="robots" content="noindex" />
 	}
 }
 
 @section styles {
-	<link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/jquery.rating.css" />
+<link rel="stylesheet" type="text/css" href="//assets.wishlu.com/css/jquery.rating.css" />
 
-	<style>
-		.twitter-share-button {
-			vertical-align: top;
-		}
-	</style>
+<style>
+	.twitter-share-button {
+		vertical-align: top;
+	}
+</style>
 }
 
 @section scripts {
-	<script type="text/javascript" src="//assets.wishlu.com/js/jquery.unobtrusive-ajax.js"></script>
-	<script type="text/javascript" src="//assets.wishlu.com/js/jquery.autosize.min.js"></script>
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery.unobtrusive-ajax.js"></script>
+<script type="text/javascript" src="//assets.wishlu.com/js/jquery.autosize.min.js"></script>
 
-	<script type="text/javascript">
-		$(document).ready(function () {
-			function showPosition(position) {
-				$("#latlon").val(position.coords.latitude + "," + position.coords.longitude);
-			}
-			if (navigator.geolocation) {
-				navigator.geolocation.getCurrentPosition(showPosition);
-			}
-			else {
-				alert("No geolocation!")
-			}
+<script type="text/javascript">
+	$(document).ready(function () {
+		function showPosition(position) {
+			$("#latlon").val(position.coords.latitude + "," + position.coords.longitude);
+		}
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(showPosition);
+		}
+		else {
+			alert("No geolocation!")
+		}
 
-			$("#scoutlocations").autosize();
-		});
-	</script>
+		$("#scoutlocations").autosize();
+	});
+</script>
 
-	<script type="text/javascript">
-		$(document).ready(function () {
-			$("#wish_give").click(function () {
-				swal({
-					title: "Did you already buy this item?",
-					text: "Select whether you have already purchased this item or still need to.",
-					type: "info",
-					showCancelButton: true,
-					confirmButtonText: "I already bought this gift",
-					cancelButtonText: "I need to buy this gift",
-					closeOnConfirm: false,
-					closeOnCancel: false
-				},
-				function (isConfirm){
-					if (isConfirm) {
-						$.ajax({
-							type: "POST",
-							url: "/item/gift",
-							dataType: 'json',
-							contentType: 'application/json; charset=utf-8',
-							traditional: true,
-							data: JSON.stringify({ Id: $("#wish_id").val(), Purchased: true /*Date: $("#wish_reveal").val()*/ }),
-							success: function (data, status, request) {
-								if (data.result == true) {
-									swal("Success!", data.message, "success");
-									location.reload();
-								}
-								else {
-									swal("Uh oh...", data.message, "error");
-								}
-							},
-							error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-						});
-						//swal("Success!", "Your gift has been recorded as purchased.", "success");
-					}
-					else {
-						swal({
-							title: "Now or Later?",
-							text: "Select whether you would like to buy this gift now or purchase it later or in person.",
-							type: "info",
-							showCancelButton: true,
-							confirmButtonText: "Buy now online",
-							cancelButtonText: "Buy later / buy in-store",
-							closeOnConfirm: true,
-							closeOnCancel: false
-						},
-						function (isConfirm) {
-							if (isConfirm) {
-								$("#wish_url").get(0).click();
-								// TODO: Redirect to purchase page or open shopping cart
-							} else {
-								$.ajax({
-									type: "POST",
-									url: "/item/gift",
-									dataType: 'json',
-									contentType: 'application/json; charset=utf-8',
-									traditional: true,
-									data: JSON.stringify({ Id: $("#wish_id").val(), Purchased: false /*Date: $("#wish_reveal").val()*/ }),
-									success: function (data, status, request) {
-										if (data.result == true) {
-											swal("Success!", data.message, "success");
-											location.reload();
-										}
-										else {
-											swal("Uh oh...", data.message, "error");
-										}
-									},
-									error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-								});
-							}
-						});
-					}
-				});
-			});
-
-			/*$("#wish_give").click(function () {
-				$("#wish_give_container").slideToggle();
-			});
-
-			$("#wish_give_do").click(function () {
-				$.ajax({
-					type: "POST",
-					url: "/item/promise",
-					dataType: 'json',
-					contentType: 'application/json; charset=utf-8',
-					traditional: true,
-					data: JSON.stringify({ Id: $("#wish_id").val(), Date: $("#wish_reveal").val() }),
-					success: function (data, status, request) {
-						if (data.result == true) {
-							swal("Success!", data.message, "success");
-							loction.reload();
-						}
-						else {
-							swal("Uh oh...", data.message, "error");
-						}
-					},
-					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-				});
-			});*/
-
-			$("#wish_cancel").click(function () {
-				$.ajax({
-					type: "POST",
-					url: "/item/cancel",
-					dataType: 'json',
-					contentType: 'application/json; charset=utf-8',
-					traditional: true,
-					data: JSON.stringify({ Id: $("#wish_id").val() }),
-					success: function (data, status, request) {
-						if (data.result == true) {
-							swal("Success!", data.message, "success");
-							location.reload();
-						}
-						else {
-							swal("Uh oh...", data.message, "error");
-						}
-					},
-					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-				});
-			});
-
-			$("#wish_steal").click(function () {
-				$.ajax({
-					type: "POST",
-					url: "/item/steal/" + $("#wish_id").val(),
-					dataType: 'json',
-					contentType: 'application/json; charset=utf-8',
-					traditional: true,
-					data: null,
-					success: function (data, status, request) {
-						if (data.result == true) {
-							swal("Success!", data.message, "success");
-						}
-						else {
-							swal("Uh oh...", data.message, "error");
-						}
-					},
-					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-				});
-			});
-
-			$("#wish_copy").click(function () {
-				$.ajax({
-					type: "POST",
-					url: "/item/grab/" + $("#wish_id").val(),
-					dataType: 'json',
-					contentType: 'application/json; charset=utf-8',
-					traditional: true,
-					data: null,
-					success: function (data, status, request) {
-						if (data.result == true) {
-							swal("Success!", data.message, "success");
-						}
-						else {
-							swal("Uh oh...", data.message, "error");
-						}
-					},
-					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-				});
-			});
-
-			$("#wish_phone").click(function () {
-				$.ajax({
-					type: "POST",
-					url: "/item/phone/" + $("#wish_id").val(),
-					dataType: 'json',
-					contentType: 'application/json; charset=utf-8',
-					traditional: true,
-					data: null,
-					success: function (data, status, request) {
-						if (data.result == true) {
-							swal("Success!", data.message, "success");
-						}
-						else {
-							if (data.redirect) {
-								swal("Uh oh...", data.message, "error");
-								location.href = "/user/mobile";
+<script type="text/javascript">
+	$(document).ready(function () {
+		$("#wish_give").click(function () {
+			swal({
+				title: "Did you already buy this item?",
+				text: "Select whether you have already purchased this item or still need to buy it.",
+				type: "info",
+				showCancelButton: true,
+				confirmButtonText: "I already bought this gift",
+				cancelButtonText: "I need to buy this gift",
+				closeOnConfirm: false,
+				closeOnCancel: false
+			},
+			function (isConfirm) {
+				if (isConfirm) {
+					$.ajax({
+						type: "POST",
+						url: "/item/gift",
+						dataType: 'json',
+						contentType: 'application/json; charset=utf-8',
+						traditional: true,
+						data: JSON.stringify({ Id: $("#wish_id").val(), Purchased: true /*Date: $("#wish_reveal").val()*/ }),
+						success: function (data, status, request) {
+							if (data.result == true) {
+								swal({
+									title: "Success!",
+									text: data.message,
+									type: "success"
+								},
+							function () {
+								location.reload();
+							});
 							}
 							else {
 								swal("Uh oh...", data.message, "error");
 							}
-						}
+						},
+						error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+					});
+					//swal("Success!", "Your gift has been recorded as purchased.", "success");
+				}
+				else {
+					swal({
+						title: "Now or Later?",
+						text: "Select whether you would like to buy this gift now or purchase it later or in person.",
+						type: "info",
+						showCancelButton: true,
+						confirmButtonText: "Buy now online",
+						cancelButtonText: "Buy later / buy in-store",
+						closeOnConfirm: true,
+						closeOnCancel: false
 					},
-					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-				});
+					function (isConfirm) {
+						if (isConfirm) {
+							$("#wish_url").get(0).click();
+
+							$.ajax({
+								type: "POST",
+								url: "/item/gift",
+								dataType: 'json',
+								contentType: 'application/json; charset=utf-8',
+								traditional: true,
+								data: JSON.stringify({ Id: $("#wish_id").val(), Purchased: true /*Date: $("#wish_reveal").val()*/ }),
+								success: function (data, status, request) {
+									if (data.result == true) {
+										swal({
+											title: "Success!",
+											text: data.message,
+											type: "success"
+										},
+										function () {
+											location.reload();
+										});
+									}
+									else {
+										swal("Uh oh...", data.message, "error");
+									}
+								},
+								error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+							});
+						} else {
+							$.ajax({
+								type: "POST",
+								url: "/item/gift",
+								dataType: 'json',
+								contentType: 'application/json; charset=utf-8',
+								traditional: true,
+								data: JSON.stringify({ Id: $("#wish_id").val(), Purchased: false /*Date: $("#wish_reveal").val()*/ }),
+								success: function (data, status, request) {
+									if (data.result == true) {
+										swal({
+											title: "Success!",
+											text: data.message,
+											type: "success"
+										},
+										function () {
+											location.reload();
+										});
+									}
+									else {
+										swal("Uh oh...", data.message, "error");
+									}
+								},
+								error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+							});
+						}
+					});
+				}
 			});
-
-			$("#wish_reveal").datepicker({ minDate: 0, maxDate: 180, altFormat: "mm/dd/yy" });
-			$(".newcomment_body").autosize();
 		});
-	</script>
 
-	<script>
-		$(function () {
-			var wishHub = $.connection.wishHub;
+		/*$("#wish_give").click(function () {
+			$("#wish_give_container").slideToggle();
+		});
 
-			wishHub.client.onLike = function (li) {
-				// Update the like string
-				$("#wish_likes").html(li.LikeString);
-
-				// Update toooltips
-				$('#wish_likes > .tooltip').each(function () {
-					// variables
-					var content = $(this).attr('title');
-
-					// tooltip
-					$(this).attr('title', '')
-					.tipTip({ defaultPosition: 'top', content: content, keepAlive: false, activation: 'hover', delay: 1000 });
-				});
-
-				// Change unlike to like link
-				if (li.Like == "t") {
-					var link = $(".like_wish");
-
-					if (link.length) {
-						link.addClass("unlike_wish");
-						link.removeClass("like_wish");
-						link.html("Unlike");
-						link.unbind("click");
-						link.click(function (e) {
-							wishHub.server.unlike($(this).data("id"));
-							e.preventDefault();
-						});
-						return;
+		$("#wish_give_do").click(function () {
+			$.ajax({
+				type: "POST",
+				url: "/item/promise",
+				dataType: 'json',
+				contentType: 'application/json; charset=utf-8',
+				traditional: true,
+				data: JSON.stringify({ Id: $("#wish_id").val(), Date: $("#wish_reveal").val() }),
+				success: function (data, status, request) {
+					if (data.result == true) {
+						swal("Success!", data.message, "success");
+						loction.reload();
 					}
 					else {
-						link = $(".unlike_wish");
-						link.addClass("like_wish");
-						link.removeClass("unlike_wish");
-						link.html("Like");
-						link.unbind("click");
-						link.click(function (e) {
-							wishHub.server.like($(this).data("id"));
-							e.preventDefault();
-						});
-						return;
+						swal("Uh oh...", data.message, "error");
 					}
-				}
-			};
+				},
+				error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+			});
+		});*/
 
-			$.connection.hub.start().done(function () {
-				// Wire up adding comment
-				$(".comment_wish").click(function (e) {
-					wishHub.server.newComment($('.newcomment_body').data("id"), $('.newcomment_body').val());
-					$('.newcomment_body').val('');
-				});
-
-				$('.like_wish').click(function (e) {
-					wishHub.server.like($(this).data("id"));
-					e.preventDefault();
-				});
-
-				$('.unlike_wish').click(function (e) {
-					wishHub.server.unlike($(this).data("id"));
-					e.preventDefault();
-				});
+		$("#wish_cancel").click(function () {
+			$.ajax({
+				type: "POST",
+				url: "/item/cancel",
+				dataType: 'json',
+				contentType: 'application/json; charset=utf-8',
+				traditional: true,
+				data: JSON.stringify({ Id: $("#wish_id").val() }),
+				success: function (data, status, request) {
+					if (data.result == true) {
+						swal({
+							title: "Success!",
+							text: data.message,
+							type: "success"
+						},
+						function () {
+							location.reload();
+						});
+					}
+					else {
+						swal("Uh oh...", data.message, "error");
+					}
+				},
+				error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
 			});
 		});
-	</script>
+
+		$("#wish_steal").click(function () {
+			$.ajax({
+				type: "POST",
+				url: "/item/steal/" + $("#wish_id").val(),
+				dataType: 'json',
+				contentType: 'application/json; charset=utf-8',
+				traditional: true,
+				data: null,
+				success: function (data, status, request) {
+					if (data.result == true) {
+						swal("Success!", data.message, "success");
+					}
+					else {
+						swal("Uh oh...", data.message, "error");
+					}
+				},
+				error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+			});
+		});
+
+		$("#wish_copy").click(function () {
+			$.ajax({
+				type: "POST",
+				url: "/item/grab/" + $("#wish_id").val(),
+				dataType: 'json',
+				contentType: 'application/json; charset=utf-8',
+				traditional: true,
+				data: null,
+				success: function (data, status, request) {
+					if (data.result == true) {
+						swal("Success!", data.message, "success");
+					}
+					else {
+						swal("Uh oh...", data.message, "error");
+					}
+				},
+				error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+			});
+		});
+
+		$("#wish_phone").click(function () {
+			$.ajax({
+				type: "POST",
+				url: "/item/phone/" + $("#wish_id").val(),
+				dataType: 'json',
+				contentType: 'application/json; charset=utf-8',
+				traditional: true,
+				data: null,
+				success: function (data, status, request) {
+					if (data.result == true) {
+						swal("Success!", data.message, "success");
+					}
+					else {
+						if (data.redirect) {
+							swal("Uh oh...", data.message, "error");
+							location.href = "/user/mobile";
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					}
+				},
+				error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+			});
+		});
+
+		$("#wish_reveal").datepicker({ minDate: 0, maxDate: 180, altFormat: "mm/dd/yy" });
+		$(".newcomment_body").autosize();
+	});
+</script>
+
+<script>
+	$(function () {
+		var wishHub = $.connection.wishHub;
+
+		wishHub.client.onLike = function (li) {
+			// Update the like string
+			$("#wish_likes").html(li.LikeString);
+
+			// Update toooltips
+			$('#wish_likes > .tooltip').each(function () {
+				// variables
+				var content = $(this).attr('title');
+
+				// tooltip
+				$(this).attr('title', '')
+				.tipTip({ defaultPosition: 'top', content: content, keepAlive: false, activation: 'hover', delay: 1000 });
+			});
+
+			// Change unlike to like link
+			if (li.Like == "t") {
+				var link = $(".like_wish");
+
+				if (link.length) {
+					link.addClass("unlike_wish");
+					link.removeClass("like_wish");
+					link.html("Unlike");
+					link.unbind("click");
+					link.click(function (e) {
+						wishHub.server.unlike($(this).data("id"));
+						e.preventDefault();
+					});
+					return;
+				}
+				else {
+					link = $(".unlike_wish");
+					link.addClass("like_wish");
+					link.removeClass("unlike_wish");
+					link.html("Like");
+					link.unbind("click");
+					link.click(function (e) {
+						wishHub.server.like($(this).data("id"));
+						e.preventDefault();
+					});
+					return;
+				}
+			}
+		};
+
+		$.connection.hub.start().done(function () {
+			// Wire up adding comment
+			$(".comment_wish").click(function (e) {
+				wishHub.server.newComment($('.newcomment_body').data("id"), $('.newcomment_body').val());
+				$('.newcomment_body').val('');
+			});
+
+			$('.like_wish').click(function (e) {
+				wishHub.server.like($(this).data("id"));
+				e.preventDefault();
+			});
+
+			$('.unlike_wish').click(function (e) {
+				wishHub.server.unlike($(this).data("id"));
+				e.preventDefault();
+			});
+		});
+	});
+</script>
 }
 
 @section info {
-	<div class="col_12" style="text-align: left; height: 400px; overflow: auto;">
-		<span>
-			Click <b>give</b> if you plan on, or already have, bought the item for your friend. You will then be required to choose a date to notify your friend that you bought him or her the gift—until then, he or she won’t know you bought the item.  The item will be marked so that others don’t buy it, even if your friend hasn’t been notified yet. Once your friend is notified, he or she can confirm that you gave him or her the item.
-		</span>
-		<br />
-		<br />
-		<span>You can also view important details about your friend’s gift item here:</span>
-		<ul>
-			<li>Visit the item’s website for more information about it or to buy it.</li>
-			<li>See the quantity of the item your friend requested, just like a traditional registry.</li>
-			<li>Comment on the item or view others’ comments about the items.</li>
-			<li>Post, tweet, share, or pin the item if your friend has made the item public.</li>
-			<li>Click <b>steal</b> to copy the item to your just me wishlu without your friend knowing.</li>
-			<li>Click <b>copy</b> to copy the item to your  just me wishlu. Your friend will be notified.</li>
-			<li>Click <b>send to my phone</b> to send a text message about the item for easy in-store shopping.</li>
-			<li>View important info about the item your friend may have provided under the notes tab.</li>
-			<li>Click <b>give</b> if you plan on, or already have, bought the item for your friend.</li>
-			<li>Check the status of an item—whether someone else has gifted the item—via the <b>gift status</b> tab.</li>
-		</ul>
-	</div>
+<div class="col_12" style="text-align: left; height: 400px; overflow: auto;">
+	<span>
+		Click <b>give</b> if you plan on, or already have, bought the item for your friend. You will then be required to choose a date to notify your friend that you bought him or her the gift—until then, he or she won’t know you bought the item.  The item will be marked so that others don’t buy it, even if your friend hasn’t been notified yet. Once your friend is notified, he or she can confirm that you gave him or her the item.
+	</span>
+	<br />
+	<br />
+	<span>You can also view important details about your friend’s gift item here:</span>
+	<ul>
+		<li>Visit the item’s website for more information about it or to buy it.</li>
+		<li>See the quantity of the item your friend requested, just like a traditional registry.</li>
+		<li>Comment on the item or view others’ comments about the items.</li>
+		<li>Post, tweet, share, or pin the item if your friend has made the item public.</li>
+		<li>Click <b>steal</b> to copy the item to your just me wishlu without your friend knowing.</li>
+		<li>Click <b>copy</b> to copy the item to your  just me wishlu. Your friend will be notified.</li>
+		<li>Click <b>send to my phone</b> to send a text message about the item for easy in-store shopping.</li>
+		<li>View important info about the item your friend may have provided under the notes tab.</li>
+		<li>Click <b>give</b> if you plan on, or already have, bought the item for your friend.</li>
+		<li>Check the status of an item—whether someone else has gifted the item—via the <b>gift status</b> tab.</li>
+	</ul>
+</div>
+}
+
+@if (Model.IsMilkshake)
+{
+	Html.RenderPartial("~/Views/Purchase/_BuyNow.cshtml");
+
+<input type="hidden" id="product_id" value="@(Model.MilkshakeProductId)" />
 }
 
 <input type="hidden" id="wish_id" value="@(Model.Id)" />
 
 <div class="grid" style="color: gray">
 	<!-- Item Container -->
-	<div class="col_12">
+	<div class="col_12 full" style="margin: 0;" itemscope itemtype="http://schema.org/Product">
+		<!-- Item Name -->
+		<div class="col_12" style="color: #9a8b7d;">
+			<h1 style="font-size:24px;margin:0;">
+				<span itemprop="name">
+					@Model.Name
+				</span>
+			</h1>
+
+			<h5 style="margin:0;">from <a href="/s/@s.Id">@s.Name</a></h5>
+		</div>
 		<!-- Left Container-->
 		<div class="col_6">
 			<!-- Item Image / Status Banner -->
@@ -454,22 +541,31 @@
 				}
 				else if (Request.IsAuthenticated && Model.Status == Squid.Wishes.WishStatus.Reserved)
 				{
-					<div class="rectangle" style="height: 50px;">
-						<span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">reserved (@Model.GetReservedGifts().Count of @Model.Quantity)</span>
-					</div>
+					if (Model.GetPurchasedGifts().Count > 0)
+					{
+						<div class="rectangle" style="height: 50px;">
+							<span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">purchased (@Model.GetPurchasedGifts().Count of @Model.Quantity)</span>
+						</div>
+					}
+					else
+					{
+						<div class="rectangle" style="height: 50px;">
+							<span class="rectangle-text granted" style="font-size: 28pt; font-weight: 100; height: 50px; text-transform: lowercase;">reserved (@Model.GetReservedGifts().Count of @Model.Quantity)</span>
+						</div>
+					}
 				}
 			</div>
 
 			@if (wishlu.Visibility != Squid.Wishes.WishluVisibility.Private)
 			{
-				<!-- Facebook / Twitter Share -->
+			<!-- Facebook / Twitter Share -->
 				<div class="col_12 center" style="display: inline !important; position: relative; zoom: 1; vertical-align: top !important; padding: 5px; background: white; border: 2px solid lightblue; border-radius: 15px;">
 					<fb:like href="http://www.wishlu.com/i/@(Model.Id)" layout="button" action="like" show_faces="true" share="true" style="vertical-align: top !important;"></fb:like>
 					<fb:send href="http://www.wishlu.com/i/@(Model.Id)" colorscheme="light" style="vertical-align: top !important;"></fb:send>
 					<div class="g-plus" data-action="share" data-annotation="none" data-href="http://www.wishlu.com/i/@Model.Id"></div>
 					<a href="https://twitter.com/share" class="twitter-share-button" data-related="wishlu:The official Wishlu Twitter" data-via="wishlu" data-url="http://wishlu.com/i/@Model.Id" data-text="Check out my wish" data-lang="en" data-size="medium" data-count="none">Tweet</a>
-					<a onclick="pinClicked(this.href); return false;" href="//www.pinterest.com/pin/create/button/?url=http://www.wishlu.com/i/@(Model.Id)&media=@Url.Encode(Model.Image)&description=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)" data-pin-do="buttonPin" data-pin-config="none" data-pin-color="red" style="vertical-align:top; background: url('http://assets.pinterest.com/images/pinit6.png');font: 11px Arial, sans-serif; text-indent: -9999em; font-size: .01em; color: #CD1F1F; height: 20px; width: 43px; background-position: 0 -7px;"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_20.png" style="vertical-align:top;" /></a>
-					<a href="http://www.tumblr.com/share/photo?source=@Url.Encode(Model.Image)&caption=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)&clickthru=http://www.wishlu.com/i/@(Model.Id))" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url('http://platform.tumblr.com/v1/share_2.png') top left no-repeat transparent;">Share on Tumblr</a>
+					<a onclick="pinClicked(this.href); return false;" href="//www.pinterest.com/pin/create/button/?url=http://www.wishlu.com/i/@(Model.Id)&media=@Url.Encode(Model.Image)&description=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)" data-pin-do="buttonPin" data-pin-config="none" data-pin-color="red" style="vertical-align:top; background: url('https://assets.pinterest.com/images/pinit6.png');font: 11px Arial, sans-serif; text-indent: -9999em; font-size: .01em; color: #CD1F1F; height: 20px; width: 43px; background-position: 0 -7px;"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_20.png" style="vertical-align:top;" /></a>
+					<a href="http://www.tumblr.com/share/photo?source=@Url.Encode(Model.Image)&caption=@Url.Encode(Model.Description != null ? Model.Description : Model.Name)&clickthru=http://www.wishlu.com/i/@(Model.Id))" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url('https://platform.tumblr.com/v1/share_2.png') top left no-repeat transparent;">Share on Tumblr</a>
 				</div>
 			}
 
@@ -512,7 +608,7 @@
 								else
 								{
 									<span>@likes.First().FullName and @likes.ElementAt(1).FullName like this item.</span>
-								}                                
+								}
 							}
 							else if (likes.Count == 3)
 							{
@@ -531,7 +627,7 @@
 									list = list + u.FullName + "<br />";
 								}
 
-								@Html.Raw(firstname + ", " + secondname + ", and " + "<span class=\"tooltip\" title=\"" + list + "\">" + likescount + " other people like this item.</span>")
+								@Html.Raw(firstname + ", " + secondname + ", and " + "<span class=\"tooltip-top\" title=\"" + list + "\">" + likescount + " other people like this item.</span>")
 							}
 							else
 							{
@@ -561,23 +657,23 @@
 					<div id="wish_comments" class="col_12">
 						@foreach (Squid.Messages.Comment comment in Model.GetComments())
 						{
-							Squid.Users.User author = Squid.Users.User.GetUserById(comment.AuthorId);
+							var commenter = comment.Commenter;
 
 							<div class="col_12 wish_comment">
 								<div class="col_2">
-									<img src="@author.Image" width="50" height="50" style="display: inline-block;" />
+									<img src="@commenter.ImageUrl" width="50" height="50" style="display: inline-block;" />
 								</div>
 								<div class="col_10">
 									<div class="post_container">
 										<div class="post_delete" style="float:right;">
 											<i class="fa fa-fw fa-times"></i>
 										</div>
-										<a class="profile_name" target="_blank" href="/u/@author.Id">
-											@author.FullName
+										<a class="profile_name" target="_blank" href="/u/@commenter.Id">
+											@commenter.FullName
 										</a>
 										<div class="post_content" style="font-size: 12px; margin-top: 5px;">
-											<div class="post_text" style="line-height: 14px; word-wrap:break-word; margin:0 30px 5px 0;">
-												@comment.Body
+											<div class="post_text" style="line-height: 14px; -ms-word-wrap: break-word; word-wrap: break-word; margin: 0 30px 5px 0;">
+												@comment.Text
 											</div>
 											<div class="post_status">
 												<div class="action_links">
@@ -595,9 +691,9 @@
 			}
 
 			<!-- Facebook Comments -->
-			<div class="col_12">
+			@*<div class="col_12">
 				<fb:comments href="http://www.wishlu.com/i/@Model.Id" numposts="10" colorscheme="light" order-by="reverse_time" width="100%"></fb:comments>
-			</div>
+			</div>*@
 		</div>
 		<!-- Right Container -->
 		<div class="col_6" style="border: 4px solid #D3EEF2; border-radius: 15px; background-color: white;">
@@ -640,7 +736,7 @@
 
 				@if (Request.IsAuthenticated)
 				{
-					<!-- Item Quantity Promised/Revealed/Received -->
+				<!-- Item Quantity Promised/Revealed/Received -->
 					<div class="col_12">
 						<span class="col_4" style="margin: 0; font-weight: 300;">purchased:</span>
 						<span class="col_8" style="margin: 0;">
@@ -648,7 +744,7 @@
 						</span>
 					</div>
 
-					<!-- Give / Cancel Button -->
+				<!-- Give / Cancel Button -->
 					<div class="col_12">
 						@if (current.HasGifted(Model))
 						{
@@ -658,7 +754,7 @@
 						}
 						else if (Model.IsGiftable) // users can only gift an item if it has not reached it's requested quantity
 						{
-							<a class="button pop full center tooltip" data-delay="0" title="Gift this item." id="wish_give">
+							<a class="button pop full center tooltip-top" data-delay="0" title="Gift this item." id="wish_give">
 								give
 							</a>
 							<div id="wish_give_container" class="center" style="display: none;">
@@ -669,23 +765,39 @@
 						}
 					</div>
 
-					<!-- User Action Buttons (Steal, Grab, etc.)-->
+				<!-- User Action Buttons (Steal, Grab, etc.)-->
 					<div class="col_12">
 						<div class="col_6">
-							<a class="button pop center tooltip" data-delay="0" title="Secretly copy this item to your just me wishlu." id="wish_steal">
+							<a class="button pop center tooltip-top" data-delay="0" title="Secretly copy this item to your just me wishlu." id="wish_steal">
 								steal
 							</a>
 						</div>
 						<div class="col_6 right">
-							<a class="button pop center tooltip" data-delay="0" title="Copy this item to your just me wishlu." id="wish_copy">
+							<a class="button pop center tooltip-top" data-delay="0" title="Copy this item to your just me wishlu." id="wish_copy">
 								copy
 							</a>
 						</div>
 						<div class="col_6">
-							<a class="button pop center tooltip" data-delay="0" title="Text a link to this item to your phone." id="wish_phone">
+							<a class="button pop center tooltip-top" data-delay="0" title="Text a link to this item to your phone." id="wish_phone">
 								send to my phone
 							</a>
 						</div>
+						@if (Model.IsMilkshake)
+						{
+							<div class="col_6 right">
+								<a id="product_buy" class="button pop center" href="#">
+									buy now
+								</a>
+							</div>
+						}
+						else
+						{
+							<div class="col_6 right">
+								<a id="product_buy" class="button pop center" href="#">
+									buy now
+								</a>
+							</div>
+						}
 					</div>
 				}
 			</div>
@@ -723,7 +835,7 @@
 				<!-- Item Description -->
 				@if (!String.IsNullOrEmpty(Model.Description))
 				{
-					<!-- Description Tab -->
+				<!-- Description Tab -->
 					<div id="description" class="tab-content" style="overflow: hidden;">
 						@Html.Raw(Model.Description)
 					</div>
@@ -732,7 +844,7 @@
 				<!-- Item Notes -->
 				@if (!String.IsNullOrEmpty(wishNotes))
 				{
-					<!-- Notes Tab -->
+				<!-- Notes Tab -->
 					<div id="notes" class="tab-content">
 						@wishNotes
 					</div>
@@ -772,7 +884,7 @@
 												<span class="col_12 full center" style="font-size: 10pt;">Canceled</span>
 											</div>
 											<div class="col_3 center">
-												<i class="fa fa-3x fa-ban tooltip" data-delay="50" title="@giver.FirstName gifted this item, but then canceled it." style="color: #b5919b;"></i>
+												<i class="fa fa-3x fa-ban tooltip-top" data-delay="50" title="@giver.FirstName gifted this item, but then canceled it." style="color: #b5919b;"></i>
 											</div>
 											break;
 
@@ -782,7 +894,7 @@
 											<span class="col_12 full center" style="font-size: 10pt;">Gifted <i class="fa fa-check-circle" style="color:#c1dd5c;"></i></span>
 										</div>
 										<div class="col_3 center">
-											<i class="fa fa-3x fa-gift tooltip" data-delay="50" title="This item has been confirmed as received." style="color: #79e0c3;"></i>
+											<i class="fa fa-3x fa-gift tooltip-top" data-delay="50" title="This item has been confirmed as received." style="color: #79e0c3;"></i>
 										</div>
 											break;
 
@@ -791,7 +903,7 @@
 											<span class="col_12 full center nomargin"><b>Reserved by @giver.FullName</b></span>
 										</div>
 										<div class="col_3">
-											<i class="fa fa-3x fa-refresh tooltip" data-delay="50" title="Promised" style="color: #79cae0;"></i>
+											<i class="fa fa-3x fa-refresh tooltip-top" data-delay="50" title="Reserved" style="color: #79cae0;"></i>
 										</div>
 											break;
 
@@ -800,7 +912,7 @@
 											<span class="col_12 full center nomargin"><b>Purchased by @giver.FullName</b></span>
 										</div>
 										<div class="col_3">
-											<i class="fa fa-3x fa-refresh tooltip" data-delay="50" title="Promised" style="color: #79cae0;"></i>
+											<i class="fa fa-3x fa-shopping-cart tooltip-top" data-delay="50" title="Purchased" style="color: #79cae0;"></i>
 										</div>
 											break;
 
@@ -812,7 +924,7 @@
 											</span>
 										</div>
 										<div class="col_3 center">
-											<i class="fa fa-3x fa-certificate tooltip" data-delay="50" title="@giver.FirstName has revealed this gift. It may not have been received yet." style="color: palegoldenrod;"></i>
+											<i class="fa fa-3x fa-certificate tooltip-top" data-delay="50" title="@giver.FirstName has revealed this gift. It may not have been received yet." style="color: palegoldenrod;"></i>
 										</div>
 											break;
 									}
