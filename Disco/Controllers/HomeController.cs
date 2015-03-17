@@ -11,41 +11,9 @@ namespace Disco.Controllers
     public class HomeController : BaseController
     {
         public string ReturnMessage = "";
-
-        private void AddSigninCookieData()
-        {
-            if (Request != null)
-            {
-                bool checkvalue = false;
-
-                if (Request.Form != null && Request.Form["rememberCheckbox"] != null)
-                    checkvalue = bool.Parse(Request.Form.GetValues("rememberCheckbox")[0]);
-
-                HttpCookie rememberMeCookie = Request.Cookies["rememberMe"];
-                bool rememberMe;
-                string eMail = "";
-                if (rememberMeCookie == null)
-                    rememberMe = checkvalue;
-                else
-                {
-                    if (!bool.TryParse(rememberMeCookie.Value, out rememberMe))
-                        rememberMe = checkvalue;
-                }
-
-                if (rememberMe)
-                {
-                    HttpCookie lastUserLogin = Request.Cookies["lastUserLogin"];
-                    eMail = lastUserLogin.Value;
-                }
-
-                ViewBag.RememberMe = rememberMe;
-                ViewBag.LastUserLogin = eMail;
-            }
-        }
-
+                
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
-        {
-            AddSigninCookieData();
+        {            
             base.OnActionExecuting(filterContext);
         }
 
@@ -125,14 +93,6 @@ namespace Disco.Controllers
                             return Json(new { result = false, message = "The specified username / e-mail address does not exist." });
                         }
                     }
-
-                    HttpCookie rememberCookie = new HttpCookie("rememberMe", model.RememberMe.ToString());
-                    rememberCookie.Expires = DateTime.Now.AddDays(model.RememberMe ? 30 : -1);
-                    Response.Cookies.Add(rememberCookie);
-
-                    HttpCookie lastUserCookie = new HttpCookie("lastUserLogin", model.LoginId);
-                    lastUserCookie.Expires = DateTime.Now.AddDays(model.RememberMe ? 30 : -1);
-                    Response.Cookies.Add(lastUserCookie);
                 }
                 catch (Squid.PasswordErrorException e)
                 {
@@ -158,16 +118,25 @@ namespace Disco.Controllers
                 if (wlUser.TutorialMode == true)
                 {
                     if (wlUser.TutorialStep == 0)
-                        dest = Url.Action("setup", "join");
-
-                    if (wlUser.TutorialStep == 1)
                         dest = Url.Action("see", "tutorial");
 
+                    if (wlUser.TutorialStep == 1)
+                        dest = Url.Action("wishlu", "tutorial");
+
                     if (wlUser.TutorialStep == 2)
-                        dest = Url.Action("do", "tutorial");
+                        dest = Url.Action("wish", "tutorial");
 
                     if (wlUser.TutorialStep == 3)
-                        dest = Url.Action("index", "dash");
+                        dest = Url.Action("invite", "tutorial");
+
+                    if (wlUser.TutorialStep == 4)
+                        dest = Url.Action("stores", "tutorial");
+
+                    if (wlUser.TutorialStep == 5)
+                        dest = Url.Action("profile", "tutorial");
+
+                    if (wlUser.TutorialStep == 6)
+                        dest = Url.Action("bookmarklet", "tutorial");
                 }
 
                 if (model.ReturnUrl != null && !String.IsNullOrEmpty(model.ReturnUrl.Trim()))
@@ -246,8 +215,7 @@ namespace Disco.Controllers
     public class SignInModel
     {
         public string LoginId { get; set; }
-        public string Password { get; set; }
-        public bool RememberMe { get; set; }
+        public string Password { get; set; }        
         public string ReturnUrl { get; set; }
     }
 }
