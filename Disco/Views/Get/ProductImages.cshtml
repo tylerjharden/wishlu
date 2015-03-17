@@ -1,0 +1,26 @@
+﻿@model Nest.ISearchResponse<Milkshake.Product>
+@using Disco.Common
+@using System.Text.RegularExpressions
+@using Milkshake
+@{
+    List<Milkshake.Product> results = Model.Documents.ToList();
+}
+
+@foreach (Milkshake.Product product in results)
+{
+    @*if (product == null)
+        {
+            continue;
+        }
+
+        if (String.IsNullOrEmpty(product.Name))
+        {
+            continue;
+        }*@
+
+    <a href="/p/@product.Id" alt="@product.Name" target="_blank">
+        <div class="col_2 pop product @(product.IsMilkshake ? "milkshake" : "") center" style="border: 1px solid lightgray; background: white; border-radius: 15px; width:100px; height: 100px; overflow:hidden;">
+            <img id="image@(product.Id)" alt="@product.Name" itemprop="image" src="@product.Image" />
+        </div>
+    </a>
+}
