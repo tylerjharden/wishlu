@@ -53,11 +53,11 @@ namespace Squid.Wishes
         public Guid Id { get; set; }        
         public String Name { get; set; }        
         public WishluType WishLuType { get; set; }
-        public WishluVisibility Visibility { get; set; }
+        public WishluVisibility Visibility { get; set; }        
         public Guid UserId { get; set; }
         public DateTimeOffset? EventDateTime { get; set; }
         public int DisplayColor { get; set; }
-
+                
         public string UserFullName { get; set; }
         public string UserProfileImage { get; set; }
     }
@@ -79,6 +79,9 @@ namespace Squid.Wishes
         [JsonProperty("UserId")]
         public Guid UserId { get; set; }
 
+        [JsonProperty("owner")]
+        public Guid Owner { get; set; }
+
         [JsonProperty("EventDateTime")]
         public DateTimeOffset? EventDateTime { get; set; }
 
@@ -87,6 +90,15 @@ namespace Squid.Wishes
 
         [JsonProperty("Sort")]
         public int Sort { get; set; }
+
+        [JsonIgnore]
+        public string Url
+        {
+            get
+            {
+                return string.Format("/l/{0}", Id);
+            }
+        }
 
         [JsonIgnore]
         private List<Wish> Wishes
@@ -640,7 +652,7 @@ namespace Squid.Wishes
                 return new List<User>();
             }
         }
-
+                
         public List<Guid> GetFollowerIds()
         {
             try
@@ -648,6 +660,22 @@ namespace Squid.Wishes
                 return Graph.Instance.Cypher
                     .Match("(user:User)-[r:FOLLOWING]-(wishlu:Wishlu)")
                     .Where((Wishlu wishlu) => wishlu.Id == this.Id)
+                    .Return(() => Return.As<Guid>("user.Id"))
+                    .Results.ToList();
+            }
+            catch
+            {
+                return new List<Guid>();
+            }
+        }
+
+        public static List<Guid> GetFollowerIds(Guid wishluId)
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                    .Match("(user:User)-[r:FOLLOWING]-(wishlu:Wishlu)")
+                    .Where((Wishlu wishlu) => wishlu.Id == wishluId)
                     .Return(() => Return.As<Guid>("user.Id"))
                     .Results.ToList();
             }
@@ -705,7 +733,7 @@ namespace Squid.Wishes
                     loop.UserId = this.UserId;
                     loop.Description = "";
                     loop.Id = this.Id;
-                    loop.Hidden = true;                    
+                    loop.Hidden = true;
                     loop.Create();
                 }
                                 
@@ -808,8 +836,8 @@ namespace Squid.Wishes
                 .ReturnDistinct(lu => lu.As<Wishlu>())
                 .Results.ToList();
         }
-        
-        public static dynamic GetFriendsWishLusWishes(Guid requestingUserId, Guid friendUserId)
+
+        public static List<WishluWishes> GetFriendsWishLusWishes(Guid requestingUserId, Guid friendUserId)
         {
             try
             {
@@ -820,15 +848,14 @@ namespace Squid.Wishes
                 // Resulted are distinct, multiple hits to the same wishlu/wish are filtered, no duplicates
                 return Graph.Instance.Cypher
                     .Match("(wish:Wish)-[:CONTAINS_WISH]-(lu:Wishlu)-[:HAS_SUBSCRIBER]-(loop:Wishloop)-[:HAS_MEMBER]-(user:User)")
-                    .Where("loop.UserId = {fid} AND user.Id = {rid} AND (lu.Visibility = 'Friends' OR lu.Visibility IS NULL)")
-                    .OrWhere("(lu.UserId = {fid} AND lu.Visibility = 'Public')")
-                    .WithParams(new {fid = friendUserId, rid = requestingUserId})
-                    .ReturnDistinct((lu, wish) => new WishluWishes
+                    .Where("loop.UserId = {fid} AND user.Id = {rid} AND (lu.Visibility = 'Friends' OR lu.Visibility IS NULL)")                    
+                    .WithParams(new {fid = friendUserId, rid = requestingUserId})                    
+                    .Return((lu, wish) => new WishluWishes
                     {
                         Wishlu = lu.As<Wishlu>(),
                         Wishes = wish.CollectAsDistinct<Wish>()
                     })
-                    .Results.ToList();
+                    .Results.Union(GetUsersPublicWishlusWishes(friendUserId)).ToList();
             }
             catch (Exception e)
             {
@@ -837,7 +864,7 @@ namespace Squid.Wishes
             }
         }
 
-        public static dynamic GetUsersPublicWishlusWishes(Guid userId)
+        public static List<WishluWishes> GetUsersPublicWishlusWishes(Guid userId)
         {
             try
             {
