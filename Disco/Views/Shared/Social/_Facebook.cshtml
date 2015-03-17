@@ -2,12 +2,12 @@
     window.fbAsyncInit = function () {
         FB.init({
             appId: '296645670486904',
-            cookie: true,
-            xfbml: true,
-            version: 'v2.2'
+            cookie: true, // enable cookies to allow the server to access the session
+            xfbml: true, // parse social plugins
+            version: 'v2.2' // use version 2.2
         });
     };
-
+        
     (function (d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0];
         if (d.getElementById(id)) { return; }
@@ -15,4 +15,44 @@
         js.src = "//connect.facebook.net/en_US/sdk.js";
         fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
+
+    window.fbEnsureInit = function (callback) {
+        if (!window.fbApiInit) {
+            setTimeout(function () { fbEnsureInit(callback); }, 50);
+        } else {
+            if (callback) {
+                callback();
+            }
+        }
+    };
+
+    window.statusChangeCallback = function (response) {
+        // The response object is returned with a status field that lets the
+        // app know the current login status of the person.
+        // Full docs on the response object can be found in the documentation
+        // for FB.getLoginStatus().
+        if (response.status === 'connected') {
+            // Logged into your app and Facebook.
+            location.reload();
+        } else if (response.status === 'not_authorized') {
+            // The person is logged into Facebook, but not your app.
+            swal("Hmm...", "Please log into this app.", "warning");
+        } else {
+            // The person is not logged into Facebook, so we're not sure if
+            // they are logged into this app or not.
+            swal("Hmm...", "Please log into Facebook.", "warning");
+        }
+    };
+
+    window.checkLoginState = function () {
+        FB.getLoginStatus(function (response) {
+            statusChangeCallback(response);
+        });
+    };
+
+    window.doFbLogin = function () {
+        FB.login(function (response) {
+            checkLoginState();
+        }, { scope: 'public_profile,email' });
+    };        
 </script>
