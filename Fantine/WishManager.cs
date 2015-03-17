@@ -9,6 +9,7 @@ using Squid.Housekeeping;
 using Squid.Log;
 using Squid.Users;
 using Squid.Wishes;
+using Squid;
 
 namespace Fantine
 {
@@ -48,11 +49,15 @@ namespace Fantine
                 {
                     Logger.Log("Fantine is revealing a gift! (Id: " + rt.GiftId + ")");
 
-                    Gift g = Gift.GetGiftById(rt.GiftId);
-                    //Wish w = g.GetWish();
-                    //User u = g.GetGiver();
+                    try
+                    {
+                        Gift g = Gift.GetGiftById(rt.GiftId);
+                        //Wish w = g.GetWish();
+                        //User u = g.GetGiver();
 
-                    g.Reveal();
+                        g.Reveal();
+                    }
+                    catch (ItemNotFoundException e) { }
                 }
                 catch (Exception e)
                 {
