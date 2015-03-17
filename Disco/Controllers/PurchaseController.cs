@@ -137,13 +137,13 @@ namespace Disco.Controllers
 
     public class PurchaseController : BaseController
     {
-        [Authorize]
+        [AllowAnonymous]
         public ActionResult Index()
         {            
             return View();
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost]
         public ActionResult AddToCart(AddToCartModel model)
         {
@@ -194,7 +194,7 @@ namespace Disco.Controllers
 
             products.Add(product_url);
 
-            var response = Client.AddToCart(CurrentUser.Id, products);
+            var response = Client.AddToCart(GetCurrentUserId(), products);
 
             if (response.IsSuccess)
             {
@@ -224,7 +224,7 @@ namespace Disco.Controllers
             return View("Unavailable", model: product);
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost]
         public ActionResult ValidateShipping(ValidateShippingModel model)
         {
@@ -265,7 +265,7 @@ namespace Disco.Controllers
             }
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost]
         public ActionResult ValidateBilling(ValidateBillingModel model)
         {
@@ -324,7 +324,7 @@ namespace Disco.Controllers
             }
         }
         
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost]
         public ActionResult Checkout(CheckoutModel model)
         {
@@ -372,8 +372,8 @@ namespace Disco.Controllers
 
             return Json(new { });
         }
-        
-        [Authorize]
+
+        [AllowAnonymous]
         public ActionResult Cart(string cart_id)
         {
             var response = Client.GetCartStatus(GetCurrentUserId(), cart_id);
