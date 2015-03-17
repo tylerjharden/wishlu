@@ -1,183 +1,528 @@
-﻿@model List<Squid.Wishes.Wish>
+﻿@model Disco.Controllers.GiftsModel
 @using Disco.Common
 @using System.Text.RegularExpressions
 @{
-    Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
+	Layout = "~/Views/Shared/Templates/MainLayout.cshtml";
 
-    Squid.Users.User current = Squid.Users.User.GetUserById(UserId);
+	Squid.Users.User current = Squid.Users.User.GetUserById(UserId);
 
-    List<Squid.Wishes.Gift> others = current.GetGiftsGiven();
-    List<Squid.Wishes.Gift> my = current.GetGiftsReceived();
+	List<Squid.Wishes.Gift> others = Model.Others;
+	List<Squid.Wishes.Gift> my = Model.Me;
 }
 
 @section page {
-    gifts - wishlu
+	gifts - wishlu
 }
 
-@section title {    
-    <span>gifts</span>
+@section title {
+	<span>gifts</span>
 }
 
 @section styles {
 }
 
 @section scripts {
+	<script>
+		$(document).ready(function () {
+			$(".gift_purchase").on("click", function () {
+				var id = $(this).data('id');
 
+				$("#" + id + "_buy")[0].click();
+
+				$.ajax({
+					type: "POST",
+					url: "/gift/purchase",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify({ Id: id }),
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal({
+								title: "Success!",
+								text: data.message,
+								type: "success"
+							},
+							function () {
+								location.reload();
+							});
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
+
+			$(".gift_reveal").on("click", function () {
+				var id = $(this).data('id');
+
+				$.ajax({
+					type: "POST",
+					url: "/gift/reveal",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify({ Id: id }),
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal({
+								title: "Success!",
+								text: data.message,
+								type: "success"
+							},
+							function () {
+								location.reload();
+							});
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
+
+			$(".gift_confirm").on("click", function () {
+				var id = $(this).data('id');
+
+				$.ajax({
+					type: "POST",
+					url: "/gift/confirm",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify({ Id: id }),
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal({
+								title: "Success!",
+								text: data.message,
+								type: "success"
+							},
+							function () {
+								location.reload();
+							});
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
+
+			$(".gift_remind").on("click", function () {
+				var id = $(this).data('id');
+			});
+
+			$(".gift_reveal").on("click", function () {
+				var id = $(this).data('id');
+
+				$.ajax({
+					type: "POST",
+					url: "/gift/reveal",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify({ Id: id }),
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal({
+								title: "Success!",
+								text: data.message,
+								type: "success"
+							},
+							function () {
+								location.reload();
+							});
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
+
+			$(".gift_thank").on("click", function () {
+				var id = $(this).data('id');
+			});
+
+			$(".gift_cancel").on("click", function () {
+				var id = $(this).data('id');
+
+				$.ajax({
+					type: "POST",
+					url: "/gift/cancel",
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					traditional: true,
+					data: JSON.stringify({ Id: id }),
+					success: function (data, status, request) {
+						if (data.result == true) {
+							swal({
+								title: "Success!",
+								text: data.message,
+								type: "success"
+							},
+							function () {
+								location.reload();
+							});
+						}
+						else {
+							swal("Uh oh...", data.message, "error");
+						}
+					},
+					error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
+				});
+			});
+
+			$('option:selected', '#sort_others').removeAttr('selected');
+			$('#sort_others').find('option[value="' + @Model.SortOthers + '"]').attr("selected", true);
+			$("#sort_others").change(function () {
+				var url = $(this).val();
+				window.location = "/g?sort_others=" + url;
+			});
+
+			$('option:selected', '#sort_me').removeAttr('selected');
+			$('#sort_me').find('option[value="' + @Model.SortMe + '"]').attr("selected", true);
+			$("#sort_me").change(function () {
+				var url = $(this).val();
+				window.location = "/g?sort_me=" + url;
+			});
+		});
+	</script>
 }
 
 @section info {
-    <div class="col_12" style="text-align:left;height:200px;">
-    </div>
+	<div class="col_12" style="text-align:left;height:200px;">
+	</div>
 }
 
-<div class="col_10 clearfix nomargin nopadding">    
-    <div class="col_6" style="border: 2px solid lightblue; border-radius: 15px; background:white;">
-        <a href="/gift/other"><h6 style="margin-left:10px;">gifts for others:</h6></a>
-        <div class="col_12">
-            <h5>reserved:</h5>
-            @foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Reserved))
-            {
-                Squid.Users.User r = g.GetReceiver();
-                Squid.Wishes.Wish w = g.GetWish();
+<div class="row">
+	<div class="col-xs-12 col-lg-6">
+		<div class="row">
+			<div class="col-xs-12 col-md-6">
+				<a href="/gift/other"><h1>gifts for others</h1></a>
+			</div>
+			<div class="col-xs-12 col-md-6">
+				<select id="sort_others" class="form-control full">
+					<option selected value="0">date added: newest first</option>
+					<option value="1">date added: newest last</option>
+				</select>
+			</div>
+		</div>
+		@if (others.Count(x => x.Status == Squid.Wishes.GiftStatus.Reserved) > 0)
+		{
+			<div class="col-xs-12">
+				<h2>need to purchase</h2>
+				@foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Reserved))
+				{
+					Squid.Users.User r = g.GetReceiver();
+					Squid.Wishes.Wish w = g.GetWish();
 
-                <div class="col_12">
-                    <span>Receiver: @r.FullName</span>
-                    <span>Item: @w.Name</span>
-                    <span>Gift Status: @g.Status</span>
-                </div>
-            }
-        </div>
-        <div class="col_12">
-            <h5>purchased:</h5>
-            @foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Purchased))
-            {
-                Squid.Users.User r = g.GetReceiver();
-                Squid.Wishes.Wish w = g.GetWish();
+					if (r == null || w == null)
+					{
+						continue;
+					}
 
-                <div class="col_12">
-                    <span>Receiver: @r.FullName</span>
-                    <span>Item: @w.Name</span>
-                    <span>Gift Status: @g.Status</span>
-                </div>
-            }
-        </div>
-        <div class="col_12">
-            <h5>awaiting confirmation:</h5>
-            @foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Revealed))
-            {
-                Squid.Users.User r = g.GetReceiver();
-                Squid.Wishes.Wish w = g.GetWish();
+					<div class="row gift" data-id="@g.Id">
+						<div class="col-xs-4">
+							<a href="/i/@w.Id">
+								<img src="@w.Image" alt="@w.Name" class="img-responsive img-thumbnail" />
+							</a>
+						</div>
+						<div class="col-xs-8">
+							<div class="row">
+								<div class="col-xs-12 text-nowrap">
+									<a href="/i/@w.Id">
+										<h4>@w.Name.TruncateAtWord(50)</h4>
+									</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-6 col-md-8 text-center">
+									<h4>@w.Price.ToString("C")</h4>
+									<h5><b>Reserved:</b> @g.LastModifiedOn.ToString("M/dd/yyyy")</h5>
+									<a href="/u/@r.Id">
+										<div class="row">
+											<div class="col-xs-3">
+												<img src="@r.Image" alt="@r.FullName" class="img-responsive" style="border:2px solid lightgray;border-radius:5px;" />
+											</div>
+											<div class="col-xs-9 text-left">
+												<h5>@r.FullName</h5>
+											</div>
+										</div>
+									</a>
+								</div>								
+								<div class="col-xs-6 col-md-4">
+									<a class="hide" id="@(g.Id)_buy" target="_blank" href="@w.WishUrl"></a>
+									<button class="btn btn-primary btn-block btn-sm gift_purchase" data-id="@g.Id" role="button">purchase</button>
+								</div>
+							</div>
+						</div>									
+						
+					</div>
+				}
+			</div>
+		}
+		@if (others.Count(x => x.Status == Squid.Wishes.GiftStatus.Purchased) > 0)
+		{
+			<div class="col-xs-12">
+				<h5>purchased</h5>
+				@foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Purchased))
+				{
+					Squid.Users.User r = g.GetReceiver();
+					Squid.Wishes.Wish w = g.GetWish();
 
-                <div class="col_12">
-                    <span>Receiver: @r.FullName</span>
-                    <span>Item: @w.Name</span>
-                    <span>Gift Status: @g.Status</span>
-                </div>
-            }
-        </div>
-        <div class="col_12">
-            <h5>canceled:</h5>
-            @foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Canceled))
-            {
-                Squid.Users.User r = g.GetReceiver();
-                Squid.Wishes.Wish w = g.GetWish();
+					if (r == null || w == null)
+					{
+						continue;
+					}
 
-                <div class="col_12">
-                    <span>Receiver: @r.FullName</span>
-                    <span>Item: @w.Name</span>
-                    <span>Gift Status: @g.Status</span>
-                </div>
-            }
-        </div>
-    </div>
-    <div class="col_6" style="border: 2px solid lightblue; border-radius: 15px; background: white;">
-        <a href="/gift/my"><h6 style="margin-left:10px;">my gifts:</h6></a>        
-        <div class="col_12">
-            <h5>revealed:</h5>
-            @foreach (Squid.Wishes.Gift g in my.Where(x => x.Status == Squid.Wishes.GiftStatus.Revealed))
-            {
-                Squid.Users.User u = g.GetGiver();
-                Squid.Wishes.Wish w = g.GetWish();
+					<div class="row gift" data-id="@g.Id">
+						<div class="col-xs-3">
+							<a href="/i/@w.Id">
+								<img src="@w.Image" alt="@w.Name" class="img-responsive img-thumbnail" />
+							</a>
+						</div>
+						<div class="col-xs-9">
+							<div class="row">
+								<div class="col-xs-12">
+									<a href="/i/@w.Id">
+										<div>@w.Name</div>
+									</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-6 text-center">
+									<h4>@w.Price.ToString("C")</h4>
+									<h5><b>Purchased:</b> @g.LastModifiedOn.ToString("M/dd/yyyy")</h5>
+								</div>
+								<div class="col-xs-2 text-center">
+									<a href="/u/@r.Id">
+										<img class="circlefriend pop" src="@r.Image" alt="@r.FullName" style="width:50px; height:50px;" />
+										<div><p>@r.FullName</p></div>
+									</a>
+								</div>
+								<div class="col-xs-4">
+									<button class="btn btn-primary btn-block btn-sm gift_reveal" data-id="@g.Id" role="button">reveal</button>
+								</div>
+							</div>
+						</div>                        
+					</div>
+				}
+			</div>
+		}
+		@if (others.Count(x => x.Status == Squid.Wishes.GiftStatus.Revealed) > 0)
+		{
+			<div class="col-xs-12">
+				<h5>awaiting confirmation</h5>
+				@foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Revealed))
+				{
+					Squid.Users.User r = g.GetReceiver();
+					Squid.Wishes.Wish w = g.GetWish();
 
-                <div class="col_12">
-                    <span>Giver: @u.FullName</span>
-                    <span>Item: @w.Name</span>
-                    <span>Gift Status: @g.Status</span>
-                </div>
-            }
-        </div>        
-        <div class="col_12">
-            <h5>confirmed:</h5>
-            @foreach (Squid.Wishes.Gift g in my.Where(x => x.Status == Squid.Wishes.GiftStatus.Confirmed))
-            {
-                Squid.Users.User u = g.GetGiver();
-                Squid.Wishes.Wish w = g.GetWish();
-                
-                <div class="col_12">
-                    <span>Giver: @u.FullName</span>
-                    <span>Item: @w.Name</span>
-                    <span>Gift Status: @g.Status</span>
-                </div>
-            }
-        </div>
-        <div class="col_12">
-            <h5>canceled:</h5>
-            @foreach (Squid.Wishes.Gift g in my.Where(x => x.Status == Squid.Wishes.GiftStatus.Canceled))
-            {
-                Squid.Users.User u = g.GetGiver();
-                Squid.Wishes.Wish w = g.GetWish();
-                
-                <div class="col_12">
-                    <span>Giver: @u.FullName</span>
-                    <span>Item: @w.Name</span>
-                    <span>Gift Status: @g.Status</span>
-                </div>
-            }
-        </div>
-    </div>
-</div>
+					if (r == null || w == null)
+					{
+						continue;
+					}
 
-<div class="col_2 clearfix omega" style="float:right; position: relative;">    
-    <!-- Sort -->
-    <div class="col_12 headerfooterFont" style="color:#9a8b7d;"><b>sort:</b></div>
-    <div class="col_12">
-        <select id="sort" class="full small-input input-like lowercase">
-            <option value="1">a - z</option>
-            <option value="2">z - a</option>
-            <option value="3">price: high to low</option>
-            <option value="4">price: low to high</option>
-            <option value="5">rating: highest first</option>
-            <option value="6">rating: lowest first</option>
-            <option selected value="7">date added: newest first</option>
-            <option value="8">date added: newest last</option>
-        </select>
-    </div>
+					<div class="row gift" data-id="@g.Id">
+						<div class="col-xs-3">
+							<a href="/i/@w.Id">
+								<img src="@w.Image" alt="@w.Name" class="img-responsive img-thumbnail" />
+							</a>
+						</div>
+						<div class="col-xs-9">
+							<div class="row">
+								<div class="col-xs-12">
+									<a href="/i/@w.Id">
+										<div>@w.Name</div>
+									</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-6 text-center">
+									<div><b>@w.Price.ToString("C")</b></div>
+									<div><b>Revealed:</b> @g.LastModifiedOn.ToString("M/dd/yyyy")</div>
+								</div>
+								<div class="col-xs-2 text-center">
+									<a href="/u/@r.Id">
+										<img class="circlefriend pop" src="@r.Image" alt="@r.FullName" style="width:50px; height:50px;" />
+										<div><p>@r.FullName</p></div>
+									</a>
+								</div>
+								<div class="col-xs-4">
+									@*TODO:Add facility for reminding users to confirm gifts*@
+									<button class="btn btn-primary btn-block btn-sm gift_remind" data-id="@g.Id" role="button">send reminder</button>
+								</div>
+							</div>
+						</div>						
+					</div>
+				}
+			</div>
+		}
+		@if (others.Count(x => x.Status == Squid.Wishes.GiftStatus.Confirmed) > 0)
+		{
+			<div class="col-xs-12">
+				<h5>confirmed as received</h5>
+				@foreach (Squid.Wishes.Gift g in others.Where(x => x.Status == Squid.Wishes.GiftStatus.Confirmed))
+				{
+					Squid.Users.User r = g.GetReceiver();
+					Squid.Wishes.Wish w = g.GetWish();
 
-    <hr class="alt1 mg-sm" />
-    <!-- Select Items -->
-    <div class="col_6 headerfooterFont" style="color: #9a8b7d;"><b>select items:</b></div>
-    <div class="col_6 right">
-        <a class="button pop" style="padding:5px;" onclick="clickAll();">all</a>
-        <a class="button pop" style="padding:5px;" onclick="clickNone();">none</a>
-    </div>
+					if (r == null || w == null)
+					{
+						continue;
+					}
 
-    <hr class="alt1 mg-sm" />
-    <!-- Actions -->
-    <div class="col_12 headerfooterFont" style="color: #9a8b7d;"><b>actions:</b></div>
-    @*
-    <a class="button pop full center" id="wish_copy">copy items</a>
-    <div class="col_12 center" id="wish_copy_container" style="display:none;">
-        <select class="full small-input input-like lowercase" id="wish_copy_wishlus">
-            @foreach (Squid.Wishes.Wishlu wishlu in wishlus)
-            {                
-                <option value="@wishlu.Id">@wishlu.Name</option>
-            }
-        </select>
-        <hr class="or" />
-        <input type="text" class="input-like small-input full" id="copy_wishlu_input" placeholder="enter name here" style="margin-top: 5px; margin-bottom: 5px;" />
-        <a class="button pop center" id="wish_copy_do" style="padding:5px;">copy</a>
-    </div>
-    *@
+					<div class="row gift" data-id="@g.Id">
+						<div class="col-xs-3">
+							<a href="/i/@w.Id">
+								<img src="@w.Image" alt="@w.Name" class="img-responsive img-thumbnail" />
+							</a>
+						</div>
+						<div class="col-xs-9">
+							<div class="row">
+								<div class="col-xs-12">
+									<a href="/i/@w.Id">
+										<div>@w.Name</div>
+									</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-6 text-center">
+									<div><b>@w.Price.ToString("C")</b></div>
+									<div><b>Confirmed:</b> @g.LastModifiedOn.ToString("M/dd/yyyy")</div>
+								</div>
+								<div class="col-xs-2 text-center">
+									<a href="/u/@r.Id">
+										<img class="circlefriend pop" src="@r.Image" alt="@r.FullName" style="width:50px; height:50px;" />
+										<div><p>@r.FullName</p></div>
+									</a>
+								</div>
+								<div class="col-xs-4">                                    
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	</div>
+	<div class="col-xs-12 col-lg-6">
+		<div class="row">
+			<div class="col-xs-12 col-md-6">
+				<a href="/gift/my"><h4 style="margin-left:10px;">gifts to me</h4></a>
+			</div>
+			<div class="col-xs-12 col-md-6">
+				<select id="sort_me" class="full form-control">
+					<option selected value="0">date added: newest first</option>
+					<option value="1">date added: newest last</option>
+				</select>
+			</div>
+		</div>
+		@if (my.Count(x => x.Status == Squid.Wishes.GiftStatus.Revealed) > 0)
+		{
+			<div class="col-xs-12">
+				<h5>revealed</h5>
+				@foreach (Squid.Wishes.Gift g in my.Where(x => x.Status == Squid.Wishes.GiftStatus.Revealed))
+				{
+					Squid.Users.User u = g.GetGiver();
+					Squid.Wishes.Wish w = g.GetWish();
 
-    <a class="button pop full center" id="wish_delete">delete items</a>
+					if (u == null || w == null)
+					{
+						continue;
+					}
+
+					<div class="row gift" data-id="@g.Id">
+						<div class="col-xs-3">
+							<a href="/i/@w.Id">
+								<img src="@w.Image" alt="@w.Name" class="img-responsive img-thumbnail" />
+							</a>
+						</div>
+						<div class="col-xs-9">
+							<div class="row">
+								<div class="col-xs-12">
+									<a href="/i/@w.Id">
+										<div>@w.Name</div>
+									</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-6 center">
+									<div><b>@w.Price.ToString("C")</b></div>
+									<div><b>Revealed:</b> @g.LastModifiedOn.ToString("M/dd/yyyy")</div>
+								</div>
+								<div class="col-xs-2">
+									<a href="/u/@u.Id">
+										<img class="circlefriend pop" src="@u.Image" alt="@u.FullName" style="width:50px; height:50px;" />
+										@*<div class="circlefriend pop" style="display:inline-block; background-image: url('@u.Image'); border: 1px solid gray; width: 50px; height: 50px"></div>*@
+										<span style="font-size:12px;">@u.FullName</span>
+									</a>
+								</div>
+								<div class="col-xs-4">
+									<a class="btn btn-primary btn-sm btn-block gift_confirm" data-id="@g.Id" style="padding:5px;">confirm as received</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		}
+		@if (my.Count(x => x.Status == Squid.Wishes.GiftStatus.Confirmed) > 0)
+		{
+			<div class="col-xs-12">
+				<h5>confirmed as received</h5>
+				@foreach (Squid.Wishes.Gift g in my.Where(x => x.Status == Squid.Wishes.GiftStatus.Confirmed))
+				{
+					Squid.Users.User u = g.GetGiver();
+					Squid.Wishes.Wish w = g.GetWish();
+
+					if (u == null || w == null)
+					{
+						continue;
+					}
+
+					<div class="row gift" data-id="@g.Id">
+						<div class="col-xs-3">
+							<a href="/i/@w.Id">
+								<img src="@w.Image" alt="@w.Name" class="img-responsive img-thumbnail" />
+							</a>
+						</div>
+						<div class="col-xs-9">
+							<div class="row">
+								<div class="col-xs-12">
+									<a href="/i/@w.Id">
+										<div>@w.Name</div>
+									</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-6 center">
+									<div><b>@w.Price.ToString("C")</b></div>
+									<div><b>Confirmed:</b> @g.LastModifiedOn.ToString("M/dd/yyyy")</div>
+								</div>
+								<div class="col-xs-2">
+									<a href="/u/@u.Id">
+										<img class="circlefriend pop" src="@u.Image" alt="@u.FullName" style="width:50px; height:50px;" />
+										@*<div class="circlefriend pop" style="display:inline-block; background-image: url('@u.Image'); border: 1px solid gray; width: 50px; height: 50px"></div>*@
+										<span style="font-size:12px;">@u.FullName</span>
+									</a>
+								</div>
+								<div class="col-xs-4">
+									@*TODO: Add e-card API*@
+									@*<a class="button pop full text-center gift_thank" data-id="@g.Id" style="padding:5px;">send thank you</a>*@
+								</div>
+							</div>
+						</div>						
+					</div>
+				}
+			</div>
+		}
+	</div>
 </div>
