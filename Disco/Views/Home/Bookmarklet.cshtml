@@ -12,6 +12,10 @@
         $(document).ready(function () {
             $("#info_popup").hide();
 
+            $("#bookmarklet").mouseenter(function () { $(".overlay").fadeIn() });
+
+            $("#bookmarklet").mouseleave(function () { $(".overlay").fadeOut() });
+
             $("#bookmarklet").click(function (e) {
                 e.preventDefault();
                 swal("Almost!", "Drag this into the bookmark bar in your browser, then click it when on other web pages of things you want to add them to wishlu.", "warning");
@@ -21,11 +25,95 @@
     </script>
 }
 
-<div class="col_6 center pop inset" style="float: none; margin: 10px auto; position: relative; padding: 0; background-color: white; border: 4px solid lightblue; border-radius: 15px;">
-    <p>
-        The wishlu bookmarklet tool makes it easy for you to add items to one of your wishlus from any product page on the web. Drag and drop the bookmarklet to your browser's bookmark bar. Then, whenever you see an item online that you want to add to your wishlu, simply click on the wishlu bookmarklet and follow the prompts.
-    </p>
-    <a class="pop" id="bookmarklet" style="display: inline-block; margin: 10px; padding: 10px; width: 150px; height: 50px; border: 4px solid lightblue; border-radius: 15px; background-color: white;" href="javascript:void((function(d){var e=d.createElement('script');e.setAttribute('type','text/javascript');e.setAttribute('charset','UTF-8');e.setAttribute('src','//assets.wishlu.com/ext/bookmarklet.js?r='+Math.random()*99999999);d.body.appendChild(e)})(document));">
-        add to wishlu
-    </a>
+<div class="col_8 center pop inset clearfix" style="float: none; margin: 10px auto; position: relative; padding: 10px; background-color: white; border: 4px solid lightblue; border-radius: 15px;">
+    <h3>The wishlu button for your browser lets you save items from almost any retailer on the web, from your favorite luxury department store, to Etsy, to the local boutique you just happily discovered.</h3>
+
+    <div class="col_12">
+        <h4>
+            Our browser button works in:
+        </h4>
+        <div class="col_3">
+            <div class="col_12">
+                <img alt="Google Chrome" src="https://github.com/alrra/browser-logos/blob/master/chrome/chrome_64x64.png?raw=true" />
+            </div>
+            <div class="col_12">
+                <b>Chrome</b>
+            </div>
+        </div>
+        <div class="col_3">
+            <div class="col_12">
+                <img alt="Mozilla Firefox" src="https://github.com/alrra/browser-logos/blob/master/firefox/firefox_64x64.png?raw=true" />
+            </div>
+            <div class="col_12">
+                <b>Firefox</b>
+            </div>
+        </div>
+        <div class="col_3">
+            <div class="col_12">
+                <img alt="Microsoft Internet Explorer" src="https://github.com/alrra/browser-logos/blob/master/internet-explorer/internet-explorer_64x64.png?raw=true" />
+            </div>
+            <div class="col_12">
+                <b>Internet Explorer</b>
+            </div>
+        </div>
+        <div class="col_3">
+            <div class="col_12">
+                <img alt="Apple Safari" src="https://github.com/alrra/browser-logos/blob/master/safari/safari_64x64.png?raw=true" />
+            </div>
+            <div class="col_12">
+                <b>Safari</b>
+            </div>
+        </div>
+    </div>
+    @*<p>
+            The wishlu bookmarklet tool makes it easy for you to add items to one of your wishlus from any product page on the web. Drag and drop the bookmarklet to your browser's bookmark bar. Then, whenever you see an item online that you want to add to your wishlu, simply click on the wishlu bookmarklet and follow the prompts.
+        </p>*@
+
+    <div class="col_12 pop" style="border:2px solid lightblue; border-radius:15px;">
+        <h3>Click and drag to your browser's bookmarks bar:</h3>
+        <a class="pop" id="bookmarklet" style="display: inline-block; margin: 10px; padding: 10px; width: 150px; height: 50px; border: 4px solid lightblue; border-radius: 15px; background-color: white;" href="javascript:void((function(d){var e=d.createElement('script');e.setAttribute('type','text/javascript');e.setAttribute('charset','UTF-8');e.setAttribute('src','//assets.wishlu.com/ext/bookmarklet.js?r='+Math.random()*99999999);d.body.appendChild(e)})(document));" rel="nofollow">
+            <h4 style="margin:0;">add to wishlu</h4>
+        </a>
+        <div class="col_12">
+            <div>
+                If your browser's bookmarks bar is not currently visible, you can toggle it using the key combination:
+            </div>
+            <img alt="ctrl" style="height:36px;" src="//assets.wishlu.com/images/keys/ctrl.png" />
+            <span style="font-size:36px;vertical-align:middle;">+</span>
+            <img alt="shift" style="height:36px;" src="//assets.wishlu.com/images/keys/shift.png" />
+            <span style="font-size:36px;vertical-align:middle;">+</span>
+            <img alt="b" style="height:36px;" src="//assets.wishlu.com/images/keys/b.png" />
+        </div>
+    </div>
+
+    <div class="col_12 pop" style="margin-top:75px;border:2px solid lightblue; border-radius:15px;">
+        <h3>
+            Once you add the wishlu button, you're ready to go.
+        </h3>
+        <div class="col_12">
+            <h4 class="text-left">
+                Whenever you are browsing the web and you see an item you would like to add to one of your wishlus, open the item's product page (usually by clicking on the item's image or view link). From here, take note of the item's price and then click "add to wishlu" (the bookmarklet) from your browser's bookmarks bar.
+            </h4>
+            <img style="width:100%; border-radius:5px;border:1px solid gray;" src="//assets.wishlu.com/images/bookmark_boutique.png" />
+        </div>
+
+        <div class="col_12" style="margin-top:50px;">
+            <h4>
+                On the next page, click on the image of your item that you want to save.
+            </h4>
+            <img style="width:100%; border-radius:5px;border:1px solid gray;" src="//assets.wishlu.com/images/bookmark_images.png" />
+        </div>
+
+        <div class="col_12" style="margin-top:50px;">
+            <h4>
+                Add whatever additional info about the item you want.
+            </h4>
+            <img style="width:100%; border-radius:5px;border:1px solid gray;" src="//assets.wishlu.com/images/bookmark_popup.png" />
+        </div>
+    </div>
 </div>
+
+@section overlays {
+    <div class="overlay" style="position:absolute;top:-100px;left:35%;width:10%;height:70%;background:url('//assets.wishlu.com/images/bookmark_arrow.png');background-repeat:no-repeat;background-position:center;display:none;z-index:100000">
+    </div>
+}
