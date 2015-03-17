@@ -1,6 +1,6 @@
 ﻿@using Disco.Common
 @{
-    Layout = "~/Views/Shared/Templates/PopUpLayout.cshtml";
+    Layout = "~/Views/Shared/Templates/BlankLayout.cshtml";
         
     // Facebook
     string clientId = "296645670486904";
@@ -34,109 +34,78 @@
 }
 
 @section styles {
-<style>
-#JoinPopup
-{    
-    position: relative;
-    z-index: 200;    
-    /*height: auto;*/ /* 400px */
-    width: 380px; /* 400px */    
-    padding: 10px;
-    /*display: none;*/
-    margin: 50px auto;    
-    color: #918b7d;
-    font-family: Lato, Helvetica, Arial, Sans-Serif;
-    background: white;    
-    border: 5px solid #D3EEF2;
-    border-radius: 15px;    
-}
 
-    #InvitePopup
-{    
-    position: relative;
-    z-index: 200;    
-    /*height: auto;*/ /* 400px */
-    width: 380px; /* 400px */    
-    padding: 10px;
-    /*display: none;*/
-    margin: 50px auto;    
-    color: #918b7d;
-    font-family: Lato, Helvetica, Arial, Sans-Serif;
-    background: white;    
-    border: 5px solid #D3EEF2;
-    border-radius: 15px;    
-}
-</style>
 }
 
 @section scripts
 {
-
-<script type="text/javascript">    
+<script>
     $(document).ready(function () {
-        window.resizeTo(600, 400);
-    });
-</script>
+        $("#joinForm").submit(function (e) {
+            e.preventDefault();
 
-    <script>
-        $(document).ready(function () {
-            $("#invite_do").click(function () {
-                $.ajax({
-                    type: "POST",
-                    url: "/join/exists?code=" + $("#invite_code").val(),
-                    dataType: 'json',
-                    contentType: 'application/json; charset=utf-8',
-                    traditional: true,
-                    data: null,
-                    success: function (data, status, request) {
-                        if (data.result == true) {
-                            //swal("Success!", data.message, "success");
-                            location.href = "/join/invite?code=" + $("#invite_code").val();
-                        }
-                        else {
-                            swal("Uh oh...", data.message, "error");
-                        }
-                    },
-                    error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
-                });
+            $.ajax({
+                type: "POST",
+                url: "/join/exists?code=" + $("#invite_code").val(),
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                traditional: true,
+                data: null,
+                success: function (data, status, request) {
+                    if (data.result == true) {
+                        //swal("Success!", data.message, "success");
+                        location.href = "/join/invite?code=" + $("#invite_code").val();
+                    }
+                    else {
+                        swal("Uh oh...", data.message, "error");
+                    }
+                },
+                error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
             });
         });
-    </script>
+    });
+</script>
 }
 
-<div class="pop inset clearfix" id="JoinPopup">
-    <!-- Notification Bars-->
-    @RenderPage("~/Views/Shared/Templates/_NotificationBars.cshtml")
-    <!-- End Notification Bars -->
-    <div class="col_12">
-        <h4 style="margin-top: 0;">sign up for wishlu</h4>
-        <div class="col_12">
+<form class="form-horizontal col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4" id="joinForm" name="joinForm" method="post" action="" role="form">
+    <input type="hidden" id="returnurl" value="@(ViewBag.ReturnUrl)" />
+    <div class="row text-center">
+        <a href="/">
+            <img src="//assets.wishlu.com/images/headerLogo.png" alt="Sign in to wishlu">
+        </a>
+    </div>
+    <h1>sign up for wishlu</h1>
+    <div class="form-group">
+        <div class="col-xs-12">
             <a class="button pop full" style="color: #3B5998;" href="@(string.Format("https://graph.facebook.com/oauth/authorize?client_id={0}&redirect_uri={1}&scope={2}", clientId, redirectUrl, scope))">
                 <span class="fa fa-2x fa-facebook-square" style="color: #3B5998; margin-right: 10px;"></span>
-                <span style="font-size: 14pt; font-weight: bold;">continue with facebook</span>
+                <span style="font-weight: bold;">continue with facebook</span>
             </a>
         </div>
-        <div class="col_12">
+    </div>
+    <div class="form-group">
+        <div class="col-xs-12">
             <a class="button pop full" href="/join/register">
                 <span class="fa fa-2x fa-envelope" style="margin-right: 10px;"></span>
-                <span class="center" style="font-size: 14pt; font-weight: bold;">sign up with email</span>
+                <span style="font-weight: bold;">sign up with email</span>
             </a>
         </div>
-    </div>  
-    <div class="col_12 center">
+    </div>
+    <div class="col-xs-12 text-center">
         Already a member? <a href="/signin">Sign in here</a>
-    </div>  
-</div>
-
-<div class="pop inset clearfix" id="InvitePopup">
-    <div class="col_12">
-        <h4 style="margin-top: 0;">i have an invite code</h4>
-        <div class="col_12">
-            <input type="text" id="invite_code" class="full input-like large-input" placeholder="enter code here" />
-            <a id="invite_do" class="button pop full center" style="margin-top: 10px;">
-                <span style="font-size: 14pt; font-weight: bold;">continue</span>
-            </a>
+    </div>
+    <hr />
+    <h2>i have an invite code</h2>
+    <div class="form-group">        
+        <div class="col-xs-12">
+            <input type="text" id="invite_code" class="full form-control" placeholder="enter code here" />            
+        </div>        
+    </div>
+    <div class="form-group">
+        <div class="col-xs-12">
+            <button type="submit" id="invite_do" class="btn btn-primary btn-block">
+                <span style="font-weight: bold;">continue</span>
+            </button>
         </div>
-        
-    </div>  
-</div>
+    </div>
+</form>
