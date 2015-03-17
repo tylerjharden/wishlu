@@ -362,14 +362,13 @@
 <div class="col_2 clearfix omega" style="float:right;position: relative;">
 	<!-- Edit -->
 	<div class="col_12 nomargin" style="color:#9a8b7d;"><b>edit:</b></div>
-	@if (Model.wishLoop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
-	{
-		<!-- Wishloop Title -->
-		<div class="col_12">
-			<input id="wishloop_name" class="input-like lowercase" style="width:80%;" value="@Model.wishLoop.Name" />
-			<a id="wishloop_save" class="button pop right" style="padding:8px;"><i class="fa fa-save"></i></a>
-		</div>
-	}
+	
+	<!-- Wishloop Title -->
+	<div class="col_12">
+		<input id="wishloop_name" class="input-like lowercase" style="width:80%;" value="@Model.wishLoop.Name" />
+		<a id="wishloop_save" class="button pop right" style="padding:8px;"><i class="fa fa-save"></i></a>
+	</div>
+	
 	<!-- Wishloop Color -->
 	<div class="col_12 center">
 		<div class="sitelink splotch" style="display:inline-block; background-color: #95D5E1;" data-color="95D5E1"></div>
@@ -383,33 +382,30 @@
 		<div class="sitelink splotch" style="display:inline-block; background-color: #B3CEE1;" data-color="B3CEE1"></div>
 		<div class="sitelink splotch" style="display:inline-block; background-color: #CBEBC4;" data-color="CBEBC4"></div>
 	</div>
-
-	@if (Model.wishLoop.WishloopType != Squid.Wishes.WishloopType.AllFriends)
-	{
-		<a class="button pop full center" id="member_add" style="font-size:10pt;">add members</a>
-		<div class="col_12 center" id="member_add_container" style="display:none;">
-			<div class="col_12" style="overflow-y:scroll; height: 150px;">
-				@foreach (Squid.Users.User user in Squid.Users.User.GetUsersFriends(UserId).OrderBy(x => x.FullName))
+		
+	<a class="button pop full center" id="member_add" style="font-size:10pt;">add members</a>
+	<div class="col_12 center" id="member_add_container" style="display:none;">
+		<div class="col_12" style="overflow-y:scroll; height: 150px;">
+			@foreach (Squid.Users.User user in Squid.Users.User.GetUsersFriends(UserId).OrderBy(x => x.FullName))
+			{
+				if (Model.wishLoopMembers.Count(x => x.Id == user.Id) > 0)
 				{
-					if (Model.wishLoopMembers.Count(x => x.Id == user.Id) > 0)
-					{
-						continue;
-					}
-
-					<div class="col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
-						<span style="float:left;font-size:10pt;">
-							@user.FullName
-						</span>
-						<span style="float:right;">
-							<input class="user" type="checkbox" name="@user.Id" id="@user.Id" value="@user.Id" />
-						</span>
-					</div>
+					continue;
 				}
-			</div>
-			<a class="button pop center" id="member_add_do" style="padding:5px;font-size:10pt;">add</a>
-		</div>
-	}
 
+				<div class="col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
+					<span style="float:left;font-size:10pt;">
+						@user.FullName
+					</span>
+					<span style="float:right;">
+						<input class="user" type="checkbox" name="@user.Id" id="@user.Id" value="@user.Id" />
+					</span>
+				</div>
+			}
+		</div>
+		<a class="button pop center" id="member_add_do" style="padding:5px;font-size:10pt;">add</a>
+	</div>
+	
 	<hr class="alt1 mg-sm" />
 
 	<!-- Wishlus -->
@@ -464,10 +460,8 @@
 	<!-- Actions -->
 	<div class="col_12 nomargin" style="color: #9a8b7d;"><b>actions:</b></div>
 
-	@if (Model.wishLoop.WishloopType != Squid.Wishes.WishloopType.AllFriends)
-	{		
-		<a class="button pop full center" id="member_remove" style="font-size:10pt;">remove members</a>
-	}
+	<a class="button pop full center" id="member_remove" style="font-size:10pt;">remove members</a>
+	
 	<a class="button pop full center" id="member_copy" style="font-size:10pt;">copy members</a>
 	<div class="col_12 center" id="member_copy_container" style="display:none;">
 		<div class="col_12" style="overflow-y:auto; min-height: 100px; max-height: 150px;">
@@ -477,13 +471,7 @@
 				{
 					continue;
 				}
-
-				if (wishloop.WishloopType == Squid.Wishes.WishloopType.AllFriends)
-				{
-
-					continue;
-				}
-
+					
 				<div class="col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
 					<span style="float:left;font-size:10pt;">
 						@wishloop.Name.TruncateAtWord(25)
@@ -497,35 +485,27 @@
 
 		<a class="button pop center" id="member_copy_do" style="padding:5px;font-size:10pt;">copy</a>
 	</div>
-
-	@if (Model.wishLoop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
-	{
-		<a class="button pop full center" id="member_move" style="font-size:10pt;">move members</a>
-		<div class="col_12 center" id="member_move_container" style="display:none;">
-			<div class="col_12" style="overflow-y:auto; min-height: 100px; max-height: 150px;">
-				@foreach (Squid.Wishes.Wishloop wishloop in Squid.Wishes.Wishloop.GetUsersWishloops(UserId).OrderBy(x => x.Name))
-				{
-					if (wishloop.Id == Model.wishLoop.Id)
-					{
-						continue;
-					}
-
-					if (wishloop.WishloopType == Squid.Wishes.WishloopType.AllFriends)
-					{
-						continue;
-					}
 		
-					<div class="col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
-						<span style="float:left;font-size:10pt;">
-							@wishloop.Name.TruncateAtWord(25)
-						</span>
-						<span style="float:right;">
-							<input class="wishloop_move" type="checkbox" name="@wishloop.Id" id="@wishloop.Id" value="@wishloop.Id" />
-						</span>
-					</div>
+	<a class="button pop full center" id="member_move" style="font-size:10pt;">move members</a>
+	<div class="col_12 center" id="member_move_container" style="display:none;">
+		<div class="col_12" style="overflow-y:auto; min-height: 100px; max-height: 150px;">
+			@foreach (Squid.Wishes.Wishloop wishloop in Squid.Wishes.Wishloop.GetUsersWishloops(UserId).OrderBy(x => x.Name))
+			{
+				if (wishloop.Id == Model.wishLoop.Id)
+				{
+					continue;
 				}
-			</div>
-			<a class="button pop center" id="member_move_do" style="padding:5px;font-size:10pt;">move</a>
+				
+				<div class="col_12" style="text-align: center; text-transform: lowercase; margin: 0; padding-top: 10px; height: 25px; color: #9A8B7D;">
+					<span style="float:left;font-size:10pt;">
+						@wishloop.Name.TruncateAtWord(25)
+					</span>
+					<span style="float:right;">
+						<input class="wishloop_move" type="checkbox" name="@wishloop.Id" id="@wishloop.Id" value="@wishloop.Id" />
+					</span>
+				</div>
+			}
 		</div>
-	}    
+		<a class="button pop center" id="member_move_do" style="padding:5px;font-size:10pt;">move</a>
+	</div>	   
 </div>

@@ -235,7 +235,7 @@
 @section info {
     <div class="col_12" style="text-align: left; height: 400px; overflow: auto;">
         <span>
-            <b>wishloops</b> are customizable circles of family & friends who you allow or disallow to view particular wishlus.  Wishloop members can opt to receive notifications whenever you add an item to a wishlu they have permission to see. All members in a wishloop can see whether other members have bought you an item in your wishlu, even though you can’t until the buyer elects to notify you. Click <b>create a new wishloop</b> to get started.
+            <b>wishloops</b> are customizable circles of family & friends who you allow or disallow to view particular wishlus. Wishloops offer a convenient way for a group of friends to see wishlus. Wishloop members can opt to receive notifications whenever you add an item to a wishlu they have permission to see. All members in a wishloop can see whether other members have bought you an item in your wishlu, even though you can’t until the buyer elects to notify you. Click <b>create a new wishloop</b> to get started.
         </span>
         <br />
         <br />
@@ -245,7 +245,7 @@
         <br />
         <br />
         <span>
-            Whenever people accept your invitation to join wishlu, they belong to your friends wishloop by default. You can shuffle wishloop members whenever you like to customize viewing privileges, and people may belong to more than one wishloop. People do not know to which wishloop they belong.
+            Whenever people accept your invitation to join wishlu, they belong to your friends list by default. You can shuffle wishloop members whenever you like to customize viewing privileges, and people may belong to more than one wishloop. People do not know to which wishloop they belong.
         </span>
         <br />
         <br />
@@ -340,15 +340,12 @@
 
         <div class="col_4 wishloop square pop" style="border-color: #@(wishLoopcolor);" id="tile@(wishloop.Id)" data-id="@wishloop.Id" data-name="@wishloop.Name" data-color="@wishLoopcolor" data-wishlus="@wishlus">
             <div class="col_12">
-                <h6 class="center" style="padding-top: 5px;">
+                <h4 class="center" style="padding-top: 5px;">
                     <span class="lowercase"><a class="name" href="/o/@wishloop.Id">@wishloop.Name.TruncateAtWord(20) (@members.Count())</a></span>
-                </h6>
+                </h4>
                 <div class="col_12 center">
                     <a class="wishloop_edit" href="#" style="color: gray;"><i class="fa fa-wrench"></i></a>
-                    @if (wishloop.WishloopType == Squid.Wishes.WishloopType.UserDefined)
-                    {
-                        <i class="fa fa-trash red wishloop_delete sitelink" style="margin-left: 10px; color: gray;"></i>
-                    }
+                    <i class="fa fa-trash red wishloop_delete sitelink" style="margin-left: 10px; color: gray;"></i>                    
                 </div>
                 @foreach (Squid.Users.User mem in members.Take(7))
                 {
@@ -367,7 +364,7 @@
 
                     <a href="/u/@mem.Id">
                         <div class="@(cols) nomargin">
-                            <div class="centerDiv circlefriend pop tooltip" data-delay="0" title="@(curMember)" style="width: 80px; height: 80px; background-image: url('@(mem.Image)'); @(memberCounter == 2 || memberCounter == 7 ? "margin-left: -25px;" : "")">
+                            <div class="centerDiv circlefriend pop tooltip-top" data-delay="0" title="@(curMember)" style="width: 80px; height: 80px; background-image: url('@(mem.Image)'); @(memberCounter == 2 || memberCounter == 7 ? "margin-left: -25px;" : "")">
                             </div>
                         </div>
                     </a>
