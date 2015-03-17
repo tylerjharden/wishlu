@@ -41,10 +41,11 @@ namespace Squid.Database
 
                 // create a definite reference to the HttpClient
                 HttpClientWrapper clienthttp = new HttpClientWrapper();
-                                
+                
                 // wishlu neo4j hosted at 10.0.0.30, neo4j database port is always 7474 in our design, pass in our HttpClient
                 client = new GraphClient(new Uri("http://10.0.0.30:7474/db/data"), clienthttp);
                 client.Connect();
+                client.JsonConverters.Add(new UserJsonConverter());
 
                 client.OperationCompleted += client_OperationCompleted;
                 
