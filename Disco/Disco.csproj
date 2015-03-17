@@ -287,6 +287,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\SaveController.cs" />
     <Compile Include="Controllers\PurchaseController.cs" />
     <Compile Include="Controllers\ContactController.cs" />
     <Compile Include="Controllers\SitemapController.cs" />
@@ -384,7 +385,6 @@
     <Content Include="Content\themes\base\tooltip.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
-    <Content Include="google464ea60f59914ca9.html" />
     <Content Include="Images\available-on-app-store.png" />
     <Content Include="Images\backgroundBottomCircle.png" />
     <Content Include="Images\backgroundTopCircle.png" />
@@ -438,6 +438,10 @@
     <Content Include="Scripts\firefox.js" />
     <Content Include="Scripts\chrome.js" />
     <Content Include="Scripts\freewall.js" />
+    <Content Include="oexchange.xrd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <BrowseToURL>~/oexchange.xrd</BrowseToURL>
+    </Content>
     <None Include="Properties\PublishProfiles\AWS Dev.pubxml" />
     <None Include="Properties\PublishProfiles\Cloud Dev.pubxml" />
     <None Include="Properties\PublishProfiles\Local Dev.pubxml" />
@@ -510,7 +514,6 @@
     <Content Include="Views\Purchase\Cart.cshtml" />
     <Content Include="Views\Purchase\Checkout.cshtml" />
     <Content Include="Views\Admin\StoreWizard.cshtml" />
-    <Content Include="Views\Dash\Index2.cshtml" />
     <Content Include="Views\Contact\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\Analytics\_GoogleAnalytics.cshtml" />
@@ -537,6 +540,16 @@
     <Content Include="Views\Gift\Index.cshtml" />
     <Content Include="Views\Gift\My.cshtml" />
     <Content Include="Views\Gift\Other.cshtml" />
+    <Content Include="Views\Tutorial\Bookmarklet.cshtml" />
+    <Content Include="Views\Get\ProductImages.cshtml" />
+    <Content Include="Views\Purchase\_BuyNow.cshtml" />
+    <Content Include="Views\Tutorial\Profile.cshtml" />
+    <Content Include="Views\Shared\Templates\_HeaderMobile.cshtml" />
+    <Content Include="Views\Get\Notifications.cshtml" />
+    <Content Include="Views\Get\Calendar.cshtml" />
+    <Content Include="Views\Get\Gifts.cshtml" />
+    <Content Include="Views\Shared\_HeaderScript.cshtml" />
+    <Content Include="Views\Shared\_FooterScript.cshtml" />
     <None Include="Web.config">
       <SubType>Designer</SubType>
     </None>
