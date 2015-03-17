@@ -10,8 +10,36 @@
                 if (opt.contentType !== false || opt.contentType) {
                     request.setRequestHeader("Content-Type", opt.contentType);
                 }
-                request.setRequestHeader("__RequestVerificationToken", securityToken);
+
+                if (~toAbsoluteURL(opt.url).indexOf('www.wishlu.com')) {
+                    request.setRequestHeader("__RequestVerificationToken", securityToken);
+                }
             }
         });
     });
+
+    function toAbsoluteURL(url) {
+        // Handle absolute URLs (with protocol-relative prefix)
+        // Example: //domain.com/file.png
+        if (url.search(/^\/\//) != -1) {
+            return window.location.protocol + url;
+        }
+
+        // Handle absolute URLs (with explicit origin)
+        // Example: http://domain.com/file.png
+        if (url.search(/:\/\//) != -1) {
+            return url;
+        }
+
+        // Handle absolute URLs (without explicit origin)
+        // Example: /file.png
+        if (url.search(/^\//) != -1) {
+            return window.location.origin + url;
+        }
+
+        // Handle relative URLs
+        // Example: file.png
+        var base = window.location.href.match(/(.*\/)/)[0]
+        return base + url;
+    };
 </script>
