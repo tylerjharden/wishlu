@@ -23,6 +23,12 @@ namespace Disco
            routes.IgnoreRoute("{file}.htm");
            routes.IgnoreRoute("{file}.html");
            routes.IgnoreRoute("{file}.xml");
+           routes.IgnoreRoute("{file}.xrd");
+
+           routes.IgnoreRoute(".well-known");
+           routes.IgnoreRoute(".well-known/host-meta");
+           routes.IgnoreRoute(".well-known");
+           routes.IgnoreRoute("host-meta");
 
            // Ignore axd files such as assets, images, sitemaps, etc.           
            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
@@ -74,62 +80,107 @@ namespace Disco
            // Shortcuts  //
            ////////////////
 
-           // Wish/Item           
+           // Wish/Item  
+           routes.MapRoute(
+               name: "ii",
+               url: "i",
+               defaults: new { controller = "Item", action = "Index" }
+            );
            routes.MapRoute(
                name: "i",
                url: "i/{id}",
                defaults: new { controller = "Item", action = "View", id = UrlParameter.Optional }
            );
-
-           // Gift           
+           
+           // Gift    
+           routes.MapRoute(
+               name: "gg",
+               url: "g",
+               defaults: new { controller = "Gift", action = "Index" }
+            );
            routes.MapRoute(
                name: "g",
                url: "g/{id}",
                defaults: new { controller = "Gift", action = "View", id = UrlParameter.Optional }
            );
-
-           // User/Profile           
+           
+           // User/Profile      
+           routes.MapRoute(
+               name: "uu",
+               url: "u",
+               defaults: new { controller = "User", action = "Index" }
+            );
            routes.MapRoute(
                name: "u",
                url: "u/{id}",
                defaults: new { controller = "User", action = "View", id = UrlParameter.Optional }
            );
-
+           routes.MapRoute(
+               name: "me",
+               url: "me",
+               defaults: new { controller = "User", action = "Index" }
+            );
+           
            // Wishlu
+           routes.MapRoute(
+               name: "ll",
+               url: "l",
+               defaults: new { controller = "WishLu", action = "Index" }
+            );
            routes.MapRoute(
                name: "l",
                url: "l/{id}",
                defaults: new { controller = "WishLu", action = "View", id = UrlParameter.Optional }
-           );
+           );           
 
            // Wishloop
+           routes.MapRoute(
+               name: "oo",
+               url: "o",
+               defaults: new { controller = "WishLoop", action = "Index" }
+            );
            routes.MapRoute(
                name: "o",
                url: "o/{id}",
                defaults: new { controller = "WishLoop", action = "View", id = UrlParameter.Optional }
            );
-
+           
            // Product
+           routes.MapRoute(
+               name: "pp",
+               url: "p",
+               defaults: new { controller = "Product", action = "Index" }
+            );
            routes.MapRoute(
                name: "p",
                url: "p/{id}",
                defaults: new { controller = "Product", action = "View", id = UrlParameter.Optional }
-           );
+           );           
 
            // Store/Shop
+           routes.MapRoute(
+               name: "ss",
+               url: "s",
+               defaults: new { controller = "Store", action = "Index" }
+            );
            routes.MapRoute(
                name: "s",
                url: "s/{id}",
                defaults: new { controller = "Store", action = "View", id = UrlParameter.Optional }
-           );
+           );          
 
            // Category
+           routes.MapRoute(
+               name: "cc",
+               url: "c",
+               defaults: new { controller = "Category", action = "Index" }
+           );
            routes.MapRoute(
                name: "c",
                url: "c/{id}",
                defaults: new { controller = "Category", action = "View", id = UrlParameter.Optional }
            );
-                      
+                                 
            ////////////////////
            // Standard Route //
            ////////////////////
