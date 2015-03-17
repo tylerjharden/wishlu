@@ -5,17 +5,17 @@ namespace Disco.Controllers
 {    
     public class DashController : BaseController
     {
-        [Authorize]
+        [AllowAnonymous]
         public ActionResult Index()
         {
-            if (GetCurrentUser().DateOfBirth.Month.IsEven())
-            {
+            //if (GetCurrentUser().DateOfBirth.Month.IsEven())
+            //{
                 return View("Index");
-            }
-            else
-            {
-                return View("Index2");
-            }            
+            //}
+            //else
+            //{
+            //    return View("Index2");
+            //}            
         }
     }    
 }
