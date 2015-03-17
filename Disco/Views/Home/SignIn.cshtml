@@ -6,7 +6,7 @@
     string clientId = "296645670486904";
     string redirectUrl = "https://www.wishlu.com/facebook/signin";
     string scope = "read_friendlists,email,offline_access";
-    TempData["ReturnUrl"] = ViewBag.ReturnUrl;
+    TempData["ReturnUrl"] = ViewBag.ReturnUrl;    
 }
 
 @section meta {
@@ -34,49 +34,7 @@
 }
 
 @section styles {
-<style>
-#SignInPopup
-{    
-    position: fixed;
-    z-index: 200;    
-    height: auto; /* 400px */
-    width: 300px; /* 400px */    
-    padding: 10px;
-    display: none;
-    margin: 0 auto;    
-    color: #918b7d;
-    font-family: Lato, Helvetica, Arial, Sans-Serif;
-    background: #FFFFFF;    
-    border: 5px solid #D3EEF2;
-    border-radius: 15px;    
-}
 
-input[type="checkbox"] {
-    display: none;
-}
-
-input[type="checkbox"] + label {
-    color: #a8a096;
-    border-radius: 8px;
-    cursor: pointer;
-    vertical-align: top;
-}
-
-input[type="checkbox"] + label span.fa-circle {
-    display: none;
-}
-
-input[type="checkbox"] + label span.fa-circle-o {
-    display: inline;
-}
-
-input[type="checkbox"]:checked + label span.fa-circle {
-    display: inline;
-}
-
-input[type="checkbox"]:checked + label span.fa-circle-o {
-    display: none;
-}
 </style>
 }
 
@@ -142,14 +100,16 @@ input[type="checkbox"]:checked + label span.fa-circle-o {
     });
 
     $(document).ready(function () {
-        $("#signin").click(function () {
+        $("#SignIn").submit(function (e) {
+            e.preventDefault();
+
             if ($("#EMail").val() == "")
-            {
+            {                
                 swal("Oops...", "Please enter your e-mail address or username to login.", "warning");
                 return;
             }
 
-            if ($("#Password").val() == "") {
+            if ($("#Password").val() == "") {               
                 swal("Oops...", "Please enter your password to login.", "warning");
                 return;
             }
@@ -166,47 +126,39 @@ input[type="checkbox"]:checked + label span.fa-circle-o {
                         window.location.href = data.destination;
                     }
                     else {
-                        swal("Uh oh...", data.message, "error");
+                        swal("Uh oh...", data.message, "error");                        
                     }
                 },
                 error: function (data, status, request) { swal("Uh oh...", data.message, "error"); }
             });
         });
-
-        $(document).keyup(function (e) {
-            if (e.keyCode == 13) {
-                $("#signin").click();
-            }
-        });
-
+        
         function getLogin() {
             var data = {}
             data.LoginId = $("#EMail").val();
             data.Password = $("#Password").val();
             data.ReturnUrl = $("#returnurl").val();
-            data.RememberMe = $("remembermeCheckbox").prop("checked");
-
+            
             return data;
         }
     });
 </script>
 }
 
-<div class="pop inset" id="SignInPopup">   
-    <form id="SignIn" method="post" action="/home/formsignin" novalidate="novalidate">
-        <input type="hidden" id="returnurl" value="@(ViewBag.ReturnUrl)" />        
-        <div class="col_12 center nomargin">
-            <img src="//assets.wishlu.com/images/wbeta.jpg" alt="Sign in to wishlu" style="width:100%;">
-        </div>            
-        <div class="col_12" style="float: none; margin: 0 auto;">
-            <div class="col_12 nomargin">
-                <div class="col_12">
-                    <a class="button pop full" href="@(string.Format("https://graph.facebook.com/oauth/authorize?client_id={0}&redirect_uri={1}&scope={2}", clientId, redirectUrl, scope))">
-                        <span class="fa fa-facebook-square" style="color: #3B5998;"></span>
-                        <span>sign in with facebook</span>
-                    </a>
-                </div>
-                @*<div class="col_12">
+<form class="form-horizontal col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4" id="SignIn" name="SignIn" method="post" action="" role="form" novalidate>
+    <input type="hidden" id="returnurl" value="@(ViewBag.ReturnUrl)" />
+    <div class="row text-center">
+        <a href="/">
+            <img src="//assets.wishlu.com/images/headerLogo.png" alt="Sign in to wishlu">
+        </a>
+    </div>
+    <div class="form-group">
+        <div class=" col-xs-12">
+            <a class="button pop center full" href="@(string.Format("https://graph.facebook.com/oauth/authorize?client_id={0}&redirect_uri={1}&scope={2}", clientId, redirectUrl, scope))">
+                <span class="fa fa-facebook-square" style="color: #3B5998;"></span>
+                <span>sign in with facebook</span>
+            </a>
+            @*<div class="col_12">
                     <a class="button pop full" href="@Url.Action("authenticate", "twitter")">
                         <span class="fa fa-twitter-square" style="color: #4099FF;"></span>
                         <span>sign in with twitter</span>
@@ -218,41 +170,30 @@ input[type="checkbox"]:checked + label span.fa-circle-o {
                         <span>sign in with google+</span>
                     </a>
                 </div>*@
-            </div>
-            <hr style="margin-top: 2px; margin-bottom: 2px;" />
-            <span class="col_12">
-                @if ((bool)ViewBag.RememberMe)
-                {
-                    <input class="full small-input" id="EMail" name="EMail" placeholder="e-mail / username" value="@ViewBag.LastUserLogin" type="text" required />
-                }
-                else
-                {
-                    <input class="full small-input" id="EMail" name="EMail" placeholder="e-mail / username" type="text" required />
-                }
-            </span>
-            <span class="col_12 nomargin">
-                <input class="full small-input" id="Password" name="Password" placeholder="password" type="password" required />
-            </span>
-            <span class="col_6">
-                <input type="checkbox" class="checkbox" id="rememberCheckbox" name="rememberCheckbox" value="@((bool)ViewBag.RememberMe)" @((bool)ViewBag.RememberMe ? "checked" : "") />
-                <label for="rememberCheckbox">
-                    <span class="fa fa-circle"></span>
-                    <span class="fa fa-circle-o"></span>
-                    remember me
-                </label>
-            </span>
-            <span class="col_6 right">
-                @Html.ActionLink("forgot password?", "forgot", "password")
-            </span>
-            <span class="col_12 right" style="position:relative;">
-                <a class="button pop left" href="/join" style="margin-top:10px;padding: 5px; font-size: 10pt;">
-                    join.
-                </a>
-                <a id="signin" class="button pop" style="font-size:1.2em;">
-                    sign in
-                </a>
-                @*<input type="submit" class="button pop" style="font-size: 1.2em;" value="sign in" />*@
-            </span>
+        </div>
+    </div>
+    <hr />
+    <div class="form-group">
+        <div class="col-xs-12">
+            <input class="form-control" id="EMail" name="EMail" placeholder="e-mail / username" type="email" required />            
         </div>        
-    </form>
-</div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-12">
+            <input class="form-control" id="Password" name="Password" placeholder="password" type="password" required />
+        </div>
+    </div>
+    <div class="form-group">        
+        <div class="col-xs-6">
+            <ul class="list-unstyled">
+                <li>@Html.ActionLink("forgot password?", "forgot", "password")</li>
+                <li>@Html.ActionLink("join now.", "index", "join")</li>
+            </ul>            
+        </div>
+        <div class="col-xs-6">
+            <button class="btn btn-primary btn-block" id="signin" type="submit">
+                sign in
+            </button>
+        </div>
+    </div>    
+</form>
