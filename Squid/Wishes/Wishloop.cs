@@ -10,20 +10,11 @@ using System.Diagnostics;
 using System.Linq;
 
 namespace Squid.Wishes
-{
-    public enum WishloopType
-    {
-        // single, system-generated wishloop that always contains all of the user's friends
-        AllFriends = 1,
-        // the user created this wishloop
-        UserDefined = 2
-    }
-
+{    
     public class MappedWishloop
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public WishloopType WishloopType { get; set; }
         public Guid UserId { get; set; }
         public int DisplayColor { get; set; }
         public List<User> Members { get; set; }
@@ -37,9 +28,6 @@ namespace Squid.Wishes
 
         [JsonProperty("Description")]
         public String Description { get; set; }
-
-        [JsonProperty("WishloopType")]
-        public WishloopType WishloopType { get; set; }
 
         [JsonProperty("UserId")]
         public Guid UserId { get; set; }
@@ -62,24 +50,11 @@ namespace Squid.Wishes
             Hidden = false;
         }
 
-        [JsonIgnore]
-        public String WishloopTypeString
-        {
-            get
-            {
-                return WishloopType.ToString();
-            }
-            set
-            {
-                WishloopType = (WishloopType)Enum.Parse(typeof(WishloopType), value);
-            }
-        }
-
         public bool IsDeletable
         {
             get
             {
-                return WishloopType == WishloopType.UserDefined;
+                return true;
             }
         }
 
@@ -87,7 +62,7 @@ namespace Squid.Wishes
         {
             get
             {
-                return WishloopType == WishloopType.UserDefined;
+                return true;
             }
         }
 
@@ -96,7 +71,6 @@ namespace Squid.Wishes
             validationErrors.ValidateMaxLength("Name", Name, 50);
             validationErrors.ValidateMaxLength("Description", Description, 1000);
             validationErrors.ValidateNotNull("UserId", UserId);
-            validationErrors.ValidateEnum("WishloopType", WishloopType);
         }
 
         public override void Create()
@@ -112,7 +86,7 @@ namespace Squid.Wishes
             base.Create();
         }
 
-        public static Wishloop CreateAllFriendsWishloop(Guid userId)
+        /*public static Wishloop CreateAllFriendsWishloop(Guid userId)
         {
             Wishloop wishLoop = new Wishloop();
 
@@ -125,7 +99,7 @@ namespace Squid.Wishes
             wishLoop.Create();
 
             return wishLoop;
-        }
+        }*/
 
         public static List<Wishloop> GetUsersWishloops(Guid userId)
         {
@@ -136,7 +110,7 @@ namespace Squid.Wishes
                   .WithParam("id", userId)
                   .Where("(loop.Hidden = false OR loop.Hidden IS NULL)")                  
                   .Return(loop => loop.As<Wishloop>())
-                  .OrderBy("loop.WishloopType,loop.Name")
+                  .OrderBy("loop.Name")
                   .Results.ToList();
             }
             catch
@@ -158,8 +132,8 @@ namespace Squid.Wishes
                   .With("DISTINCT loop,user")
                   .OptionalMatch("(lu:Wishlu)-[:HAS_SUBSCRIBER]-(loop)")
                   .With("DISTINCT loop,user,lu")
-                  .Return(() => Return.As<MappedWishloop>("{Id: loop.Id, Name: loop.Name, WishloopType: loop.WishloopType, UserId: loop.UserId, DisplayColor: loop.DisplayColor, Members: collect(DISTINCT user), Wishlus: collect(DISTINCT lu)}"))
-                  .OrderBy("loop.WishloopType,loop.Name")
+                  .Return(() => Return.As<MappedWishloop>("{Id: loop.Id, Name: loop.Name, UserId: loop.UserId, DisplayColor: loop.DisplayColor, Members: collect(DISTINCT user), Wishlus: collect(DISTINCT lu)}"))
+                  .OrderBy("loop.Name")
                   .Results.ToList();
             }
             catch
@@ -250,7 +224,7 @@ namespace Squid.Wishes
             throw new ItemNotFoundException(message);
         }
 
-        public static Wishloop GetAllFriendsWishloopByUserId(Guid userId)
+        /*public static Wishloop GetAllFriendsWishloopByUserId(Guid userId)
         {
             try
             {
@@ -265,7 +239,7 @@ namespace Squid.Wishes
             {
                 return null;
             }
-        }
+        }*/
 
         public static void AddMember(Guid userId, Guid wishloopId)
         {
@@ -307,8 +281,8 @@ namespace Squid.Wishes
 
         public static void RemoveMember(Guid userId, Guid wishloopId)
         {
-            if (Wishloop.GetWishloopById(wishloopId).WishloopType == WishloopType.AllFriends)
-                return;
+            //if (Wishloop.GetWishloopById(wishloopId).WishloopType == WishloopType.AllFriends)
+            //    return;
 
             WishloopMember.DeleteByWishloopIdAndUserId(wishloopId, userId);
         }
@@ -374,6 +348,19 @@ namespace Squid.Wishes
             catch { return new List<User>(); }
         }
 
+        public static List<Guid> GetMemberIds(Guid wishloopId)
+        {
+            try
+            {
+                return Graph.Instance.Cypher
+                    .Match("(loop:Wishloop)-[r:HAS_MEMBER]-(user:User)")
+                    .Where((Wishloop loop) => loop.Id == wishloopId)
+                    .ReturnDistinct((user) => Return.As<Guid>("user.Id"))
+                    .Results.ToList();
+            }
+            catch { return new List<Guid>(); }
+        }
+
         public static bool HasMember(Guid wishloopId, Guid userId)
         {
             try
@@ -405,6 +392,11 @@ namespace Squid.Wishes
         public List<User> GetMembers()
         {
             return GetMembers(Id);
+        }
+
+        public List<Guid> GetMemberIds()
+        {
+            return GetMemberIds(Id);
         }
 
         public bool UnsubscribeFromAll()
